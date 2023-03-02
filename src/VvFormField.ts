@@ -4,6 +4,7 @@ import {
 	type InjectionKey,
 	type PropType,
 	type Ref,
+	type ConcreteComponent,
 	computed,
 	defineAsyncComponent,
 	h,
@@ -225,23 +226,38 @@ export const defineFormField = (
 					}
 				}
 				if (!options.lazyLoad) {
+					let component: string | ConcreteComponent
 					switch (props.type) {
 						case FormFieldType.select:
-							return resolveComponent('VvSelect')
+							component = resolveComponent('VvSelect')
+							break
 						case FormFieldType.checkbox:
-							return resolveComponent('VvCheckbox')
+							component = resolveComponent('VvCheckbox')
+							break
 						case FormFieldType.radio:
-							return resolveComponent('VvRadio')
+							component = resolveComponent('VvRadio')
+							break
 						case FormFieldType.textarea:
-							return resolveComponent('VvTextarea')
+							component = resolveComponent('VvTextarea')
+							break
 						case FormFieldType.radioGroup:
-							return resolveComponent('VvRadioGroup')
+							component = resolveComponent('VvRadioGroup')
+							break
 						case FormFieldType.checkboxGroup:
-							return resolveComponent('VvCheckboxGroup')
+							component = resolveComponent('VvCheckboxGroup')
+							break
 						case FormFieldType.combobox:
-							return resolveComponent('VvCombobox')
+							component = resolveComponent('VvCombobox')
+							break
 						default:
-							return resolveComponent('VvInputText')
+							component = resolveComponent('VvInputText')
+					}
+					if (typeof component !== 'string') {
+						return component
+					} else {
+						console.warn(
+							`[form-vue warn]: ${component} not found, the component will be loaded asynchronously. To avoid this warning, please set "lazyLoad" option.`,
+						)
 					}
 				}
 				return defineAsyncComponent(async () => {

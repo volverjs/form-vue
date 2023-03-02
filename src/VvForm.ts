@@ -1,60 +1,73 @@
 import {
-	type PropType,
-	type Ref,
 	type InjectionKey,
 	withModifiers,
 	defineComponent,
 	ref,
 	provide,
 	readonly,
-	computed,
 	watch,
 	h,
-	type DefineComponent,
+	toRaw,
+	isProxy,
 } from 'vue'
-import type { ZodSchema } from 'zod'
+import { watchThrottled } from '@vueuse/core'
+
+import type { AnyZodObject } from 'zod'
 import type { InjectedFormData } from './types'
+import { defaultObjectBySchema } from './utils'
 
 export enum FormStatus {
 	invalid = 'invalid',
 	valid = 'valid',
 }
 
-export const buildFormComponent = <FormDataType>(
-	schema: ZodSchema<FormDataType>,
-	provideKey: InjectionKey<InjectedFormData<FormDataType>>,
-): DefineComponent<
-	{
-		modelValue: {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			type: any
-			default: () => undefined
-		}
+export const defineForm = (
+	schema: AnyZodObject,
+	provideKey: InjectionKey<InjectedFormData>,
+	options?: {
+		updateThrottle?: number
 	},
-	{
-		submit: () => boolean
-	}
-> => {
+) => {
 	return defineComponent({
 		name: 'FormComponent',
 		props: {
 			modelValue: {
-				type: Object as PropType<Partial<FormDataType>>,
-				default: () => undefined,
+				type: Object,
+				default: () => ({}),
 			},
 		},
 		emits: ['invalid', 'valid', 'submit', 'update:modelValue'],
 		expose: ['submit', 'errors', 'status'],
 		setup(props, { emit }) {
+			const localModelValue = ref(
+				defaultObjectBySchema(schema, props.modelValue),
+			)
+			watch(
+				() => props.modelValue,
+				(newValue) => {
+					if (newValue) {
+						const original = isProxy(newValue)
+							? toRaw(newValue)
+							: newValue
+						localModelValue.value =
+							typeof original?.clone === 'function'
+								? original.clone()
+								: structuredClone(original)
+					}
+				},
+				{ deep: true },
+			)
 			// v-model
-			const localModelValue = computed({
-				get() {
-					return props.modelValue
+			watchThrottled(
+				localModelValue,
+				(newValue) => {
+					if (errors.value) {
+						parseModelValue()
+					}
+					emit('update:modelValue', newValue)
 				},
-				set(value) {
-					emit('update:modelValue', value)
-				},
-			}) as Ref<Partial<FormDataType>>
+				{ deep: true, throttle: options?.updateThrottle ?? 500 },
+			)
 
 			// validation
 			const errors = ref()
@@ -73,15 +86,6 @@ export const buildFormComponent = <FormDataType>(
 				emit('valid', parseResult.data)
 				return true
 			}
-			watch(
-				localModelValue,
-				() => {
-					if (errors.value) {
-						parseModelValue()
-					}
-				},
-				{ deep: true },
-			)
 
 			// submit
 			const submit = () => {
@@ -99,7 +103,7 @@ export const buildFormComponent = <FormDataType>(
 				errors: readonly(errors),
 			})
 
-			return { submit, localModelValue, errors, status }
+			return { submit }
 		},
 		render() {
 			return h(

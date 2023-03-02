@@ -20,12 +20,15 @@ export default () => {
 				external: [
 					'vue',
 					'zod',
-					new RegExp(`^@volverjs/style(?:/.+)?$`),
-					new RegExp(`^@volverjs/ui-vue(?:/.+)?$`),
+					'@vueuse/core',
+					new RegExp(`^@volverjs(?:/.+)?$`),
 				],
 				output: {
+					exports: 'named',
 					globals: {
 						vue: 'Vue',
+						zod: 'zod',
+						'@vueuse/core': 'VueUseCore',
 					},
 				},
 			},

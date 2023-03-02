@@ -20,16 +20,15 @@ import {
 import { FormFieldType } from './enums'
 import type {
 	InjectedFormData,
-	InjectedWrapperData,
-	InjectedFieldData,
-	PathsOf,
+	InjectedFormWrapperData,
+	InjectedFormFieldData,
 	FormComposableOptions,
 } from './types'
 
-export const buildFieldComponent = <FormDataType>(
-	formProvideKey: InjectionKey<InjectedFormData<FormDataType>>,
-	wrapperProvideKey: InjectionKey<InjectedWrapperData>,
-	fieldInjectionKey: InjectionKey<InjectedFieldData>,
+export const defineFormField = (
+	formProvideKey: InjectionKey<InjectedFormData>,
+	wrapperProvideKey: InjectionKey<InjectedFormWrapperData>,
+	formFieldInjectionKey: InjectionKey<InjectedFormFieldData>,
 	options: FormComposableOptions = {},
 ): Component => {
 	// get options from global properties
@@ -57,16 +56,14 @@ export const buildFieldComponent = <FormDataType>(
 				default: undefined,
 			},
 			name: {
-				type: [String, Number, Boolean] as PropType<
-					PathsOf<FormDataType, true>
-				>,
+				type: [String, Number, Boolean, Symbol],
 				required: true,
 			},
 			props: {
 				type: [Object, Function] as PropType<
 					| Record<string, unknown>
 					| ((
-							formData?: Ref<FormDataType>,
+							formData?: Ref<ObjectConstructor>,
 					  ) => Record<string, unknown>)
 				>,
 				default: () => ({}),
@@ -204,7 +201,7 @@ export const buildFieldComponent = <FormDataType>(
 				'onUpdate:modelValue': onUpdate,
 			}))
 
-			provide(fieldInjectionKey, {
+			provide(formFieldInjectionKey, {
 				name: readonly(fieldName as Ref<string>),
 				errors: readonly(errors),
 			})

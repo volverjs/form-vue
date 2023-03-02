@@ -11,11 +11,11 @@ import {
 	watch,
 	h,
 } from 'vue'
-import type { InjectedFormData, InjectedWrapperData } from './types'
+import type { InjectedFormData, InjectedFormWrapperData } from './types'
 
-export const buildWrapperComponent = <FormDataType>(
-	formProvideKey: InjectionKey<InjectedFormData<FormDataType>>,
-	wrapperProvideKey: InjectionKey<InjectedWrapperData>,
+export const defineFormWrapper = (
+	formProvideKey: InjectionKey<InjectedFormData>,
+	wrapperProvideKey: InjectionKey<InjectedFormWrapperData>,
 ) => {
 	return defineComponent({
 		name: 'WrapperComponent',

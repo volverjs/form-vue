@@ -41,6 +41,8 @@
     "dependencies": {
         "@volverjs/style": "^0.x",
         "@volverjs/ui-vue": "^0.x",
+        "@vueuse/core": "^9.13.0",
+        "deepmerge": "^4.3.0",
         "ts-dot-prop": "^2.1.2",
         "vue": "^3.x",
         "zod": "^3.x"

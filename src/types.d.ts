@@ -4,6 +4,7 @@ import type { FormFieldType } from './enums'
 
 export type FormComposableOptions = {
 	lazyLoad?: boolean
+	updateThrottle?: number
 	sideEffects?: (type: `${FormFieldType}`) => Promise | void
 }
 
@@ -11,40 +12,19 @@ export type FormPluginOptions = {
 	schema?: ZodSchema
 } & FormComposableOptions
 
-export type InjectedFormData<Type> = {
+export type InjectedFormData<Type = Recrod<string | number, unknown>> = {
 	modelValue: Ref<Type>
 	errors: Ref<ZodFormattedError<Type>>
 	submit: () => boolean
 }
 
-export type InjectedWrapperData = {
+export type InjectedFormWrapperData = {
 	name: Ref<string>
 	fields: Ref<Set<string>>
 	errors: Ref<Map<string, Record<string, { _errors: string[] }>>>
 }
 
-export type InjectedFieldData = {
+export type InjectedFormFieldData = {
 	name: Ref<string>
 	errors: Ref<Map<string, Record<string, { _errors: string[] }>>>
 }
-
-type CombineAll<T> = T extends { [name in keyof T]: infer Type } ? Type : never
-
-type PropertyNameMap<T, IncludeIntermediate extends boolean> = {
-	[name in keyof T]: T[name] extends object
-		?
-				| SubPathsOf<name, T, IncludeIntermediate>
-				| (IncludeIntermediate extends true ? name : never)
-		: name
-}
-
-type SubPathsOf<
-	key extends keyof T,
-	T,
-	IncludeIntermediate extends boolean,
-> = `${string & key}.${string & PathsOf<T[key], IncludeIntermediate>}`
-
-export type PathsOf<
-	T,
-	IncludeIntermediate extends boolean = false,
-> = CombineAll<PropertyNameMap<T, IncludeIntermediate>>

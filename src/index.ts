@@ -1,12 +1,12 @@
 import type { App, InjectionKey } from 'vue'
-import type { ZodSchema } from 'zod'
-import { buildFieldComponent } from './FieldComponent'
-import { buildFormComponent } from './FormComponent'
-import { buildWrapperComponent } from './WrapperComponent'
+import type { AnyZodObject } from 'zod'
+import { defineFormField } from './VvFormField'
+import { defineForm } from './VvForm'
+import { defineFormWrapper } from './VvFormWrapper'
 import type {
 	InjectedFormData,
-	InjectedWrapperData,
-	InjectedFieldData,
+	InjectedFormWrapperData,
+	InjectedFormFieldData,
 	FormComposableOptions,
 	FormPluginOptions,
 } from './types'
@@ -26,28 +26,28 @@ export default {
 	},
 }
 
-export const useForm = <SchemaFormData = unknown>(
-	schema: ZodSchema,
+export const useForm = (
+	schema: AnyZodObject,
 	options: FormComposableOptions = {},
 ) => {
-	// create provide / inject symbols
-	const formInjectionKey = Symbol() as InjectionKey<
-		InjectedFormData<SchemaFormData>
-	>
-	const wrapperInjectionKey = Symbol() as InjectionKey<InjectedWrapperData>
+	// create injection keys form provide/inject
+	const formInjectionKey = Symbol() as InjectionKey<InjectedFormData>
+	const formWrapperInjectionKey =
+		Symbol() as InjectionKey<InjectedFormWrapperData>
 
-	const fieldInjectionKey = Symbol() as InjectionKey<InjectedFieldData>
+	const formFieldInjectionKey =
+		Symbol() as InjectionKey<InjectedFormFieldData>
 
 	// create components
-	const VvForm = buildFormComponent<SchemaFormData>(schema, formInjectionKey)
-	const VvFormWrapper = buildWrapperComponent(
+	const VvForm = defineForm(schema, formInjectionKey, options)
+	const VvFormWrapper = defineFormWrapper(
 		formInjectionKey,
-		wrapperInjectionKey,
+		formWrapperInjectionKey,
 	)
-	const VvFormField = buildFieldComponent(
+	const VvFormField = defineFormField(
 		formInjectionKey,
-		wrapperInjectionKey,
-		fieldInjectionKey,
+		formWrapperInjectionKey,
+		formFieldInjectionKey,
 		options,
 	)
 
@@ -56,17 +56,18 @@ export const useForm = <SchemaFormData = unknown>(
 		VvFormWrapper,
 		VvFormField,
 		formInjectionKey,
-		wrapperInjectionKey,
-		fieldInjectionKey,
+		formWrapperInjectionKey,
+		formFieldInjectionKey,
 	}
 }
 
 export { FormFieldType } from './enums'
+export { defaultObjectBySchema } from './utils'
 
 export type {
 	InjectedFormData,
-	InjectedWrapperData,
-	InjectedFieldData,
+	InjectedFormWrapperData,
+	InjectedFormFieldData,
 	FormComposableOptions,
 	FormPluginOptions,
 }

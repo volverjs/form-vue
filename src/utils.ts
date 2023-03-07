@@ -4,7 +4,7 @@ import { type z, type AnyZodObject, ZodDefault, ZodObject } from 'zod'
 export const defaultObjectBySchema = <Schema extends AnyZodObject>(
 	schema: Schema,
 	original: Partial<z.infer<Schema>> = {},
-): Record<string | number, unknown> => {
+): Partial<z.infer<Schema>> => {
 	return merge(
 		Object.fromEntries(
 			Object.entries(schema.shape).map(([key, value]) => {

@@ -26,6 +26,7 @@ specifiers:
   vite-plugin-externalize-deps: ^0.5.0
   vitest: ^0.29.2
   vue: ^3.x
+  vue-deepunref: ^1.0.1
   vue-tsc: ^1.2.0
   zod: ^3.x
 
@@ -36,6 +37,7 @@ dependencies:
   deepmerge: 4.3.0
   ts-dot-prop: 2.1.2
   vue: 3.2.47
+  vue-deepunref: 1.0.1
   zod: 3.20.6
 
 devDependencies:
@@ -3058,6 +3060,12 @@ packages:
       - supports-color
       - terser
     dev: true
+
+  /vue-deepunref/1.0.1:
+    resolution: {integrity: sha512-cZNaEBvG1O0RtdcxLf1icqOe6UhrAPzsByyhJ85nRSA/PnGh0VKoI9+T8S5mcoI3pgz0T6ci2PCn2zy4PATRjg==}
+    dependencies:
+      vue: 3.2.47
+    dev: false
 
   /vue-demi/0.13.11_vue@3.2.47:
     resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}

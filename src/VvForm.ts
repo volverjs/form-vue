@@ -42,27 +42,45 @@ export const defineForm = (
 			const localModelValue = ref(
 				defaultObjectBySchema(schema, props.modelValue),
 			)
+			// Flag to update and emit modelValue
+			const isEmitDisabled = ref(false)
+
+			// watch prop modelValue to update localModelValue
 			watch(
 				() => props.modelValue,
 				(newValue) => {
 					if (newValue) {
+						// remove proxy if exist
 						const original = isProxy(newValue)
 							? toRaw(newValue)
 							: newValue
+
+						// update localModelValue and set isEmitDisabled to "true" to avoid other emit watching props.modelValue
+						isEmitDisabled.value = true
 						localModelValue.value =
 							typeof original?.clone === 'function'
 								? original.clone()
-								: structuredClone(original)
+								: JSON.parse(JSON.stringify(original))
 					}
 				},
 				{ deep: true },
 			)
-			// v-model
+
+			// watch localModelValue to emit "update:modelValue"
 			watchThrottled(
 				localModelValue,
 				(newValue) => {
+					// check errors
 					if (errors.value) {
-						parseModelValue()
+						parseModelValue(
+							localModelValue.value,
+							isEmitDisabled.value,
+						)
+					}
+					// emit 'update:modelValue' only if props.modelValue not triggered
+					if (isEmitDisabled.value) {
+						isEmitDisabled.value = false
+						return
 					}
 					emit('update:modelValue', newValue)
 				},
@@ -72,7 +90,10 @@ export const defineForm = (
 			// validation
 			const errors = ref()
 			const status = ref()
-			const parseModelValue = (value = localModelValue.value) => {
+			const parseModelValue = (
+				value = localModelValue.value,
+				emitParseResult = true,
+			) => {
 				const parseResult = schema.safeParse(value)
 				if (!parseResult.success) {
 					errors.value = parseResult.error.format()
@@ -82,7 +103,9 @@ export const defineForm = (
 				}
 				errors.value = undefined
 				status.value = FormStatus.valid
-				localModelValue.value = parseResult.data
+				if (emitParseResult) {
+					localModelValue.value = parseResult.data
+				}
 				emit('valid', parseResult.data)
 				return true
 			}

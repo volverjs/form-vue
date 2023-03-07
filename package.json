@@ -39,25 +39,24 @@
         "*.d.ts"
     ],
     "dependencies": {
-        "@volverjs/style": "^0.x",
-        "@volverjs/ui-vue": "^0.x",
+        "@volverjs/ui-vue": "0.0.5-beta.1",
         "@vueuse/core": "^9.13.0",
         "deepmerge": "^4.3.0",
         "ts-dot-prop": "^2.1.2",
-        "vue": "^3.x",
-        "zod": "^3.x"
+        "vue": "^3.2.47",
+        "zod": "^3.21.4"
     },
     "devDependencies": {
         "@testing-library/vue": "^6.6.1",
-        "@typescript-eslint/eslint-plugin": "^5.54.0",
-        "@typescript-eslint/parser": "^5.54.0",
+        "@typescript-eslint/eslint-plugin": "^5.54.1",
+        "@typescript-eslint/parser": "^5.54.1",
         "@vitejs/plugin-vue": "^4.0.0",
         "@vue/compiler-sfc": "^3.2.47",
         "@vue/runtime-core": "^3.2.47",
         "@vue/test-utils": "^2.3.0",
         "copy": "^0.3.2",
         "eslint": "^8.35.0",
-        "eslint-config-prettier": "^8.6.0",
+        "eslint-config-prettier": "^8.7.0",
         "eslint-plugin-prettier": "^4.2.1",
         "happy-dom": "^8.9.0",
         "prettier": "^2.8.4",

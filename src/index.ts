@@ -1,4 +1,4 @@
-import type { App, InjectionKey } from 'vue'
+import { type App, inject, type InjectionKey, type Plugin } from 'vue'
 import type { AnyZodObject } from 'zod'
 import { defineFormField } from './VvFormField'
 import { defineForm } from './VvForm'
@@ -11,22 +11,7 @@ import type {
 	FormPluginOptions,
 } from './types'
 
-export default {
-	install(app: App, options: FormPluginOptions = {}) {
-		app.config.globalProperties.$vvForm = options
-		if (options.schema) {
-			const { VvForm, VvFormWrapper, VvFormField } = useForm(
-				options.schema,
-				options,
-			)
-			app.component('VvForm', VvForm)
-			app.component('VvFormWrapper', VvFormWrapper)
-			app.component('VvFormField', VvFormField)
-		}
-	},
-}
-
-export const useForm = (
+export const formFactory = (
 	schema: AnyZodObject,
 	options: FormComposableOptions = {},
 ) => {
@@ -59,6 +44,45 @@ export const useForm = (
 		formWrapperInjectionKey,
 		formFieldInjectionKey,
 	}
+}
+
+export const pluginInjectionKey = Symbol() as InjectionKey<FormPluginOptions>
+
+export const createForm = (
+	options: FormPluginOptions,
+): Plugin & Partial<ReturnType<typeof useForm>> => {
+	let toReturn: Partial<ReturnType<typeof useForm>> = {}
+	if (options.schema) {
+		toReturn = formFactory(options.schema, options)
+	}
+	return {
+		...toReturn,
+		install(app: App, { global = false } = {}) {
+			app.provide(pluginInjectionKey, options)
+
+			if (global) {
+				app.config.globalProperties.$vvForm = options
+
+				if (toReturn?.VvForm) {
+					app.component('VvForm', toReturn.VvForm)
+				}
+				if (toReturn?.VvFormWrapper) {
+					app.component('VvFormWrapper', toReturn.VvFormWrapper)
+				}
+				if (toReturn?.VvFormField) {
+					app.component('VvFormField', toReturn.VvFormField)
+				}
+			}
+		},
+	}
+}
+
+export const useForm = (
+	schema: AnyZodObject,
+	options: FormComposableOptions = {},
+) => {
+	const hasOptions = { ...inject(pluginInjectionKey, {}), ...options }
+	return formFactory(schema, hasOptions)
 }
 
 export { FormFieldType } from './enums'

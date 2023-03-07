@@ -52,7 +52,7 @@ export const defineForm = (
 						localModelValue.value =
 							typeof original?.clone === 'function'
 								? original.clone()
-								: structuredClone(original)
+								: JSON.parse(JSON.stringify(original))
 					}
 				},
 				{ deep: true },
@@ -64,7 +64,14 @@ export const defineForm = (
 					if (errors.value) {
 						parseModelValue()
 					}
-					emit('update:modelValue', newValue)
+					if (
+						!newValue ||
+						!props.modelValue ||
+						JSON.stringify(newValue) !==
+							JSON.stringify(props.modelValue)
+					) {
+						emit('update:modelValue', newValue)
+					}
 				},
 				{ deep: true, throttle: options?.updateThrottle ?? 500 },
 			)

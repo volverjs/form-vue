@@ -1,9 +1,9 @@
-import { buildComponents } from '../dist/index.es.js'
+import { useForm } from '../dist/index.es.js'
 import { z } from 'zod'
 import { it, expect } from 'vitest'
 
 it('mount component', async () => {
-	const { VvForm, VvFormField, VvFormWrapper } = buildComponents(
+	const { VvForm, VvFormField, VvFormWrapper } = useForm(
 		z.object({
 			name: z.string(),
 			surname: z.string(),

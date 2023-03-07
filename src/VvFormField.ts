@@ -16,7 +16,6 @@ import {
 	toRefs,
 	watch,
 	defineComponent,
-	getCurrentInstance,
 } from 'vue'
 import { FormFieldType } from './enums'
 import type {
@@ -32,15 +31,6 @@ export const defineFormField = (
 	formFieldInjectionKey: InjectionKey<InjectedFormFieldData>,
 	options: FormComposableOptions = {},
 ): Component => {
-	// get options from global properties
-	const root = getCurrentInstance()
-	options.lazyLoad =
-		options.lazyLoad ??
-		root?.appContext.config.globalProperties.$vvForm?.lazyLoad
-	options.sideEffects =
-		options.sideEffects ??
-		root?.appContext.config.globalProperties.$vvForm?.sideEffects
-
 	// define component
 	return defineComponent({
 		name: 'FieldComponent',

@@ -5,9 +5,11 @@
     "license": "MIT",
     "keywords": [
         "form",
-        "vue",
-        "ui",
-        "component library"
+        "form-field",
+        "form-wrapper",
+        "vue3",
+        "zod",
+        "validation"
     ],
     "homepage": "https://github.com/volverjs/form-vue",
     "repository": {

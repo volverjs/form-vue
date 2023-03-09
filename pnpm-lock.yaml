@@ -1,8 +1,6 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@iconify/tools': ^2.2.6
-  '@iconify/vue': ^4.1.0
   '@testing-library/vue': ^6.6.1
   '@typescript-eslint/eslint-plugin': ^5.54.1
   '@typescript-eslint/parser': ^5.54.1
@@ -31,8 +29,6 @@ specifiers:
   zod: ^3.21.4
 
 dependencies:
-  '@iconify/tools': 2.2.6
-  '@iconify/vue': 4.1.0_vue@3.2.47
   '@volverjs/ui-vue': 0.0.5-beta.1
   '@vueuse/core': 9.13.0_vue@3.2.47
   deepmerge: 4.3.0

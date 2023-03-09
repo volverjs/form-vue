@@ -33,7 +33,7 @@ npm install @volverjs/form-vue --save
 
 ## Usage
 
-`@volverjs/form-vue` allow you to create a Vue 3 form with [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components from a [Zod](https://github.com/colinhacks/zod) Object schema. It provides three functions: `createForm`, `useForm` and `formFactory`.
+`@volverjs/form-vue` allow you to create a Vue 3 form with [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components from a [Zod Object](https://zod.dev/?id=objects) schema. It provides three functions: `createForm`, `useForm` and `formFactory`.
 
 ## Plugin
 
@@ -61,11 +61,12 @@ app.use(form)
 app.mount('#app')
 ```
 
-By default [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components must be defined globally but can be lazy loaded with `lazyLoad` option.
+By default [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components must be defined globally but can be lazy loaded with `lazyLoad` option. If the schema is omitted, the plugin only share the options to the forms created with the [composable](https://github.com/volverjs/form-vue/#composable).
 
 ### VvForm
 
 `VvForm` render a `form` tag and emit a `submit` event. Form data are validated on submit.
+A `valid` or `invalid` event is emitted when the form status changes.
 
 ```vue
 <script lang="ts" setup>
@@ -124,7 +125,7 @@ The throttle can be changed with the `updateThrottle` option.
 </template>
 ```
 
-Please, refer to the [VvForm documentation](/docs/VvForm.md) for more information about the configuration.
+Please, refer to the [VvForm documentation](/docs/VvForm.md) for more informations about the configuration.
 
 ### VvFormWrapper
 
@@ -163,7 +164,17 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
 </template>
 ```
 
-The type of input component is defined by the `type` prop.
+For nested objects, use the `name` attribute with dot notation.
+
+```vue
+<template>
+  <VvForm>
+    <VvFormField type="text" name="shipping.address" label="Shipping address" />
+  </VvForm>
+</template>
+```
+
+The type of input component is defined by the `type` attribute.
 All the available input types are listed in the [VvFormField documentation](/docs/VvFormField.md).
 
 You can also use the `VvFormField` component to render a default slot.

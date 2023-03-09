@@ -42,7 +42,7 @@ npm install @volverjs/form-vue --save
 ```typescript
 import { createApp } from 'vue'
 import { createForm } from '@volverjs/form-vue'
-import z from 'zod'
+import { z } from 'zod'
 
 const schema = z.object({
   name: z.string(),
@@ -70,8 +70,8 @@ A `valid` or `invalid` event is emitted when the form status changes.
 
 ```vue
 <script lang="ts" setup>
-  const onSubmit = (data) => {
-    // Do something with the data
+  const onSubmit = (formData) => {
+    // Do something with the form data
   }
 </script>
 
@@ -88,8 +88,8 @@ The submit can be triggered programmatically with the `submit()` method.
 ```vue
 <script lang="ts" setup>
   const formEl = ref(null)
-  const onSubmit = (data) => {
-    // Do something with the data
+  const onSubmit = (formData) => {
+    // Do something with the form data
   }
   const submitForm = () => {
     formEl.value.submit()
@@ -111,6 +111,7 @@ The throttle can be changed with the `updateThrottle` option.
 ```vue
 <script lang="ts" setup>
   import { ref } from 'vue'
+
   const formData = ref({
     name: '',
     surname: ''
@@ -124,8 +125,6 @@ The throttle can be changed with the `updateThrottle` option.
   </VvForm>
 </template>
 ```
-
-Please, refer to the [VvForm documentation](/docs/VvForm.md) for more informations about the configuration.
 
 ### VvFormWrapper
 
@@ -177,7 +176,7 @@ For nested objects, use the `name` attribute with dot notation.
 The type of input component is defined by the `type` attribute.
 All the available input types are listed in the [VvFormField documentation](/docs/VvFormField.md).
 
-You can also use the `VvFormField` component to render a default slot.
+You can also use the `VvFormField` component to render a default slot without .
 
 ```vue
 <template>
@@ -233,16 +232,17 @@ If the plugin is defined globally, the settings are inherited but can be customi
 ```vue
 <script lang="ts" setup>
   import { useForm } from '@volverjs/form-vue'
+  import { z } from 'zod'
 
   const schema = z.object({
     name: z.string(),
     surname: z.string()
   })
 
-  const { form, formData, formErrors, formStatus } = useForm(schema, {
+  const { VvForm, VvFormWrapper, VvFormField } = useForm(schema, {
     // lazyLoad: boolean - default false
     // updateThrottle: number - default 500
-    // sideEffects?: (data: any) => void
+    // sideEffects?: (formData: any) => void
   })
 </script>
 
@@ -260,19 +260,20 @@ If the plugin is defined globally, the settings are inherited but can be customi
 
 ```ts
 import { formFactory } from '@volverjs/form-vue'
+import { z } from 'zod'
 
 const schema = z.object({
   name: z.string(),
   surname: z.string()
 })
 
-const form = formFactory(schema, {
+const { VvForm, VvFormWrapper, VvFormField } = formFactory(schema, {
   // lazyLoad: boolean - default false
   // updateThrottle: number - default 500
   // sideEffects?: (data: any) => void
 })
 
-export default form
+export default { VvForm, VvFormWrapper, VvFormField }
 ```
 
 ## License

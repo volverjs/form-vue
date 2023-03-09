@@ -1,61 +1,42 @@
 # VvFormField
 
-## Prop type in detail
+```ts
+import { FormFieldType } from '@volverjs/form-vue'
 
-```typescript
-export enum FormFieldType {
-	text = 'text',
-	number = 'number',
-	email = 'email',
-	password = 'password',
-	tel = 'tel',
-	url = 'url',
-	search = 'search',
-	date = 'date',
-	time = 'time',
-	datetimeLocal = 'datetimeLocal',
-	month = 'month',
-	week = 'week',
-	color = 'color',
-	select = 'select',
-	checkbox = 'checkbox',
-	radio = 'radio',
-	textarea = 'textarea',
-	radioGroup = 'radioGroup',
-	checkboxGroup = 'checkboxGroup',
-	combobox = 'combobox',
-	custom = 'custom',
-}
+// import { VvInputText } from '@volverjs/ui-vue/components'
+FormFieldType.text
+FormFieldType.text
+FormFieldType.number
+FormFieldType.email
+FormFieldType.password
+FormFieldType.tel
+FormFieldType.url
+FormFieldType.search
+FormFieldType.date
+FormFieldType.time
+FormFieldType.datetimeLocal
+FormFieldType.month
+FormFieldType.week
+FormFieldType.color
 
+// import { VvSelect } from '@volverjs/ui-vue/components'
+FormFieldType.select
+
+// import { VvCheckbox } from '@volverjs/ui-vue/components'
+FormFieldType.checkbox
+
+// import { VvCheckboxGroup } from '@volverjs/ui-vue/components'
+FormFieldType.checkboxGroup
+
+// import { VvRadio } from '@volverjs/ui-vue/components'
+FormFieldType.radio
+
+// import { VvRadioGroup } from '@volverjs/ui-vue/components'
+FormFieldType.radioGroup
+
+// import { VvTextarea } from '@volverjs/ui-vue/components'
+FormFieldType.textarea
+
+// import { VvCombobox } from '@volverjs/ui-vue/components'
+FormFieldType.combobox
 ```
-
-## Map type with ui-vue component
-    
-```typescript
-switch (props.type) {
-    case FormFieldType.select:
-        component = resolveComponent('VvSelect')
-        break
-    case FormFieldType.checkbox:
-        component = resolveComponent('VvCheckbox')
-        break
-    case FormFieldType.radio:
-        component = resolveComponent('VvRadio')
-        break
-    case FormFieldType.textarea:
-        component = resolveComponent('VvTextarea')
-        break
-    case FormFieldType.radioGroup:
-        component = resolveComponent('VvRadioGroup')
-        break
-    case FormFieldType.checkboxGroup:
-        component = resolveComponent('VvCheckboxGroup')
-        break
-    case FormFieldType.combobox:
-        component = resolveComponent('VvCombobox')
-        break
-    default:
-        component = resolveComponent('VvInputText')
-}
-```
-

@@ -121,7 +121,6 @@ The throttle can be changed with the `updateThrottle` option.
 <template>
   <VvForm v-model="formData">
     <!-- form fields -->
-    <button type="submit">Submit</button>
   </VvForm>
 </template>
 ```

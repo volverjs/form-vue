@@ -88,10 +88,17 @@ export const useForm = (
 export { FormFieldType } from './enums'
 export { defaultObjectBySchema } from './utils'
 
+type FormComponent = ReturnType<typeof defineForm>
+type FormWrapperComponent = ReturnType<typeof defineFormWrapper>
+type FormFieldComponent = ReturnType<typeof defineFormField>
+
 export type {
 	InjectedFormData,
 	InjectedFormWrapperData,
 	InjectedFormFieldData,
 	FormComposableOptions,
 	FormPluginOptions,
+	FormComponent,
+	FormWrapperComponent,
+	FormFieldComponent,
 }

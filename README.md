@@ -73,10 +73,13 @@ A `valid` or `invalid` event is emitted when the form status changes.
   const onSubmit = (formData) => {
     // Do something with the form data
   }
+  const onInvalid = (errors) => {
+    // Do something with the errors
+  }
 </script>
 
 <template>
-  <VvForm @submit="onSubmit">
+  <VvForm @submit="onSubmit" @invalid="onInvalid">
     <!-- form fields -->
     <button type="submit">Submit</button>
   </VvForm>
@@ -87,7 +90,10 @@ The submit can be triggered programmatically with the `submit()` method.
 
 ```vue
 <script lang="ts" setup>
-  const formEl = ref(null)
+  import { ref } from 'vue'
+  import type { FormComponent } from '@volverjs/form-vue'
+
+  const formEl = ref<InstanceType<FormComponent>>(null)
   const onSubmit = (formData) => {
     // Do something with the form data
   }
@@ -121,7 +127,6 @@ The throttle can be changed with the `updateThrottle` option.
 <template>
   <VvForm v-model="formData">
     <!-- form fields -->
-    <button type="submit">Submit</button>
   </VvForm>
 </template>
 ```
@@ -134,16 +139,37 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
 ```vue
 <template>
   <VvForm>
-    <VvFormWrapper #default="{ invalid }">
+    <VvFormWrapper v-slot="{ invalid }">
       <div class="form-section-1">
         <span v-if="invalid">There is a validation error</span>
         <!-- form fields of section 1 -->
       </div>
     </VvFormWrapper>
-    <VvFormWrapper #default="{ invalid }">
+    <VvFormWrapper v-slot="{ invalid }">
       <div class="form-section-2">
         <span v-if="invalid">There is a validation error</span>
         <!-- form fields of the section 2 -->
+      </div>
+    </VvFormWrapper>
+  </VvForm>
+</template>
+```
+
+`VvFormWrapper` can be used recursively to create a validation tree. The wrapper status is invalid if at least one of the fields inside it or one of its children is invalid.
+
+```vue
+<template>
+  <VvForm>
+    <VvFormWrapper v-slot="{ invalid }">
+      <div class="form-section">
+        <span v-if="invalid">There is a validation error</span>
+        <!-- form fields of section -->
+        <VvFormWrapper v-slot="{ invalid: groupInvalid }">
+          <div class="form-section__group">
+            <span v-if="groupInvalid">There is a validation error</span>
+            <!-- form fields of the group -->
+          </div>
+        </VvFormWrapper>
       </div>
     </VvFormWrapper>
   </VvForm>
@@ -176,14 +202,13 @@ For nested objects, use the `name` attribute with dot notation.
 The type of input component is defined by the `type` attribute.
 All the available input types are listed in the [VvFormField documentation](/docs/VvFormField.md).
 
-You can also use the `VvFormField` component to render a default slot without .
+You can also use the `VvFormField` component to render a default slot without a `type` (default `type` is `custom`).
 
 ```vue
 <template>
   <VvForm>
     <VvFormField
-      name="name"
-      #default="{
+      v-slot="{
         modelValue,
         invalid,
         invalidLabel,
@@ -192,17 +217,18 @@ You can also use the `VvFormField` component to render a default slot without .
         erros,
         onUpdate
       }"
+      name="surname"
     >
-      <label for="name">Name</label>
+      <label for="surname">Surname</label>
       <input
-        id="name"
+        id="surname"
         type="text"
         :value="modelValue"
         :aria-invalid="invalid"
-        :aria-errormessage="invalid ? 'name-alert' : undefined"
+        :aria-errormessage="invalid ? 'surname-alert' : undefined"
         @input="onUpdate"
       />
-      <small v-if="invalid" role="alert" id="name-alert">
+      <small v-if="invalid" role="alert" id="surname-alert">
         {{ invalidLabel }}
       </small>
     </VvFormField>
@@ -219,7 +245,7 @@ Or a custom component.
 
 <template>
   <VvForm>
-    <VvFormField name="name" :is="MyInput" />
+    <VvFormField name="surname" :is="MyInput" />
   </VvForm>
 </template>
 ```
@@ -227,7 +253,7 @@ Or a custom component.
 ## Composable
 
 `useForm` can be used to create a form programmatically inside a Vue 3 Component.
-If the plugin is defined globally, the settings are inherited but can be customized.
+The default settings are inherited from the plugin (if it was defined).
 
 ```vue
 <script lang="ts" setup>
@@ -257,6 +283,7 @@ If the plugin is defined globally, the settings are inherited but can be customi
 ## Outside a Vue 3 Component
 
 `formFactory` can be used to create a form outside a Vue 3 Component.
+No settings are inherited.
 
 ```ts
 import { formFactory } from '@volverjs/form-vue'

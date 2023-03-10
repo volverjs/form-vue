@@ -73,10 +73,13 @@ A `valid` or `invalid` event is emitted when the form status changes.
   const onSubmit = (formData) => {
     // Do something with the form data
   }
+  const onInvalid = (errors) => {
+    // Do something with the errors
+  }
 </script>
 
 <template>
-  <VvForm @submit="onSubmit">
+  <VvForm @submit="onSubmit" @invalid="onInvalid">
     <!-- form fields -->
     <button type="submit">Submit</button>
   </VvForm>
@@ -87,7 +90,10 @@ The submit can be triggered programmatically with the `submit()` method.
 
 ```vue
 <script lang="ts" setup>
-  const formEl = ref(null)
+  import { ref } from 'vue'
+  import type { FormComponent } from '@volverjs/form-vue'
+
+  const formEl = ref<InstanceType<FormComponent>>(null)
   const onSubmit = (formData) => {
     // Do something with the form data
   }
@@ -155,13 +161,13 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
 <template>
   <VvForm>
     <VvFormWrapper v-slot="{ invalid }">
-      <div class="form-section-1">
+      <div class="form-section">
         <span v-if="invalid">There is a validation error</span>
-        <!-- form fields of section 1 -->
+        <!-- form fields of section -->
         <VvFormWrapper v-slot="{ invalid: groupInvalid }">
-          <div class="form-section-1__group">
+          <div class="form-section__group">
             <span v-if="groupInvalid">There is a validation error</span>
-            <!-- form fields of the section 2 -->
+            <!-- form fields of the group -->
           </div>
         </VvFormWrapper>
       </div>
@@ -196,7 +202,7 @@ For nested objects, use the `name` attribute with dot notation.
 The type of input component is defined by the `type` attribute.
 All the available input types are listed in the [VvFormField documentation](/docs/VvFormField.md).
 
-You can also use the `VvFormField` component to render a default slot without .
+You can also use the `VvFormField` component to render a default slot without a `type` (default `type` is `custom`).
 
 ```vue
 <template>
@@ -247,7 +253,7 @@ Or a custom component.
 ## Composable
 
 `useForm` can be used to create a form programmatically inside a Vue 3 Component.
-If the plugin is defined globally, the settings are inherited but can be customized.
+The default settings are inherited from the plugin (if it was defined).
 
 ```vue
 <script lang="ts" setup>
@@ -277,6 +283,7 @@ If the plugin is defined globally, the settings are inherited but can be customi
 ## Outside a Vue 3 Component
 
 `formFactory` can be used to create a form outside a Vue 3 Component.
+No settings are inherited.
 
 ```ts
 import { formFactory } from '@volverjs/form-vue'

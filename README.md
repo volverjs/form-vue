@@ -214,7 +214,7 @@ You can also use the `VvFormField` component to render a default slot without a 
         invalidLabel,
         formData,
         formErrors,
-        erros,
+        errors,
         onUpdate
       }"
       name="surname"

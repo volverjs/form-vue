@@ -1,5 +1,5 @@
 import { type App, inject, type InjectionKey, type Plugin } from 'vue'
-import type { AnyZodObject } from 'zod'
+import type { AnyZodObject, ZodEffects } from 'zod'
 import { defineFormField } from './VvFormField'
 import { defineForm } from './VvForm'
 import { defineFormWrapper } from './VvFormWrapper'
@@ -12,7 +12,7 @@ import type {
 } from './types'
 
 export const formFactory = (
-	schema: AnyZodObject,
+	schema: AnyZodObject | ZodEffects<AnyZodObject>,
 	options: FormComposableOptions = {},
 ) => {
 	// create injection keys form provide/inject
@@ -78,7 +78,7 @@ export const createForm = (
 }
 
 export const useForm = (
-	schema: AnyZodObject,
+	schema: AnyZodObject | ZodEffects<AnyZodObject>,
 	options: FormComposableOptions = {},
 ) => {
 	const hasOptions = { ...inject(pluginInjectionKey, {}), ...options }

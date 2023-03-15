@@ -5,6 +5,7 @@ import type { FormFieldType } from './enums'
 export type FormComposableOptions = {
 	lazyLoad?: boolean
 	updateThrottle?: number
+	continuosValidation?: boolean
 	sideEffects?: (type: `${FormFieldType}`) => Promise | void
 }
 

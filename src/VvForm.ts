@@ -12,7 +12,7 @@ import {
 } from 'vue'
 import { watchThrottled } from '@vueuse/core'
 
-import type { AnyZodObject } from 'zod'
+import type { AnyZodObject, ZodEffects } from 'zod'
 import type { InjectedFormData } from './types'
 import { defaultObjectBySchema } from './utils'
 
@@ -22,10 +22,11 @@ export enum FormStatus {
 }
 
 export const defineForm = (
-	schema: AnyZodObject,
+	schema: AnyZodObject | ZodEffects<AnyZodObject>,
 	provideKey: InjectionKey<InjectedFormData>,
 	options?: {
 		updateThrottle?: number
+		continuosValidation?: boolean
 	},
 ) => {
 	return defineComponent({
@@ -61,7 +62,7 @@ export const defineForm = (
 			watchThrottled(
 				localModelValue,
 				(newValue) => {
-					if (errors.value) {
+					if (errors.value || options?.continuosValidation) {
 						parseModelValue()
 					}
 					if (

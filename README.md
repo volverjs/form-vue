@@ -54,6 +54,7 @@ const form = createForm({
   schema
   // lazyLoad: boolean - default false
   // updateThrottle: number - default 500
+  // continuosValidation: boolean - default false
   // sideEffects?: (data: any) => void
 })
 
@@ -126,6 +127,31 @@ The throttle can be changed with the `updateThrottle` option.
 
 <template>
   <VvForm v-model="formData">
+    <!-- form fields -->
+  </VvForm>
+</template>
+```
+
+The `continuosValidation` can be passed through options or with VvForm prop.
+With this field the validation doesn't stop and continue also after a validaton success.
+
+```vue
+<script lang="ts" setup>
+  import { ref } from 'vue'
+
+  const { VvForm, VvFormField } = useForm(MyZodSchema, {
+    lazyLoad: true
+    // continuosValidation: true
+  })
+
+  const formData = ref({
+    name: '',
+    surname: ''
+  })
+</script>
+
+<template>
+  <VvForm v-model="formData" :continuosValidation="true">
     <!-- form fields -->
   </VvForm>
 </template>
@@ -250,6 +276,86 @@ Or a custom component.
 </template>
 ```
 
+## Nested VvFormField
+
+In some use cases can be usefull nest `VvFormField`.
+For example let's assume:
+
+- a shopping list that is a field of our model (ex: ToDo list)
+- the sum of all products of the shopping list cannot be 0
+- we don't know all the products a priori
+
+So our ToDo model and shopping list are structured like:
+
+```javascript
+const toDo = {
+  shoppingList: {
+    bread: 0,
+    milk: 0,
+    tomato: 0,
+    potato: 0,
+    ...
+  }
+}
+```
+
+Our Zod schema can be:
+
+```typescript
+const toDoSchema = z.object({
+  shoppingList: z
+    .object({})
+    .default({})
+    .superRefine((value, ctx) => {
+      const shoppingList = value as Record<string, number>
+      if (
+        Object.keys(value).length &&
+        !Object.keys(value).find((key) => shoppingList[key] > 0)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: i18n.global.t('atLeastOneProduct')
+        })
+      }
+    })
+})
+```
+
+And the Vue component:
+
+```vue
+<script setup lang="ts">
+  const { VvForm, VvFormField } = useForm(toDoSchema, {
+    lazyLoad: true,
+    continuosValidation: true
+  })
+
+  // shopping list data, const or async
+  const shoppingList = {
+    bread: 0,
+    milk: 0,
+    tomato: 0,
+    potato: 0
+  }
+</script>
+
+<template>
+  <VvForm>
+    <VvFormField v-slot="{ invalid, invalidLabel }" name="shoppingList">
+      <VvFormField
+        v-for="key in Object.keys(shoppingList)"
+        :key="key"
+        :name="`shoppingList.${key}`"
+        :label="$t(key)"
+      />
+      <small v-if="invalid" class="input-counter__hint">{{
+        invalidLabel[0]
+      }}</small>
+    </VvFormField>
+  </VvForm>
+</template>
+```
+
 ## Composable
 
 `useForm` can be used to create a form programmatically inside a Vue 3 Component.
@@ -268,6 +374,7 @@ The default settings are inherited from the plugin (if it was defined).
   const { VvForm, VvFormWrapper, VvFormField } = useForm(schema, {
     // lazyLoad: boolean - default false
     // updateThrottle: number - default 500
+    // continuosValidation: true - default false
     // sideEffects?: (formData: any) => void
   })
 </script>
@@ -297,6 +404,7 @@ const schema = z.object({
 const { VvForm, VvFormWrapper, VvFormField } = formFactory(schema, {
   // lazyLoad: boolean - default false
   // updateThrottle: number - default 500
+  // continuosValidation: true - default false
   // sideEffects?: (data: any) => void
 })
 

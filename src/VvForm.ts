@@ -36,6 +36,10 @@ export const defineForm = (
 				type: Object,
 				default: () => ({}),
 			},
+			continuosValidation: {
+				type: Boolean,
+				default: false,
+			},
 		},
 		emits: ['invalid', 'valid', 'submit', 'update:modelValue'],
 		expose: ['submit', 'errors', 'status'],
@@ -43,6 +47,10 @@ export const defineForm = (
 			const localModelValue = ref(
 				defaultObjectBySchema(schema, props.modelValue),
 			)
+
+			const keepValidation =
+				options?.continuosValidation || props.continuosValidation
+
 			watch(
 				() => props.modelValue,
 				(newValue) => {
@@ -62,7 +70,7 @@ export const defineForm = (
 			watchThrottled(
 				localModelValue,
 				(newValue) => {
-					if (errors.value || options?.continuosValidation) {
+					if (errors.value || keepValidation) {
 						parseModelValue()
 					}
 					if (

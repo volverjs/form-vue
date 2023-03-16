@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.4] - 2023-03-16
+
+### Doc
+
+Update docs with:
+
+- `continuosValidation` prop/option
+- Nested `VvFormField`
+
 ## [0.0.3] - 2023-03-15
 
 ### Fixed
@@ -31,5 +40,6 @@ All notable changes to this project will be documented in this file.
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[0.0.4]: https://github.com/volverjs/form-vue/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/volverjs/form-vue/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/volverjs/form-vue/compare/v0.0.1...v0.0.2

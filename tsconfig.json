@@ -23,12 +23,8 @@
     "strictBindCallApply": true,
     "strictPropertyInitialization": true,
     "alwaysStrict": true,
-    // Required in Vite
-    "isolatedModules": true,
-    // See <https://devblogs.microsoft.com/typescript/announcing-typescript-4-5-beta/#preserve-value-imports>
-    "preserveValueImports": true,
-    // Enforce using `import type` instead of `import` for types
-    "importsNotUsedAsValues": "error",
+    // `"verbatimModuleSyntax": true` replaces isolatedModules, preserveValueImports and importsNotUsedAsValues
+    "verbatimModuleSyntax": true,
     "target": "ESNext",
     // Recommended
     "esModuleInterop": true,

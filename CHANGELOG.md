@@ -2,24 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.5] - 2023-03-17
+
+### Fixed
+
+- `defaultObjectBySchema` original value handling and validation;
+- Dependency update;
+- tsconfig.json new property `verbatimModuleSyntax` replaces `isolatedModules`, `preserveValueImports` and `importsNotUsedAsValues`.
+
+### Added
+
+- `defaultObjectBySchema` tests.
+
 ## [0.0.4] - 2023-03-16
 
 ### Doc
 
 Update docs with:
 
-- `continuosValidation` prop/option
-- Nested `VvFormField`
+- `continuosValidation` prop/option;
+- Nested `VvFormField`.
 
 ## [0.0.3] - 2023-03-15
 
 ### Fixed
 
-- Manage Zod superRefine validation
+- Manage Zod `superRefine` validation.
 
 ### Added
 
-- Continuos validation feature available with field `continuosValidation` added in options
+- Continuos validation feature available with `continuosValidation` option.
 
 ## [0.0.2] - 2023-03-10
 
@@ -39,6 +51,7 @@ Update docs with:
 - `useForm` function to create a form from a Zod schema inside a component.
 - `formFactory` function to create a form from a Zod schema outside of a component.
 
+[0.0.5]: https://github.com/volverjs/form-vue/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/volverjs/form-vue/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/volverjs/form-vue/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/volverjs/form-vue/compare/v0.0.1...v0.0.2

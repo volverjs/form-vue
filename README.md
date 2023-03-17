@@ -411,6 +411,73 @@ const { VvForm, VvFormWrapper, VvFormField } = formFactory(schema, {
 export default { VvForm, VvFormWrapper, VvFormField }
 ```
 
+## Default Object by Zod Object Schema
+
+`defaultObjectBySchema` creates an object by a Zod Object Schema.
+It can be useful to create a default object for a form. The default object is created by the default values of the schema and can be merged with an other object passed as parameter.
+
+```ts
+import { z } from 'zod'
+import { defaultObjectBySchema } from '@volverjs/form-vue'
+
+const schema = z.object({
+  name: z.string().default('John'),
+  surname: z.string().default('Doe')
+})
+
+const defaultObject = defaultObjectBySchema(schema)
+// defaultObject = { name: 'John', surname: 'Doe' }
+
+const defaultObject = defaultObjectBySchema(schema, { name: 'Jane' })
+// defaultObject = { name: 'Jane', surname: 'Doe' }
+```
+
+`defaultObjectBySchema` can be used with nested objects.
+
+```ts
+import { z } from 'zod'
+import { defaultObjectBySchema } from '@volverjs/form-vue'
+
+const schema = z.object({
+  name: z.string().default('John'),
+  surname: z.string().default('Doe'),
+  address: z.object({
+    street: z.string().default('Main Street'),
+    number: z.number().default(1)
+  })
+})
+
+const defaultObject = defaultObjectBySchema(schema)
+// defaultObject = { name: 'John', surname: 'Doe', address: { street: 'Main Street', number: 1 } }
+```
+
+Other Zod methods are also supported: [`z.nullable()`](https://github.com/colinhacks/zod#nullable), [`z.coerce`](https://github.com/colinhacks/zod#coercion-for-primitives) and [`z.passthrough()`](https://github.com/colinhacks/zod#passthrough).
+
+```ts
+import { z } from 'zod'
+import { defaultObjectBySchema } from '@volverjs/form-vue'
+
+const schema = z
+  .object({
+    name: z.string().default('John'),
+    surname: z.string().default('Doe'),
+    address: z.object({
+      street: z.string().default('Main Street'),
+      number: z.number().default(1)
+    }),
+    age: z.number().nullable().default(null),
+    height: z.number().coerce().default(1.8),
+    weight: z.number().default(80)
+  })
+  .passthrough()
+
+const defaultObject = defaultObjectBySchema(schema, {
+  height: '1.9',
+  email: 'john.doe@test.com'
+})
+// defaultObject = { name: 'John', surname: 'Doe', address: { street: 'Main Street', number: 1 }, age: null, height: 1.9, weight: 80, email: 'john.doe@test.com' }
+```
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)

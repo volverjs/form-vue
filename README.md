@@ -466,7 +466,7 @@ const schema = z
       number: z.number().default(1)
     }),
     age: z.number().nullable().default(null),
-    height: z.number().coerce().default(1.8),
+    height: z.coerce.number().default(1.8),
     weight: z.number().default(80)
   })
   .passthrough()

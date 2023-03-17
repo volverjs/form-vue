@@ -1,10 +1,11 @@
-import merge from 'deepmerge'
 import {
 	type z,
 	type AnyZodObject,
 	ZodDefault,
 	ZodObject,
 	ZodEffects,
+	ZodSchema,
+	ZodNullable,
 } from 'zod'
 
 export const defaultObjectBySchema = <
@@ -15,18 +16,45 @@ export const defaultObjectBySchema = <
 ): Partial<z.infer<Schema>> => {
 	const shape =
 		schema instanceof ZodEffects ? schema.innerType().shape : schema.shape
-	return merge(
-		Object.fromEntries(
-			Object.entries(shape).map(([key, value]) => {
-				if (value instanceof ZodDefault) {
-					return [key, value._def.defaultValue()]
+
+	const unknownKeys =
+		schema instanceof ZodObject
+			? schema._def.unknownKeys === 'passthrough'
+			: false
+	return {
+		...(unknownKeys ? original : {}),
+		...Object.fromEntries(
+			Object.entries(shape).map(([key, subSchema]) => {
+				const originalValue = original[key]
+				let defaultValue = undefined
+				if (subSchema instanceof ZodDefault) {
+					defaultValue = subSchema._def.defaultValue()
 				}
-				if (value instanceof ZodObject) {
-					return [key, defaultObjectBySchema(value)]
+				if (
+					originalValue === null &&
+					subSchema instanceof ZodNullable
+				) {
+					return [key, originalValue]
 				}
-				return [key, undefined]
+				if (subSchema instanceof ZodSchema) {
+					const parse = subSchema.safeParse(original[key])
+					if (parse.success) {
+						return [key, parse.data ?? defaultValue]
+					}
+				}
+				if (subSchema instanceof ZodObject) {
+					return [
+						key,
+						defaultObjectBySchema(
+							subSchema,
+							originalValue && typeof originalValue === 'object'
+								? originalValue
+								: {},
+						),
+					]
+				}
+				return [key, defaultValue]
 			}),
 		),
-		original,
-	) as Partial<z.infer<Schema>>
+	} as Partial<z.infer<Schema>>
 }

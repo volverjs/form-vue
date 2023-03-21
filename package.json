@@ -1,87 +1,89 @@
 {
-    "name": "@volverjs/form-vue",
-    "description": "Vue 3 Forms with @volverjs/ui-vue",
-    "author": "24/Consulting",
-    "license": "MIT",
-    "keywords": [
-        "form",
-        "form-field",
-        "form-wrapper",
-        "vue3",
-        "zod",
-        "validation"
-    ],
-    "homepage": "https://github.com/volverjs/form-vue",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/volverjs/form-vue"
-    },
-    "bugs": {
-        "url": "https://github.com/volverjs/form-vue/issues"
-    },
-    "version": "0.0.0",
-    "engines": {
-        "node": ">= 16.x"
-    },
-    "packageManager": "pnpm@7.8.0",
-    "scripts": {
-        "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-        "type-check": "tsc --noEmit",
-        "build": "vite build && vue-tsc --declaration --emitDeclarationOnly && copy src/**/types.d.ts dist",
-        "test": "vitest",
-        "credits": "npx @opengovsg/credits-generator"
-    },
-    "type": "module",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
-    "files": [
-        "dist",
-        "src",
-        "node",
-        "*.d.ts"
-    ],
-    "dependencies": {
-        "@volverjs/ui-vue": "0.0.5-beta.1",
-        "@vueuse/core": "^9.13.0",
-        "ts-dot-prop": "^2.1.2",
-        "vue": "^3.2.47",
-        "zod": "^3.21.4"
-    },
-    "devDependencies": {
-        "@testing-library/vue": "^7.0.0",
-        "@typescript-eslint/eslint-plugin": "^5.55.0",
-        "@typescript-eslint/parser": "^5.55.0",
-        "@vitejs/plugin-vue": "^4.1.0",
-        "@vue/compiler-sfc": "^3.2.47",
-        "@vue/runtime-core": "^3.2.47",
-        "@vue/test-utils": "^2.3.1",
-        "copy": "^0.3.2",
-        "eslint": "^8.36.0",
-        "eslint-config-prettier": "^8.7.0",
-        "eslint-plugin-prettier": "^4.2.1",
-        "happy-dom": "^8.9.0",
-        "prettier": "^2.8.4",
-        "typescript": "^5.0.2",
-        "vite": "^4.2.0",
-        "vite-plugin-eslint": "^1.8.1",
-        "vite-plugin-externalize-deps": "^0.5.0",
-        "vitest": "^0.29.3",
-        "vue-tsc": "^1.2.0"
-    },
-    "typesVersions": {
-        "*": {
-            "*": [
-                "dist/index.d.ts"
-            ]
-        }
-    },
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.es.js",
-            "default": "./dist/index.umd.cjs"
-        },
-        "./src/*": "./src/*",
-        "./dist/*": "./dist/*"
+  "name": "@volverjs/form-vue",
+  "description": "Vue 3 Forms with @volverjs/ui-vue",
+  "author": "24/Consulting",
+  "license": "MIT",
+  "keywords": [
+    "form",
+    "form-field",
+    "form-wrapper",
+    "vue3",
+    "zod",
+    "validation"
+  ],
+  "homepage": "https://github.com/volverjs/form-vue",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/volverjs/form-vue"
+  },
+  "bugs": {
+    "url": "https://github.com/volverjs/form-vue/issues"
+  },
+  "version": "0.0.0",
+  "engines": {
+    "node": ">= 16.x"
+  },
+  "packageManager": "pnpm@7.8.0",
+  "scripts": {
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly && copy src/**/types.d.ts dist",
+    "test": "vitest",
+    "test-playwright": "playwright test -c playwright-ct.config.ts",
+    "credits": "npx @opengovsg/credits-generator"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "node",
+    "*.d.ts"
+  ],
+  "dependencies": {
+    "@volverjs/ui-vue": "0.0.5-beta.1",
+    "@vueuse/core": "^9.13.0",
+    "ts-dot-prop": "^2.1.2",
+    "vue": "^3.2.47",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@playwright/experimental-ct-vue": "^1.31.2",
+    "@testing-library/vue": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "@vitejs/plugin-vue": "^4.1.0",
+    "@vue/compiler-sfc": "^3.2.47",
+    "@vue/runtime-core": "^3.2.47",
+    "@vue/test-utils": "^2.3.1",
+    "copy": "^0.3.2",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "happy-dom": "^8.9.0",
+    "prettier": "^2.8.4",
+    "typescript": "^5.0.2",
+    "vite": "^4.2.0",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-externalize-deps": "^0.5.0",
+    "vitest": "^0.29.3",
+    "vue-tsc": "^1.2.0"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/index.d.ts"
+      ]
     }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "default": "./dist/index.umd.cjs"
+    },
+    "./src/*": "./src/*",
+    "./dist/*": "./dist/*"
+  }
 }

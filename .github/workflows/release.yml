@@ -53,7 +53,7 @@ jobs:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
     publish-gpr:
-        needs: build
+        needs: test
         runs-on: ubuntu-latest
         permissions:
             contents: read

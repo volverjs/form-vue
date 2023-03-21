@@ -4,7 +4,7 @@ on:
     workflow_call:
 
 jobs:
-    test-playwright:
+    playwright:
         timeout-minutes: 60
         runs-on: ubuntu-latest
         steps:
@@ -35,7 +35,7 @@ jobs:
                   path: playwright-report/
                   retention-days: 30
 
-    test-vitest:
+    vitest:
         timeout-minutes: 60
         runs-on: ubuntu-latest
         steps:

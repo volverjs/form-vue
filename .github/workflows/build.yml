@@ -1,9 +1,7 @@
 name: Build library
 
 on:
-    # Runs on release publish
-    release:
-        types: [published]
+    workflow_call:
 
 jobs:
     build:

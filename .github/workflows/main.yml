@@ -1,0 +1,18 @@
+name: Main pipeline
+
+on:
+    # Runs on release publish
+    release:
+        types: [published]
+
+jobs:
+    build:
+        uses: ./.github/workflows/build.yml
+
+    test:
+        needs: build
+        uses: ./.github/workflows/test.yml
+
+    publish:
+        needs: test
+        uses: ./.github/workflows/publish.yml

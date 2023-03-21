@@ -1,9 +1,7 @@
 name: Run library test
 
 on:
-    workflow_run:
-        workflows: ['build']
-        types: [completed]
+    workflow_call:
 
 jobs:
     playwright:

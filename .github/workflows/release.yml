@@ -34,9 +34,7 @@ jobs:
 
     test:
         needs: build
-        runs-on: ubuntu-latest
-        steps:
-            - uses: ./.github/actions/playwright.yml
+        uses: ./.github/workflows/playwright
 
     publish-npm:
         needs: test

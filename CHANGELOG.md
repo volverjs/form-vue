@@ -50,6 +50,7 @@ Update docs with:
 - `createForm` function to create a Vue 3 plugin for a set of globally defined options and components.
 - `useForm` function to create a form from a Zod schema inside a component.
 - `formFactory` function to create a form from a Zod schema outside of a component.
+- README, CHANGELOG and LICENSE files.
 
 [0.0.5]: https://github.com/volverjs/form-vue/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/volverjs/form-vue/compare/v0.0.3...v0.0.4

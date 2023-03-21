@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig, configDefaults } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import ESLint from 'vite-plugin-eslint'
 import path from 'path'
@@ -9,6 +9,7 @@ export default () => {
 		test: {
 			globals: true,
 			environment: 'happy-dom',
+			exclude: [...configDefaults.exclude, 'test-playwright/**'],
 		},
 		build: {
 			lib: {

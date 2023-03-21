@@ -4,7 +4,7 @@ on:
     workflow_call:
 
 jobs:
-    playwright-test:
+    test-playwright:
         timeout-minutes: 60
         runs-on: ubuntu-latest
         steps:
@@ -34,3 +34,26 @@ jobs:
                   name: playwright-report
                   path: playwright-report/
                   retention-days: 30
+
+    test-vitest:
+        timeout-minutes: 60
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+            - uses: pnpm/action-setup@v2.2.2
+              with:
+                  version: 7
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'pnpm'
+            - name: Install dependencies
+              run: pnpm install
+            - name: Build release
+              run: pnpm build
+            - name: Run Vitest test
+              run: pnpm test-vitest

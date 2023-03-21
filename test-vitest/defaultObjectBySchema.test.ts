@@ -160,7 +160,7 @@ it('Strip', async () => {
 	})
 
 	const defaultObject = defaultObjectBySchema(schema, { age: 21 })
-
+	console.log('**********Strip', defaultObject)
 	expect(defaultObject).toStrictEqual({
 		name: undefined,
 		surname: undefined,

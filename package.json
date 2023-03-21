@@ -28,7 +28,8 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "type-check": "tsc --noEmit",
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly && copy src/**/types.d.ts dist",
-    "test": "vitest",
+    "test-vitest": "vitest run",
+    "test-vitest-watch": "vitest",
     "test-playwright": "playwright test -c playwright-ct.config.ts",
     "credits": "npx @opengovsg/credits-generator"
   },

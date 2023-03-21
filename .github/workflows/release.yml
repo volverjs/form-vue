@@ -31,8 +31,15 @@ jobs:
               with:
                   name: package
                   path: '*.tgz'
-    publish-npm:
+
+    test:
         needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: ./.github/actions/playwright
+
+    publish-npm:
+        needs: test
         runs-on: ubuntu-latest
         steps:
             - name: Download artifact

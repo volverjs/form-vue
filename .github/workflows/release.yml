@@ -34,7 +34,7 @@ jobs:
 
     test:
         needs: build
-        uses: ./.github/workflows/playwright.yml
+        uses: ./.github/workflows/test.yml
 
     publish-npm:
         needs: test

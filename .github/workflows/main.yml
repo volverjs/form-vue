@@ -17,3 +17,5 @@ jobs:
     publish:
         needs: test
         uses: ./.github/workflows/publish.yml
+        with:
+            npm-token: ${{secrets.NPM_TOKEN}}

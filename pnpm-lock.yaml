@@ -6,6 +6,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^5.55.0
   '@typescript-eslint/parser': ^5.55.0
   '@vitejs/plugin-vue': ^4.1.0
+  '@volverjs/style': ^0.1.8
   '@volverjs/ui-vue': 0.0.5-beta.1
   '@vue/compiler-sfc': ^3.2.47
   '@vue/runtime-core': ^3.2.47
@@ -40,6 +41,7 @@ devDependencies:
   '@typescript-eslint/eslint-plugin': 5.56.0_2hcjazgfnbtq42tcc73br2vup4
   '@typescript-eslint/parser': 5.56.0_j4766f7ecgqbon3u7zlxn5zszu
   '@vitejs/plugin-vue': 4.1.0_vite@4.2.1+vue@3.2.47
+  '@volverjs/style': 0.1.8
   '@vue/compiler-sfc': 3.2.47
   '@vue/runtime-core': 3.2.47
   '@vue/test-utils': 2.3.2_vue@3.2.47
@@ -813,6 +815,11 @@ packages:
     dependencies:
       '@volar/typescript': 1.3.0-alpha.0
       '@volar/vue-language-core': 1.2.0
+    dev: true
+
+  /@volverjs/style/0.1.8:
+    resolution: {integrity: sha512-Kxu8+KgnMJ9jzN9yUeysO+FOyR6HWWoTVilhKo8m242KwQ2IudJtrSsNQknaAOPQWLb9Cqq/KROrtK+oCHG4aw==}
+    engines: {node: '>= 12.x'}
     dev: true
 
   /@volverjs/style/0.1.9-beta.1:

@@ -55,6 +55,7 @@
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
     "@vitejs/plugin-vue": "^4.1.0",
+    "@volverjs/style": "^0.1.8",
     "@vue/compiler-sfc": "^3.2.47",
     "@vue/runtime-core": "^3.2.47",
     "@vue/test-utils": "^2.3.1",

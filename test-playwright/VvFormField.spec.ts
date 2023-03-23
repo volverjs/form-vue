@@ -1,10 +1,18 @@
 import { test, expect } from '@playwright/experimental-ct-vue'
-import FormTest from './FormTest.vue'
+import VvFormField from './VvFormField.vue'
 
-test.use({ viewport: { width: 500, height: 500 } })
+test.use({ viewport: { width: 1000, height: 1000 } })
 
-test('VvForm with zod schema', async ({ mount }) => {
-	const component = await mount(FormTest)
+test('Valid VvFormField', async ({ mount }) => {
+	const component = await mount(VvFormField)
+
+	// check firstname is valid
+	const inputTextFirstName = await component.locator('.vv-input-text--valid')
+	await expect(inputTextFirstName).toHaveText('firstname')
+})
+
+test('Label and Value VvFormField', async ({ mount }) => {
+	const component = await mount(VvFormField)
 
 	// check input labels
 	const labelFirstName = await component.locator('label', {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.9] - 2023-03-23
+
+### Added
+
+- Test: VvForm, VvFormWrapper, VvFormField
+
 ## [0.0.5] - 2023-03-17
 
 ### Fixed
@@ -52,6 +58,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[0.0.9]: https://github.com/volverjs/form-vue/compare/v0.0.5...v0.0.9
 [0.0.5]: https://github.com/volverjs/form-vue/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/volverjs/form-vue/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/volverjs/form-vue/compare/v0.0.2...v0.0.3

@@ -103,8 +103,8 @@ export const defineFormWrapper = (
 					null,
 					this.$slots.default?.({
 						invalid: this.invalid,
-						formData: this.formProvided?.modelValue,
-						errors: this.formProvided?.errors,
+						formData: this.formProvided?.modelValue.value,
+						errors: this.formProvided?.errors.value,
 						fieldsErrors: this.errors,
 					}) ?? this.$slots.defalut,
 				)
@@ -112,8 +112,8 @@ export const defineFormWrapper = (
 			return (
 				this.$slots.default?.({
 					invalid: this.invalid,
-					formData: this.formProvided?.modelValue,
-					errors: this.formProvided?.errors,
+					formData: this.formProvided?.modelValue.value,
+					errors: this.formProvided?.errors.value,
 					fieldsErrors: this.errors,
 				}) ?? this.$slots.defalut
 			)

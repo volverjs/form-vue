@@ -1,6 +1,7 @@
 import {
 	type z,
 	type AnyZodObject,
+	type ZodTypeAny,
 	ZodDefault,
 	ZodObject,
 	ZodEffects,
@@ -14,39 +15,47 @@ export const defaultObjectBySchema = <
 	schema: Schema,
 	original: Partial<z.infer<Schema>> = {},
 ): Partial<z.infer<Schema>> => {
-	const shape =
-		schema instanceof ZodEffects ? schema.innerType().shape : schema.shape
-
+	const getInnerType = <Type extends ZodTypeAny>(
+		schema: Type | ZodEffects<Type>,
+	) => {
+		let toReturn = schema
+		while (toReturn instanceof ZodEffects) {
+			toReturn = toReturn.innerType()
+		}
+		return toReturn
+	}
+	const innerType = getInnerType<AnyZodObject>(schema)
 	const unknownKeys =
-		schema instanceof ZodObject
-			? schema._def.unknownKeys === 'passthrough'
+		innerType instanceof ZodObject
+			? innerType._def.unknownKeys === 'passthrough'
 			: false
 	return {
 		...(unknownKeys ? original : {}),
 		...Object.fromEntries(
-			Object.entries(shape).map(([key, subSchema]) => {
+			Object.entries(innerType.shape).map(([key, subSchema]) => {
 				const originalValue = original[key]
+				const innerType = getInnerType(subSchema as ZodTypeAny)
 				let defaultValue = undefined
-				if (subSchema instanceof ZodDefault) {
-					defaultValue = subSchema._def.defaultValue()
+				if (innerType instanceof ZodDefault) {
+					defaultValue = innerType._def.defaultValue()
 				}
 				if (
 					originalValue === null &&
-					subSchema instanceof ZodNullable
+					innerType instanceof ZodNullable
 				) {
 					return [key, originalValue]
 				}
-				if (subSchema instanceof ZodSchema) {
-					const parse = subSchema.safeParse(original[key])
+				if (innerType instanceof ZodSchema) {
+					const parse = innerType.safeParse(original[key])
 					if (parse.success) {
 						return [key, parse.data ?? defaultValue]
 					}
 				}
-				if (subSchema instanceof ZodObject) {
+				if (innerType instanceof ZodObject) {
 					return [
 						key,
 						defaultObjectBySchema(
-							subSchema,
+							innerType,
 							originalValue && typeof originalValue === 'object'
 								? originalValue
 								: {},

@@ -10,13 +10,16 @@ import {
 } from 'zod'
 
 export const defaultObjectBySchema = <
-	Schema extends AnyZodObject | ZodEffects<AnyZodObject>,
+	Schema extends
+		| AnyZodObject
+		| ZodEffects<AnyZodObject>
+		| ZodEffects<ZodEffects<AnyZodObject>>,
 >(
 	schema: Schema,
 	original: Partial<z.infer<Schema>> = {},
 ): Partial<z.infer<Schema>> => {
 	const getInnerType = <Type extends ZodTypeAny>(
-		schema: Type | ZodEffects<Type>,
+		schema: Type | ZodEffects<Type> | ZodEffects<ZodEffects<Type>>,
 	) => {
 		let toReturn = schema
 		while (toReturn instanceof ZodEffects) {

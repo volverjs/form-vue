@@ -11,11 +11,17 @@ import {
 	watch,
 	h,
 } from 'vue'
+import type { AnyZodObject, ZodEffects } from 'zod'
 import type { InjectedFormData, InjectedFormWrapperData } from './types'
 
-export const defineFormWrapper = (
-	formProvideKey: InjectionKey<InjectedFormData>,
-	wrapperProvideKey: InjectionKey<InjectedFormWrapperData>,
+export const defineFormWrapper = <
+	Schema extends
+		| AnyZodObject
+		| ZodEffects<AnyZodObject>
+		| ZodEffects<ZodEffects<AnyZodObject>>,
+>(
+	formProvideKey: InjectionKey<InjectedFormData<Schema>>,
+	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,
 ) => {
 	return defineComponent({
 		name: 'WrapperComponent',

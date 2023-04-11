@@ -7,7 +7,12 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - `VvFormWrapper` default slot `formData` and `errors` properties;
-- `defaultObjectBySchema` support for nested `ZodEffects`.
+- `defaultObjectBySchema` support for nested `ZodEffects`;
+- typescript improvements.
+
+### Added
+
+- `formFactory()` now export `errors`, `status` and `formData`;
 
 ## [0.0.9] - 2023-03-23
 

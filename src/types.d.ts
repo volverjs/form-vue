@@ -1,5 +1,5 @@
 import type { Ref } from 'vue'
-import type { ZodFormattedError } from 'zod'
+import type { z, AnyZodObject, ZodEffects } from 'zod'
 import type { FormFieldType } from './enums'
 
 export type FormComposableOptions = {
@@ -13,19 +13,34 @@ export type FormPluginOptions = {
 	schema?: ZodSchema
 } & FormComposableOptions
 
-export type InjectedFormData<Type = Recrod<string | number, unknown>> = {
-	modelValue: Ref<Type>
-	errors: Ref<ZodFormattedError<Type>>
+export type InjectedFormData<
+	Schema extends
+		| AnyZodObject
+		| ZodEffects<AnyZodObject>
+		| ZodEffects<ZodEffects<AnyZodObject>>,
+> = {
+	modelValue: Ref<Partial<z.infer<Schema>> | undefined>
+	errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
 	submit: () => boolean
 }
 
-export type InjectedFormWrapperData = {
+export type InjectedFormWrapperData<
+	Schema extends
+		| AnyZodObject
+		| ZodEffects<AnyZodObject>
+		| ZodEffects<ZodEffects<AnyZodObject>>,
+> = {
 	name: Ref<string>
 	fields: Ref<Set<string>>
-	errors: Ref<Map<string, Record<string, { _errors: string[] }>>>
+	errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
 }
 
-export type InjectedFormFieldData = {
+export type InjectedFormFieldData<
+	Schema extends
+		| AnyZodObject
+		| ZodEffects<AnyZodObject>
+		| ZodEffects<ZodEffects<AnyZodObject>>,
+> = {
 	name: Ref<string>
-	errors: Ref<Map<string, Record<string, { _errors: string[] }>>>
+	errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
 }

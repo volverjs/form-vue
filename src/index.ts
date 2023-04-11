@@ -11,20 +11,32 @@ import type {
 	FormPluginOptions,
 } from './types'
 
-export const formFactory = (
-	schema: AnyZodObject | ZodEffects<AnyZodObject>,
+export const formFactory = <
+	Schema extends
+		| AnyZodObject
+		| ZodEffects<AnyZodObject>
+		| ZodEffects<ZodEffects<AnyZodObject>>,
+>(
+	schema: Schema,
 	options: FormComposableOptions = {},
 ) => {
 	// create injection keys form provide/inject
-	const formInjectionKey = Symbol() as InjectionKey<InjectedFormData>
-	const formWrapperInjectionKey =
-		Symbol() as InjectionKey<InjectedFormWrapperData>
+	const formInjectionKey = Symbol() as InjectionKey<InjectedFormData<Schema>>
+	const formWrapperInjectionKey = Symbol() as InjectionKey<
+		InjectedFormWrapperData<Schema>
+	>
 
-	const formFieldInjectionKey =
-		Symbol() as InjectionKey<InjectedFormFieldData>
+	const formFieldInjectionKey = Symbol() as InjectionKey<
+		InjectedFormFieldData<Schema>
+	>
 
 	// create components
-	const VvForm = defineForm(schema, formInjectionKey, options)
+	const {
+		component: VvForm,
+		errors,
+		status,
+		formData,
+	} = defineForm(schema, formInjectionKey, options)
 	const VvFormWrapper = defineFormWrapper(
 		formInjectionKey,
 		formWrapperInjectionKey,
@@ -43,6 +55,9 @@ export const formFactory = (
 		formInjectionKey,
 		formWrapperInjectionKey,
 		formFieldInjectionKey,
+		errors,
+		status,
+		formData,
 	}
 }
 
@@ -77,8 +92,13 @@ export const createForm = (
 	}
 }
 
-export const useForm = (
-	schema: AnyZodObject | ZodEffects<AnyZodObject>,
+export const useForm = <
+	Schema extends
+		| AnyZodObject
+		| ZodEffects<AnyZodObject>
+		| ZodEffects<ZodEffects<AnyZodObject>>,
+>(
+	schema: Schema,
 	options: FormComposableOptions = {},
 ) => {
 	const hasOptions = { ...inject(pluginInjectionKey, {}), ...options }

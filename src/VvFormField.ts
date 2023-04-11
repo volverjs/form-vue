@@ -16,7 +16,9 @@ import {
 	toRefs,
 	watch,
 	defineComponent,
+	onBeforeUnmount,
 } from 'vue'
+import type { AnyZodObject, ZodEffects, z } from 'zod'
 import { FormFieldType } from './enums'
 import type {
 	InjectedFormData,
@@ -25,12 +27,17 @@ import type {
 	FormComposableOptions,
 } from './types'
 
-export const defineFormField = (
-	formProvideKey: InjectionKey<InjectedFormData>,
-	wrapperProvideKey: InjectionKey<InjectedFormWrapperData>,
-	formFieldInjectionKey: InjectionKey<InjectedFormFieldData>,
+export const defineFormField = <
+	Schema extends
+		| AnyZodObject
+		| ZodEffects<AnyZodObject>
+		| ZodEffects<ZodEffects<AnyZodObject>>,
+>(
+	formProvideKey: InjectionKey<InjectedFormData<Schema>>,
+	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,
+	formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>,
 	options: FormComposableOptions = {},
-): Component => {
+) => {
 	// define component
 	return defineComponent({
 		name: 'FieldComponent',
@@ -52,10 +59,13 @@ export const defineFormField = (
 			},
 			props: {
 				type: [Object, Function] as PropType<
-					| Record<string, unknown>
-					| ((
-							formData?: Ref<ObjectConstructor>,
-					  ) => Record<string, unknown>)
+					Partial<
+						| z.infer<Schema>
+						| undefined
+						| ((
+								formData?: Ref<ObjectConstructor>,
+						  ) => Partial<z.infer<Schema>> | undefined)
+					>
 				>,
 				default: () => ({}),
 			},
@@ -102,6 +112,11 @@ export const defineFormField = (
 				}
 			})
 
+			onBeforeUnmount(() => {
+				unwatchInvalid()
+				unwatchFormProvided()
+			})
+
 			// inject data from parent form wrapper
 			const wrapperProvided = inject(wrapperProvideKey, undefined)
 			if (wrapperProvided) {
@@ -124,7 +139,7 @@ export const defineFormField = (
 			const invalid = computed(() => {
 				return errors.value !== undefined
 			})
-			watch(invalid, () => {
+			const unwatchInvalid = watch(invalid, () => {
 				if (invalid.value) {
 					emit('invalid', invalidLabel.value)
 					if (wrapperProvided) {
@@ -141,7 +156,7 @@ export const defineFormField = (
 					}
 				}
 			})
-			watch(
+			const unwatchFormProvided = watch(
 				() => formProvided?.modelValue,
 				() => {
 					emit('update:formData', formProvided?.modelValue)

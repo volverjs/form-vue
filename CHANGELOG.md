@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - `VvFormWrapper` default slot `formData` and `errors` properties;
 - `defaultObjectBySchema` support for nested `ZodEffects`;
+- `VvForm` bug with emit update on zod parsed result;
 - typescript improvements.
 
 ### Added

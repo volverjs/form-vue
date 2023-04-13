@@ -118,6 +118,7 @@ export const defineForm = <
 					errors.value = undefined
 					status.value = FormStatus.valid
 					localModelValue.value = parseResult.data
+					emit('update:modelValue', localModelValue.value)
 					emit('valid', parseResult.data)
 					return true
 				}

@@ -38,10 +38,10 @@ export const defineFormWrapper = <
 		emits: ['invalid', 'valid'],
 		expose: ['fields', 'invalid'],
 		setup(props, { emit }) {
-			const formProvided = inject(formProvideKey)
+			const injectedFormData = inject(formProvideKey)
 			const wrapperProvided = inject(wrapperProvideKey, undefined)
 			const fields = ref(new Set<string>())
-			const errors: Ref<
+			const fieldsErrors: Ref<
 				Map<string, Record<string, { _errors: string[] }>>
 			> = ref(new Map())
 			const { name } = toRefs(props)
@@ -49,7 +49,7 @@ export const defineFormWrapper = <
 			// provide data to child fields
 			provide(wrapperProvideKey, {
 				name: readonly(name),
-				errors,
+				errors: fieldsErrors,
 				fields,
 			})
 
@@ -68,7 +68,7 @@ export const defineFormWrapper = <
 
 			// add fields to parent wrapper
 			watch(
-				() => new Map(errors.value),
+				() => new Map(fieldsErrors.value),
 				(newValue, oldValue) => {
 					if (wrapperProvided?.errors) {
 						Array.from(oldValue.keys()).forEach((key) => {
@@ -86,10 +86,10 @@ export const defineFormWrapper = <
 			)
 
 			const invalid = computed(() => {
-				if (!formProvided?.errors.value) {
+				if (!injectedFormData?.errors.value) {
 					return false
 				}
-				return errors.value.size > 0
+				return fieldsErrors.value.size > 0
 			})
 
 			watch(invalid, () => {
@@ -100,7 +100,13 @@ export const defineFormWrapper = <
 				}
 			})
 
-			return { formProvided, invalid, fields, errors }
+			return {
+				formData: injectedFormData?.modelValue,
+				errors: injectedFormData?.errors,
+				invalid,
+				fields,
+				fieldsErrors,
+			}
 		},
 		render() {
 			if (this.tag) {
@@ -109,18 +115,18 @@ export const defineFormWrapper = <
 					null,
 					this.$slots.default?.({
 						invalid: this.invalid,
-						formData: this.formProvided?.modelValue.value,
-						errors: this.formProvided?.errors.value,
-						fieldsErrors: this.errors,
+						formData: this.formData,
+						errors: this.errors,
+						fieldsErrors: this.fieldsErrors,
 					}) ?? this.$slots.defalut,
 				)
 			}
 			return (
 				this.$slots.default?.({
 					invalid: this.invalid,
-					formData: this.formProvided?.modelValue.value,
-					errors: this.formProvided?.errors.value,
-					fieldsErrors: this.errors,
+					formData: this.formData,
+					errors: this.errors,
+					fieldsErrors: this.fieldsErrors,
 				}) ?? this.$slots.defalut
 			)
 		},

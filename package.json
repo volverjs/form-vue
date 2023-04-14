@@ -44,8 +44,8 @@
     "*.d.ts"
   ],
   "dependencies": {
-    "@volverjs/ui-vue": "0.0.6-beta.6",
-    "@vueuse/core": "^9.13.0",
+    "@volverjs/ui-vue": "0.0.6-beta.7",
+    "@vueuse/core": "^10.0.2",
     "ts-dot-prop": "^2.1.2",
     "vue": "^3.2.47",
     "zod": "^3.21.4"
@@ -64,7 +64,7 @@
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "happy-dom": "^9.1.9",
+    "happy-dom": "^9.6.1",
     "prettier": "^2.8.7",
     "typescript": "^5.0.4",
     "vite": "^4.2.1",

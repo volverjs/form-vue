@@ -84,22 +84,22 @@ export const defineFormField = <
 			// v-model
 			const modelValue = computed({
 				get() {
-					if (!formProvided?.modelValue) return
+					if (!injectedFormData?.modelValue) return
 					return get(
-						Object(formProvided.modelValue.value),
+						Object(injectedFormData.modelValue.value),
 						String(props.name),
 					)
 				},
 				set(value) {
-					if (!formProvided?.modelValue) return
+					if (!injectedFormData?.modelValue) return
 					set(
-						Object(formProvided.modelValue.value),
+						Object(injectedFormData.modelValue.value),
 						String(props.name),
 						value,
 					)
 					emit('update:modelValue', {
 						newValue: modelValue.value,
-						formData: formProvided?.modelValue,
+						formData: injectedFormData?.modelValue,
 					})
 				},
 			})
@@ -114,24 +114,24 @@ export const defineFormField = <
 
 			onBeforeUnmount(() => {
 				unwatchInvalid()
-				unwatchFormProvided()
+				unwatchInjectedFormData()
 			})
 
 			// inject data from parent form wrapper
-			const wrapperProvided = inject(wrapperProvideKey, undefined)
-			if (wrapperProvided) {
-				wrapperProvided.fields.value.add(props.name as string)
+			const injectedWrapperData = inject(wrapperProvideKey, undefined)
+			if (injectedWrapperData) {
+				injectedWrapperData.fields.value.add(props.name as string)
 			}
 
 			// inject data from parent form
-			const formProvided = inject(formProvideKey)
+			const injectedFormData = inject(formProvideKey)
 			const { props: fieldProps, name: fieldName } = toRefs(props)
 
 			const errors = computed(() => {
-				if (!formProvided?.errors.value) {
+				if (!injectedFormData?.errors.value) {
 					return undefined
 				}
-				return get(formProvided.errors.value, String(props.name))
+				return get(injectedFormData.errors.value, String(props.name))
 			})
 			const invalidLabel = computed(() => {
 				return errors.value?._errors
@@ -142,24 +142,27 @@ export const defineFormField = <
 			const unwatchInvalid = watch(invalid, () => {
 				if (invalid.value) {
 					emit('invalid', invalidLabel.value)
-					if (wrapperProvided) {
-						wrapperProvided.errors.value.set(props.name as string, {
-							_errors: invalidLabel.value,
-						})
+					if (injectedWrapperData) {
+						injectedWrapperData.errors.value.set(
+							props.name as string,
+							{
+								_errors: invalidLabel.value,
+							},
+						)
 					}
 				} else {
 					emit('valid', modelValue.value)
-					if (wrapperProvided) {
-						wrapperProvided.errors.value.delete(
+					if (injectedWrapperData) {
+						injectedWrapperData.errors.value.delete(
 							props.name as string,
 						)
 					}
 				}
 			})
-			const unwatchFormProvided = watch(
-				() => formProvided?.modelValue,
+			const unwatchInjectedFormData = watch(
+				() => injectedFormData?.modelValue,
 				() => {
-					emit('update:formData', formProvided?.modelValue)
+					emit('update:formData', injectedFormData?.modelValue)
 				},
 				{ deep: true },
 			)
@@ -168,7 +171,7 @@ export const defineFormField = <
 			}
 			const hasFieldProps = computed(() => {
 				if (typeof fieldProps.value === 'function') {
-					return fieldProps.value(formProvided?.modelValue)
+					return fieldProps.value(injectedFormData?.modelValue)
 				}
 				return fieldProps.value
 			})
@@ -222,8 +225,9 @@ export const defineFormField = <
 									onUpdate,
 									invalid: invalid.value,
 									invalidLabel: invalidLabel.value,
-									formData: formProvided?.modelValue.value,
-									formErrors: formProvided?.errors.value,
+									formData:
+										injectedFormData?.modelValue.value,
+									formErrors: injectedFormData?.errors.value,
 									errors: errors.value,
 								}) ?? slots.defalut
 							)

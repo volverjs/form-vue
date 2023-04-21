@@ -10,8 +10,9 @@ import {
 	toRefs,
 	watch,
 	h,
+	type DeepReadonly,
 } from 'vue'
-import type { AnyZodObject, ZodEffects } from 'zod'
+import type { AnyZodObject, TypeOf, ZodEffects, z } from 'zod'
 import type { InjectedFormData, InjectedFormWrapperData } from './types'
 
 export const defineFormWrapper = <
@@ -23,7 +24,7 @@ export const defineFormWrapper = <
 	formProvideKey: InjectionKey<InjectedFormData<Schema>>,
 	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,
 ) => {
-	return defineComponent({
+	const toReturn = defineComponent({
 		name: 'WrapperComponent',
 		props: {
 			name: {
@@ -131,4 +132,34 @@ export const defineFormWrapper = <
 			)
 		},
 	})
+	/**
+	 * An hack to add types to the slots
+	 */
+	return toReturn as typeof toReturn & {
+		new (): {
+			$slots: {
+				default: (_: {
+					invalid: boolean
+					formData: unknown extends
+						| Partial<TypeOf<Schema>>
+						| undefined
+						? undefined
+						: Partial<TypeOf<Schema>> | undefined
+					errors: Readonly<
+						Ref<DeepReadonly<z.inferFormattedError<Schema>>>
+					>
+					fieldsErrors: Map<
+						string,
+						Record<
+							string,
+							{
+								_errors: string[]
+							}
+						>
+					>
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				}) => any
+			}
+		}
+	}
 }

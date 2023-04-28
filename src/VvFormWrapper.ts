@@ -12,19 +12,18 @@ import {
 	h,
 	type DeepReadonly,
 } from 'vue'
-import type { AnyZodObject, TypeOf, ZodEffects, z } from 'zod'
-import type { InjectedFormData, InjectedFormWrapperData } from './types'
+import type { TypeOf, z } from 'zod'
+import type {
+	FormSchema,
+	InjectedFormData,
+	InjectedFormWrapperData,
+} from './types'
 
-export const defineFormWrapper = <
-	Schema extends
-		| AnyZodObject
-		| ZodEffects<AnyZodObject>
-		| ZodEffects<ZodEffects<AnyZodObject>>,
->(
+export const defineFormWrapper = <Schema extends FormSchema>(
 	formProvideKey: InjectionKey<InjectedFormData<Schema>>,
 	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,
 ) => {
-	const toReturn = defineComponent({
+	const VvFormWrapper = defineComponent({
 		name: 'WrapperComponent',
 		props: {
 			name: {
@@ -87,7 +86,7 @@ export const defineFormWrapper = <
 			)
 
 			const invalid = computed(() => {
-				if (!injectedFormData?.errors.value) {
+				if (!injectedFormData?.invalid.value) {
 					return false
 				}
 				return fieldsErrors.value.size > 0
@@ -102,7 +101,7 @@ export const defineFormWrapper = <
 			})
 
 			return {
-				formData: injectedFormData?.modelValue,
+				formData: injectedFormData?.formData,
 				errors: injectedFormData?.errors,
 				invalid,
 				fields,
@@ -111,16 +110,15 @@ export const defineFormWrapper = <
 		},
 		render() {
 			if (this.tag) {
-				return h(
-					this.tag,
-					null,
-					this.$slots.default?.({
-						invalid: this.invalid,
-						formData: this.formData,
-						errors: this.errors,
-						fieldsErrors: this.fieldsErrors,
-					}) ?? this.$slots.defalut,
-				)
+				return h(this.tag, null, {
+					default: () =>
+						this.$slots.default?.({
+							invalid: this.invalid,
+							formData: this.formData,
+							errors: this.errors,
+							fieldsErrors: this.fieldsErrors,
+						}) ?? this.$slots.defalut,
+				})
 			}
 			return (
 				this.$slots.default?.({
@@ -133,9 +131,9 @@ export const defineFormWrapper = <
 		},
 	})
 	/**
-	 * An hack to add types to the slots
+	 * An hack to add types to the default slot
 	 */
-	return toReturn as typeof toReturn & {
+	return VvFormWrapper as typeof VvFormWrapper & {
 		new (): {
 			$slots: {
 				default: (_: {

@@ -8,13 +8,9 @@ import {
 	ZodSchema,
 	ZodNullable,
 } from 'zod'
+import type { FormSchema } from './types'
 
-export const defaultObjectBySchema = <
-	Schema extends
-		| AnyZodObject
-		| ZodEffects<AnyZodObject>
-		| ZodEffects<ZodEffects<AnyZodObject>>,
->(
+export const defaultObjectBySchema = <Schema extends FormSchema>(
 	schema: Schema,
 	original: Partial<z.infer<Schema>> = {},
 ): Partial<z.infer<Schema>> => {

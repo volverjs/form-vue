@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.0.10] - 2023-04-21
+## [0.0.10] - 2023-04-28
 
 ### Fixed
 
@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - `defaultObjectBySchema` support for nested `ZodEffects`;
 - `VvForm` bug with emit update on zod parsed result;
 - Experimental components slots types;
+- `VvFormTemplate` component;
 - typescript improvements.
 
 ### Added

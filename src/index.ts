@@ -1,22 +1,21 @@
 import { type App, inject, type InjectionKey, type Plugin } from 'vue'
-import type { AnyZodObject, ZodEffects } from 'zod'
 import { defineFormField } from './VvFormField'
 import { defineForm } from './VvForm'
 import { defineFormWrapper } from './VvFormWrapper'
+import { defineFormTemplate } from './VvFormTemplate'
 import type {
 	InjectedFormData,
 	InjectedFormWrapperData,
 	InjectedFormFieldData,
 	FormComposableOptions,
 	FormPluginOptions,
+	FormTemplateItem,
+	Path,
+	PathValue,
+	FormSchema,
 } from './types'
 
-export const formFactory = <
-	Schema extends
-		| AnyZodObject
-		| ZodEffects<AnyZodObject>
-		| ZodEffects<ZodEffects<AnyZodObject>>,
->(
+export const formFactory = <Schema extends FormSchema>(
 	schema: Schema,
 	options: FormComposableOptions = {},
 ) => {
@@ -31,12 +30,11 @@ export const formFactory = <
 	>
 
 	// create components
-	const {
-		component: VvForm,
-		errors,
-		status,
-		formData,
-	} = defineForm(schema, formInjectionKey, options)
+	const { VvForm, errors, status, formData } = defineForm(
+		schema,
+		formInjectionKey,
+		options,
+	)
 	const VvFormWrapper = defineFormWrapper(
 		formInjectionKey,
 		formWrapperInjectionKey,
@@ -47,11 +45,13 @@ export const formFactory = <
 		formFieldInjectionKey,
 		options,
 	)
+	const VvFormTemplate = defineFormTemplate(formInjectionKey, VvFormField)
 
 	return {
 		VvForm,
 		VvFormWrapper,
 		VvFormField,
+		VvFormTemplate,
 		formInjectionKey,
 		formWrapperInjectionKey,
 		formFieldInjectionKey,
@@ -87,17 +87,15 @@ export const createForm = (
 				if (toReturn?.VvFormField) {
 					app.component('VvFormField', toReturn.VvFormField)
 				}
+				if (toReturn?.VvFormTemplate) {
+					app.component('VvFormTemplate', toReturn.VvFormTemplate)
+				}
 			}
 		},
 	}
 }
 
-export const useForm = <
-	Schema extends
-		| AnyZodObject
-		| ZodEffects<AnyZodObject>
-		| ZodEffects<ZodEffects<AnyZodObject>>,
->(
+export const useForm = <Schema extends FormSchema>(
 	schema: Schema,
 	options: FormComposableOptions = {},
 ) => {
@@ -111,6 +109,7 @@ export { defaultObjectBySchema } from './utils'
 type FormComponent = ReturnType<typeof defineForm>
 type FormWrapperComponent = ReturnType<typeof defineFormWrapper>
 type FormFieldComponent = ReturnType<typeof defineFormField>
+type FormTemplateComponent = ReturnType<typeof defineFormTemplate>
 
 export type {
 	InjectedFormData,
@@ -121,4 +120,8 @@ export type {
 	FormComponent,
 	FormWrapperComponent,
 	FormFieldComponent,
+	FormTemplateComponent,
+	FormTemplateItem,
+	Path,
+	PathValue,
 }

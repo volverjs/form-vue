@@ -18,21 +18,18 @@ import {
 	defineComponent,
 	onBeforeUnmount,
 } from 'vue'
-import type { AnyZodObject, ZodEffects, z } from 'zod'
+import type { z } from 'zod'
 import { FormFieldType } from './enums'
 import type {
 	InjectedFormData,
 	InjectedFormWrapperData,
 	InjectedFormFieldData,
 	FormComposableOptions,
+	Path,
+	FormSchema,
 } from './types'
 
-export const defineFormField = <
-	Schema extends
-		| AnyZodObject
-		| ZodEffects<AnyZodObject>
-		| ZodEffects<ZodEffects<AnyZodObject>>,
->(
+export const defineFormField = <Schema extends FormSchema>(
 	formProvideKey: InjectionKey<InjectedFormData<Schema>>,
 	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,
 	formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>,
@@ -54,7 +51,9 @@ export const defineFormField = <
 				default: undefined,
 			},
 			name: {
-				type: [String, Number, Boolean, Symbol],
+				type: [String, Number, Boolean, Symbol] as PropType<
+					Path<z.infer<Schema>>
+				>,
 				required: true,
 			},
 			props: {
@@ -84,22 +83,22 @@ export const defineFormField = <
 			// v-model
 			const modelValue = computed({
 				get() {
-					if (!injectedFormData?.modelValue) return
+					if (!injectedFormData?.formData) return
 					return get(
-						Object(injectedFormData.modelValue.value),
+						Object(injectedFormData.formData.value),
 						String(props.name),
 					)
 				},
 				set(value) {
-					if (!injectedFormData?.modelValue) return
+					if (!injectedFormData?.formData) return
 					set(
-						Object(injectedFormData.modelValue.value),
+						Object(injectedFormData.formData.value),
 						String(props.name),
 						value,
 					)
 					emit('update:modelValue', {
 						newValue: modelValue.value,
-						formData: injectedFormData?.modelValue,
+						formData: injectedFormData?.formData,
 					})
 				},
 			})
@@ -160,9 +159,9 @@ export const defineFormField = <
 				}
 			})
 			const unwatchInjectedFormData = watch(
-				() => injectedFormData?.modelValue,
+				() => injectedFormData?.formData,
 				() => {
-					emit('update:formData', injectedFormData?.modelValue)
+					emit('update:formData', injectedFormData?.formData)
 				},
 				{ deep: true },
 			)
@@ -171,7 +170,7 @@ export const defineFormField = <
 			}
 			const hasFieldProps = computed(() => {
 				if (typeof fieldProps.value === 'function') {
-					return fieldProps.value(injectedFormData?.modelValue)
+					return fieldProps.value(injectedFormData?.formData)
 				}
 				return fieldProps.value
 			})
@@ -225,8 +224,7 @@ export const defineFormField = <
 									onUpdate,
 									invalid: invalid.value,
 									invalidLabel: invalidLabel.value,
-									formData:
-										injectedFormData?.modelValue.value,
+									formData: injectedFormData?.formData.value,
 									formErrors: injectedFormData?.errors.value,
 									errors: errors.value,
 								}) ?? slots.defalut

@@ -22,7 +22,7 @@
 		lazyLoad: true,
 	})
 
-	const model: Ref<Zod.infer<typeof zodSchema>> = ref({
+	const model: Ref<z.infer<typeof zodSchema>> = ref({
 		firstname: 'Massimo',
 		surname: 'Rossi',
 		age: props.invalid ? 17 : 18,

@@ -21,3 +21,8 @@ export enum FormFieldType {
 	combobox = 'combobox',
 	custom = 'custom',
 }
+
+export enum FormStatus {
+	invalid = 'invalid',
+	valid = 'valid',
+}

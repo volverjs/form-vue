@@ -31,38 +31,41 @@ export const defaultObjectBySchema = <Schema extends FormSchema>(
 	return {
 		...(unknownKeys ? original : {}),
 		...Object.fromEntries(
-			Object.entries(innerType.shape).map(([key, subSchema]) => {
-				const originalValue = original[key]
-				const innerType = getInnerType(subSchema as ZodTypeAny)
-				let defaultValue = undefined
-				if (innerType instanceof ZodDefault) {
-					defaultValue = innerType._def.defaultValue()
-				}
-				if (
-					originalValue === null &&
-					innerType instanceof ZodNullable
-				) {
-					return [key, originalValue]
-				}
-				if (innerType instanceof ZodSchema) {
-					const parse = innerType.safeParse(original[key])
-					if (parse.success) {
-						return [key, parse.data ?? defaultValue]
+			(Object.entries(innerType.shape) as [string, ZodTypeAny][]).map(
+				([key, subSchema]) => {
+					const originalValue = original[key]
+					const innerType = getInnerType(subSchema)
+					let defaultValue = undefined
+					if (innerType instanceof ZodDefault) {
+						defaultValue = innerType._def.defaultValue()
 					}
-				}
-				if (innerType instanceof ZodObject) {
-					return [
-						key,
-						defaultObjectBySchema(
-							innerType,
-							originalValue && typeof originalValue === 'object'
-								? originalValue
-								: {},
-						),
-					]
-				}
-				return [key, defaultValue]
-			}),
+					if (
+						originalValue === null &&
+						innerType instanceof ZodNullable
+					) {
+						return [key, originalValue]
+					}
+					if (innerType instanceof ZodSchema) {
+						const parse = subSchema.safeParse(originalValue)
+						if (parse.success) {
+							return [key, parse.data ?? defaultValue]
+						}
+					}
+					if (innerType instanceof ZodObject) {
+						return [
+							key,
+							defaultObjectBySchema(
+								innerType,
+								originalValue &&
+									typeof originalValue === 'object'
+									? originalValue
+									: {},
+							),
+						]
+					}
+					return [key, defaultValue]
+				},
+			),
 		),
 	} as Partial<z.infer<Schema>>
 }

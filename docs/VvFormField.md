@@ -62,26 +62,6 @@ Field templates can be rendered using custom components.
 
 ```vue
 <script setup lang="ts">
-  import { useForm } from '@volverjs/form-vue'
-  import { z } from 'zod'
-  import MyInput from './MyInput.vue'
-
-  const schema = z.object({
-    username: z.string().min(3)
-  })
-
-  const { VvForm, VvFormField } = useForm(schema)
-</script>
-
-<template>
-  <VvForm>
-    <VvFormField name="username" :is="MyInput" />
-  </VvForm>
-</template>
-```
-
-```vue
-<script setup lang="ts">
   /* MyInput.vue */
   import { defineProps, type PropType } from 'vue'
 
@@ -125,6 +105,28 @@ Field templates can be rendered using custom components.
   <small v-if="invalid" role="alert" id="username-alert">
     {{ invalidLabel }}
   </small>
+</template>
+```
+
+Using the `is` prop.
+
+```vue
+<script setup lang="ts">
+  import { useForm } from '@volverjs/form-vue'
+  import { z } from 'zod'
+  import MyInput from './MyInput.vue'
+
+  const schema = z.object({
+    username: z.string().min(3)
+  })
+
+  const { VvForm, VvFormField } = useForm(schema)
+</script>
+
+<template>
+  <VvForm>
+    <VvFormField name="username" :is="MyInput" />
+  </VvForm>
 </template>
 ```
 
@@ -175,6 +177,23 @@ The `textarea` type is rendered as [`VvTextarea`](https://volverjs.github.io/ui-
 ### `VvCombobox`
 
 The `combobox` type is rendered as [`VvCombobox`](https://volverjs.github.io/ui-vue/?path=/story/components-combobox--default-story).
+
+## Events
+
+`VvFormField` emits the following events: `invalid`, `valid` and `update:modelValue`.
+
+```vue
+<template>
+  <VvForm>
+    <VvFormField
+      name="username"
+      @invalid="onInvalid"
+      @valid="onValid"
+      @update:modelValue="onUpdate"
+    />
+  </VvForm>
+</template>
+```
 
 ## Nested VvFormField
 

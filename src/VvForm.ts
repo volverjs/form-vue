@@ -50,7 +50,10 @@ export const defineForm = <Schema extends FormSchema>(
 		emits: ['invalid', 'valid', 'submit', 'update:modelValue'],
 		expose: ['submit', 'errors', 'status'],
 		setup(props, { emit }) {
-			formData.value = defaultObjectBySchema(schema, props.modelValue)
+			formData.value = defaultObjectBySchema(
+				schema,
+				toRaw(props.modelValue),
+			)
 
 			const keepValidation =
 				options?.continuosValidation ?? props.continuosValidation

@@ -290,7 +290,7 @@ By default UI components must be installed globally, they can be lazy-loaded wit
 </template>
 ```
 
-Check the [`VvFormField`](./docs/VvFormField.md) documentation to learn more about form fields.
+Check the [`VvFormField` documentation](./docs/VvFormField.md) to learn more about form fields.
 
 ## VvFormTemplate
 

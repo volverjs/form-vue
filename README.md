@@ -308,7 +308,7 @@ Forms can also be created using a template. A template is an **array of objects*
       street: z.string(),
       number: z.string(),
       city: z.string(),
-      zip: z.string()
+      zip: z.number()
     })
   })
 

@@ -293,7 +293,7 @@ By default [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components m
 
 Check the [`VvFormField`](./docs/VvFormField.md) documentation to learn more about form fields.
 
-## Form Template
+## VvFormTemplate
 
 Forms can also be created using a template. A template is an **array of objects** that describes the form fields. All properties that are **not listed** below are passed to the component **as props**.
 
@@ -450,7 +450,7 @@ Conditional rendering can be achieved using the `vvIf` and `vvElseIf` properties
 
 `vvElseIf` can be used multiple times. `vvElseIf: true` is like an `else` statement and will be rendered if all previous `vvIf` and `vvElseIf` conditions are false.
 
-`vvIf` and `vvElseIf` can be a string or a function. If it is a string it will be evaluated as a **property** of the form data. If it is a function it will be called with the **form context** as the **first argument**.
+`vvIf` and `vvElseIf` can be a string or a function. If it is a string it will be evaluated as a **property** of the form data. If it is a function it will be called with the **form context** as the **first argument** and must return a boolean.
 
 ```ts
 {
@@ -461,7 +461,8 @@ Conditional rendering can be achieved using the `vvIf` and `vvElseIf` properties
 }
 ```
 
-The template schema and all template items can be a function. The function will be called with the form context as the first argument.
+Also the template schema and all template items can be a function.
+The function will be called with the **form context** as the **first argument**.
 
 ```ts
 const templateSchema = (ctx) => [

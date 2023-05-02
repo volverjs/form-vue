@@ -15,17 +15,18 @@ import {
 } from 'vue'
 import { watchThrottled } from '@vueuse/core'
 import type { z, ZodFormattedError, TypeOf } from 'zod'
-import type { FormSchema, InjectedFormData } from './types'
+import type {
+	FormComponentOptions,
+	FormSchema,
+	InjectedFormData,
+} from './types'
 import { FormStatus } from './enums'
 import { defaultObjectBySchema } from './utils'
 
 export const defineForm = <Schema extends FormSchema>(
 	schema: Schema,
 	provideKey: InjectionKey<InjectedFormData<Schema>>,
-	options?: {
-		updateThrottle?: number
-		continuosValidation?: boolean
-	},
+	options?: FormComponentOptions,
 ) => {
 	const errors = ref<ZodFormattedError<z.infer<Schema>>>()
 	const status = ref<FormStatus | undefined>()

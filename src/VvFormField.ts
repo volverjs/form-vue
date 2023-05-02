@@ -24,7 +24,7 @@ import type {
 	InjectedFormData,
 	InjectedFormWrapperData,
 	InjectedFormFieldData,
-	FormComposableOptions,
+	FormFieldComponentOptions,
 	Path,
 	FormSchema,
 } from './types'
@@ -33,7 +33,7 @@ export const defineFormField = <Schema extends FormSchema>(
 	formProvideKey: InjectionKey<InjectedFormData<Schema>>,
 	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,
 	formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>,
-	options: FormComposableOptions = {},
+	options?: FormFieldComponentOptions,
 ) => {
 	// define component
 	return defineComponent({
@@ -75,6 +75,10 @@ export const defineFormField = <Schema extends FormSchema>(
 			defaultValue: {
 				type: [String, Number, Boolean, Array, Object],
 				default: undefined,
+			},
+			lazyload: {
+				type: Boolean,
+				default: false,
 			},
 		},
 		emits: ['invalid', 'valid', 'update:formData', 'update:modelValue'],
@@ -231,7 +235,7 @@ export const defineFormField = <Schema extends FormSchema>(
 						},
 					}
 				}
-				if (!options.lazyLoad) {
+				if (!(options?.lazyLoad ?? props.lazyload)) {
 					let component: string | ConcreteComponent
 					switch (props.type) {
 						case FormFieldType.select:
@@ -267,7 +271,7 @@ export const defineFormField = <Schema extends FormSchema>(
 					}
 				}
 				return defineAsyncComponent(async () => {
-					if (options.sideEffects) {
+					if (options?.sideEffects) {
 						await Promise.resolve(options.sideEffects(props.type))
 					}
 					switch (props.type) {

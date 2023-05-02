@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - `VvForm` bug with emit update on zod parsed result;
 - Experimental components slots types;
 - `VvFormTemplate` component;
+- `formFactory()` deprecated, use `useForm()` instead;
 - Typescript improvements.
 
 ### Added

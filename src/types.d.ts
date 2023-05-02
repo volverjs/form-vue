@@ -7,12 +7,18 @@ export type FormSchema =
 	| ZodEffects<AnyZodObject>
 	| ZodEffects<ZodEffects<AnyZodObject>>
 
-export type FormComposableOptions = {
+export type FormFieldComponentOptions = {
 	lazyLoad?: boolean
-	updateThrottle?: number
-	continuosValidation?: boolean
 	sideEffects?: (type: `${FormFieldType}`) => Promise | void
 }
+
+export type FormComponentOptions = {
+	updateThrottle?: number
+	continuosValidation?: boolean
+}
+
+export type FormComposableOptions = FormFieldComponentOptions &
+	FormComponentOptions
 
 export type FormPluginOptions = {
 	schema?: ZodSchema

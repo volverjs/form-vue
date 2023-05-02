@@ -33,11 +33,11 @@ npm install @volverjs/form-vue --save
 
 ## Usage
 
-`@volverjs/form-vue` allow you to create a Vue 3 form with [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components from a [Zod Object](https://zod.dev/?id=objects) schema. It provides three functions: `createForm`, `useForm` and `formFactory`.
+`@volverjs/form-vue` allow you to create a Vue 3 form with [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components from a [Zod Object](https://zod.dev/?id=objects) schema. It provides two functions: `createForm()` and `useForm()`.
 
 ## Plugin
 
-`createForm` defines globally three components `VvForm`, `VvFormWrapper`, and `VvFormField` through a [Vue 3 Plugin](https://vuejs.org/guide/reusability/plugins.html).
+`createForm()` defines globally three components `VvForm`, `VvFormWrapper`, and `VvFormField` through a [Vue 3 Plugin](https://vuejs.org/guide/reusability/plugins.html).
 
 ```typescript
 import { createApp } from 'vue'
@@ -62,7 +62,7 @@ app.use(form)
 app.mount('#app')
 ```
 
-By default [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components must be defined globally but can be lazy loaded with `lazyLoad` option. If the schema is omitted, the plugin only share the options to the forms created with the [composable](https://github.com/volverjs/form-vue/#composable).
+If the schema is omitted, the plugin only share the options to the forms created with the [composable](https://github.com/volverjs/form-vue/#composable).
 
 ### VvForm
 
@@ -137,8 +137,8 @@ To activate **continuos validation** use the `continuosValidation` option or pro
 
 ## Composable
 
-`useForm` can be used to create a form programmatically inside a Vue 3 Component.
-The **default settings** are **inherited** from the plugin (if it was defined).
+`useForm()` can be used to create a form programmatically inside a Vue 3 Component.
+The **default settings** are **inherited** from the plugin (if it's installed).
 
 ```vue
 <script lang="ts" setup>
@@ -164,6 +164,42 @@ The **default settings** are **inherited** from the plugin (if it was defined).
     <VvFormField type="text" name="lastName" label="Last Name" />
   </VvForm>
 </template>
+```
+
+### Outside a Vue 3 Component
+
+`useForm()` can create a form also outside a Vue 3 Component, plugin settings are **not inherited**.
+
+```ts
+import { formFactory } from '@volverjs/form-vue'
+import { z } from 'zod'
+
+const schema = z.object({
+  name: z.string(),
+  surname: z.string()
+})
+
+const {
+  VvForm,
+  VvFormWrapper,
+  VvFormField,
+  VvFormTemplate,
+  formData,
+  status,
+  errors
+} = formFactory(schema, {
+  lazyLoad: true
+})
+
+export default {
+  VvForm,
+  VvFormWrapper,
+  VvFormField,
+  VvFormTemplate,
+  formData,
+  status,
+  errors
+}
 ```
 
 ### VvFormWrapper
@@ -243,6 +279,8 @@ It automatically bind the form data through the `name` attribute. For nested obj
 ```
 
 To render a [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) input component, use the `type` attribute.
+
+By default [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components must be defined globally but can be lazy loaded with `lazyLoad` option or prop.
 
 ```vue
 <template>
@@ -448,46 +486,6 @@ const templateSchema = [
     label: 'username'
   }
 ]
-```
-
-## Outside a Vue 3 Component
-
-`formFactory` can be used to create a form outside a Vue 3 Component.
-No settings are inherited.
-
-```ts
-import { formFactory } from '@volverjs/form-vue'
-import { z } from 'zod'
-
-const schema = z.object({
-  name: z.string(),
-  surname: z.string()
-})
-
-const {
-  VvForm,
-  VvFormWrapper,
-  VvFormField,
-  VvFormTemplate,
-  formData,
-  status,
-  errors
-} = formFactory(schema, {
-  // lazyLoad: boolean - default false
-  // updateThrottle: number - default 500
-  // continuosValidation: boolean - default false
-  // sideEffects?: (data: any) => void
-})
-
-export default {
-  VvForm,
-  VvFormWrapper,
-  VvFormField,
-  VvFormTemplate,
-  formData,
-  status,
-  errors
-}
 ```
 
 ## Default Object by Zod Object Schema

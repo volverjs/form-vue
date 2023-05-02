@@ -1,4 +1,10 @@
-import { type App, inject, type InjectionKey, type Plugin } from 'vue'
+import {
+	getCurrentInstance,
+	type App,
+	inject,
+	type InjectionKey,
+	type Plugin,
+} from 'vue'
 import { defineFormField } from './VvFormField'
 import { defineForm } from './VvForm'
 import { defineFormWrapper } from './VvFormWrapper'
@@ -15,16 +21,15 @@ import type {
 	FormSchema,
 } from './types'
 
-export const formFactory = <Schema extends FormSchema>(
+const _formFactory = <Schema extends FormSchema>(
 	schema: Schema,
 	options: FormComposableOptions = {},
 ) => {
-	// create injection keys form provide/inject
+	// create injection keys
 	const formInjectionKey = Symbol() as InjectionKey<InjectedFormData<Schema>>
 	const formWrapperInjectionKey = Symbol() as InjectionKey<
 		InjectedFormWrapperData<Schema>
 	>
-
 	const formFieldInjectionKey = Symbol() as InjectionKey<
 		InjectedFormFieldData<Schema>
 	>
@@ -68,7 +73,7 @@ export const createForm = (
 ): Plugin & Partial<ReturnType<typeof useForm>> => {
 	let toReturn: Partial<ReturnType<typeof useForm>> = {}
 	if (options.schema) {
-		toReturn = formFactory(options.schema, options)
+		toReturn = _formFactory(options.schema, options)
 	}
 	return {
 		...toReturn,
@@ -99,8 +104,13 @@ export const useForm = <Schema extends FormSchema>(
 	schema: Schema,
 	options: FormComposableOptions = {},
 ) => {
-	const hasOptions = { ...inject(pluginInjectionKey, {}), ...options }
-	return formFactory(schema, hasOptions)
+	if (!getCurrentInstance()) {
+		return _formFactory(schema, options)
+	}
+	return _formFactory(schema, {
+		...inject(pluginInjectionKey, {}),
+		...options,
+	})
 }
 
 export { FormFieldType } from './enums'
@@ -124,4 +134,14 @@ export type {
 	FormTemplateItem,
 	Path,
 	PathValue,
+}
+
+/**
+ * @deprecated Use `useForm()` instead
+ */
+export const formFactory = <Schema extends FormSchema>(
+	schema: Schema,
+	options: FormComposableOptions = {},
+) => {
+	return _formFactory(schema, options)
 }

@@ -76,7 +76,7 @@ export const defineFormField = <Schema extends FormSchema>(
 				type: [String, Number, Boolean, Array, Object],
 				default: undefined,
 			},
-			lazyload: {
+			lazyLoad: {
 				type: Boolean,
 				default: false,
 			},
@@ -235,7 +235,7 @@ export const defineFormField = <Schema extends FormSchema>(
 						},
 					}
 				}
-				if (!(options?.lazyLoad ?? props.lazyload)) {
+				if (!(options?.lazyLoad ?? props.lazyLoad)) {
 					let component: string | ConcreteComponent
 					switch (props.type) {
 						case FormFieldType.select:

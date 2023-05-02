@@ -279,14 +279,13 @@ It automatically bind the form data through the `name` attribute. For nested obj
 ```
 
 To render a [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) input component, use the `type` attribute.
-
-By default [`@volverjs/ui-vue`](https://github.com/volverjs/ui-vue) components must be defined globally but can be lazy loaded with `lazyLoad` option or prop.
+By default UI components must be installed globally, they can be lazy-loaded with `lazyLoad` option or prop.
 
 ```vue
 <template>
   <VvForm>
-    <VvFormField type="text" name="username" label="Username" />
-    <VvFormField type="password" name="password" label="Password" />
+    <VvFormField type="text" name="username" label="Username" lazy-load />
+    <VvFormField type="password" name="password" label="Password" lazy-load />
   </VvForm>
 </template>
 ```
@@ -367,15 +366,10 @@ Forms can also be created using a template. A template is an **array of objects*
 Template items, by default, are rendered as a `VvFormField` component but this can be changed using the `vvIs` property. The `vvIs` property can be a string or a component.
 
 `vvName` refers to the name of the field in the schema and can be a nested property using **dot notation**.
-
 `vvType` refers to the type of the field and can be any of the supported types.
-
 `vvDefaultValue` can be used to set default values for the form item.
-
 `vvShowValid` can be used to show the valid state of the form item.
-
 `vvSlots` can be used to pass a slots to the template item.
-
 `vvChildren` is an array of template items which will be wrapped in the parent item.
 
 Conditional rendering can be achieved using the `vvIf` and `vvElseIf` properties.

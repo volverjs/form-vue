@@ -37,6 +37,10 @@ export const defineForm = <Schema extends FormSchema>(
 				type: Object,
 				default: () => ({}),
 			},
+			updateThrottle: {
+				type: Number,
+				default: 500,
+			},
 			continuosValidation: {
 				type: Boolean,
 				default: false,
@@ -48,7 +52,7 @@ export const defineForm = <Schema extends FormSchema>(
 			formData.value = defaultObjectBySchema(schema, props.modelValue)
 
 			const keepValidation =
-				options?.continuosValidation || props.continuosValidation
+				options?.continuosValidation ?? props.continuosValidation
 
 			watch(
 				() => props.modelValue,
@@ -81,7 +85,10 @@ export const defineForm = <Schema extends FormSchema>(
 						emit('update:modelValue', newValue)
 					}
 				},
-				{ deep: true, throttle: options?.updateThrottle ?? 500 },
+				{
+					deep: true,
+					throttle: options?.updateThrottle ?? props.updateThrottle,
+				},
 			)
 
 			const parseModelValue = (value = formData.value) => {

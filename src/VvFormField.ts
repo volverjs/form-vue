@@ -205,7 +205,6 @@ export const defineFormField = <Schema extends FormSchema>(
 				})(props.type as FormFieldType),
 				invalidLabel: invalidLabel.value,
 				modelValue: modelValue.value,
-				errors: props.is ? errors.value : undefined,
 				'onUpdate:modelValue': onUpdate,
 			}))
 

@@ -1,3 +1,4 @@
+import { get } from 'ts-dot-prop'
 import {
 	type Component,
 	type PropType,
@@ -32,13 +33,14 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 		},
 		setup(templateProps, { slots: templateSlots }) {
 			const injectedFormData = inject(formProvideKey)
+			if (!injectedFormData?.formData) return
 			const normalizedSchema =
 				typeof templateProps.schema === 'function'
 					? templateProps.schema(injectedFormData)
 					: templateProps.schema
 			let lastIf: boolean | undefined = undefined
 			return () =>
-				normalizedSchema?.reduce<(VNode | VNode[] | undefined)[]>(
+				normalizedSchema.reduce<(VNode | VNode[] | undefined)[]>(
 					(acc, field) => {
 						const normalizedField =
 							typeof field === 'function'
@@ -58,10 +60,18 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 						} = normalizedField
 						// conditions
 						if (vvIf !== undefined) {
-							lastIf =
-								typeof vvIf === 'function'
-									? unref(vvIf(injectedFormData))
-									: unref(vvIf)
+							if (typeof vvIf === 'string') {
+								lastIf = Boolean(
+									get(
+										Object(injectedFormData.formData.value),
+										vvIf,
+									),
+								)
+							} else if (typeof vvIf === 'function') {
+								lastIf = unref(vvIf(injectedFormData))
+							} else {
+								lastIf = unref(vvIf)
+							}
 							if (!lastIf) {
 								return acc
 							}
@@ -72,10 +82,18 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 							if (lastIf) {
 								return acc
 							}
-							lastIf =
-								typeof vvElseIf === 'function'
-									? unref(vvElseIf(injectedFormData))
-									: unref(vvElseIf)
+							if (typeof vvElseIf === 'string') {
+								lastIf = Boolean(
+									get(
+										Object(injectedFormData.formData.value),
+										vvElseIf,
+									),
+								)
+							} else if (typeof vvElseIf === 'function') {
+								lastIf = unref(vvElseIf(injectedFormData))
+							} else {
+								lastIf = unref(vvElseIf)
+							}
 							if (!lastIf) {
 								return acc
 							}

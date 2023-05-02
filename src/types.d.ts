@@ -111,8 +111,8 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
 		| SimpleFormTemplateItem<Schema>
 		| ((data?: InjectedFormData<Schema>) => SimpleFormTemplateItem<Schema>)
 	>
-	vvIf?: AnyBoolean<Schema>
-	vvElseIf?: AnyBoolean<Schema>
+	vvIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
+	vvElseIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
 	vvType?: `${FormFieldType}`
 	vvShowValid?: boolean
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

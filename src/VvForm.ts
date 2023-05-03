@@ -48,16 +48,14 @@ export const defineForm = <Schema extends FormSchema>(
 			},
 		},
 		emits: ['invalid', 'valid', 'submit', 'update:modelValue'],
-		expose: ['submit', 'errors', 'status'],
+		expose: ['submit', 'validate', 'errors', 'status', 'valid', 'invalid'],
 		setup(props, { emit }) {
 			formData.value = defaultObjectBySchema(
 				schema,
 				toRaw(props.modelValue),
 			)
 
-			const keepValidation =
-				options?.continuosValidation ?? props.continuosValidation
-
+			// clone modelValue and update formData
 			watch(
 				() => props.modelValue,
 				(newValue) => {
@@ -73,12 +71,16 @@ export const defineForm = <Schema extends FormSchema>(
 				},
 				{ deep: true },
 			)
-			// v-model
+
+			// emit update:modelValue on formData change
 			watchThrottled(
 				formData,
 				(newValue) => {
-					if (errors.value || keepValidation) {
-						parseModelValue()
+					if (
+						(errors.value || options?.continuosValidation) ??
+						props.continuosValidation
+					) {
+						validate()
 					}
 					if (
 						!newValue ||
@@ -95,7 +97,8 @@ export const defineForm = <Schema extends FormSchema>(
 				},
 			)
 
-			const parseModelValue = (value = formData.value) => {
+			// validate formData with safeParse
+			const validate = (value = formData.value) => {
 				const parseResult = schema.safeParse(value)
 				if (!parseResult.success) {
 					errors.value =
@@ -114,9 +117,9 @@ export const defineForm = <Schema extends FormSchema>(
 				return true
 			}
 
-			// submit
+			// emit submit event if form is valid
 			const submit = () => {
-				if (!parseModelValue()) {
+				if (!validate()) {
 					return false
 				}
 				emit('submit', formData.value)
@@ -125,10 +128,11 @@ export const defineForm = <Schema extends FormSchema>(
 
 			const invalid = computed(() => status.value === FormStatus.invalid)
 
-			// provide
+			// provide data to children
 			provide(provideKey, {
 				formData,
 				submit,
+				validate,
 				errors: readonly(errors),
 				status: readonly(status),
 				invalid,
@@ -137,6 +141,7 @@ export const defineForm = <Schema extends FormSchema>(
 			return {
 				formData,
 				submit,
+				validate,
 				errors: readonly(errors),
 				status: readonly(status),
 				invalid,
@@ -153,6 +158,7 @@ export const defineForm = <Schema extends FormSchema>(
 						this.$slots?.default?.({
 							formData: this.formData,
 							submit: this.submit,
+							validate: this.validate,
 							errors: this.errors,
 							status: this.status,
 							invalid: this.invalid,
@@ -178,6 +184,7 @@ export const defineForm = <Schema extends FormSchema>(
 							? undefined
 							: Partial<TypeOf<Schema>> | undefined
 						submit: () => boolean
+						validate: () => boolean
 						errors: Readonly<
 							Ref<DeepReadonly<z.inferFormattedError<Schema>>>
 						>

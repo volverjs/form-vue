@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - `defaultObjectBySchema()` support for nested `ZodEffects`;
 - `defaultObjectBySchema()` safe parse of `ZodEffects`;
 - `formFactory()` deprecated, use `useForm()` instead;
+- `validate()` method is now exposed by `VvForm` component;
 - Experimental components slots types;
 - Typescript improvements.
 

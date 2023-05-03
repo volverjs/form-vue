@@ -28,6 +28,7 @@ export type InjectedFormData<Schema extends FormSchema> = {
 	formData: Ref<Partial<z.infer<Schema>> | undefined>
 	errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
 	submit: () => boolean
+	validate: () => boolean
 	status: Readonly<Ref<FormStatus | undefined>>
 	invalid: Readonly<Ref<boolean>>
 }

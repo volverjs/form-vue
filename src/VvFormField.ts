@@ -225,6 +225,8 @@ export const defineFormField = <Schema extends FormSchema>(
 								slots.default?.({
 									modelValue: modelValue.value,
 									onUpdate,
+									submit: injectedFormData?.submit,
+									validate: injectedFormData?.validate,
 									invalid: invalid.value,
 									invalidLabel: invalidLabel.value,
 									formData: injectedFormData?.formData.value,

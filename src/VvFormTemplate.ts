@@ -144,6 +144,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 						templateSlots?.default?.({
 							formData: injectedFormData?.formData.value,
 							submit: injectedFormData?.submit,
+							validate: injectedFormData?.validate,
 							errors: injectedFormData?.errors.value,
 							status: injectedFormData?.status.value,
 							invalid: injectedFormData?.invalid.value,
@@ -166,6 +167,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 						? undefined
 						: Partial<TypeOf<Schema>> | undefined
 					submit: () => boolean
+					validate: () => boolean
 					errors: Readonly<
 						Ref<DeepReadonly<z.inferFormattedError<Schema>>>
 					>

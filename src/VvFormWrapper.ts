@@ -103,6 +103,8 @@ export const defineFormWrapper = <Schema extends FormSchema>(
 			return {
 				formData: injectedFormData?.formData,
 				errors: injectedFormData?.errors,
+				submit: injectedFormData?.submit,
+				validate: injectedFormData?.validate,
 				invalid,
 				fields,
 				fieldsErrors,
@@ -115,6 +117,8 @@ export const defineFormWrapper = <Schema extends FormSchema>(
 						this.$slots.default?.({
 							invalid: this.invalid,
 							formData: this.formData,
+							submit: this.submit,
+							validate: this.validate,
 							errors: this.errors,
 							fieldsErrors: this.fieldsErrors,
 						}) ?? this.$slots.defalut,
@@ -124,6 +128,8 @@ export const defineFormWrapper = <Schema extends FormSchema>(
 				this.$slots.default?.({
 					invalid: this.invalid,
 					formData: this.formData,
+					submit: this.submit,
+					validate: this.validate,
 					errors: this.errors,
 					fieldsErrors: this.fieldsErrors,
 				}) ?? this.$slots.defalut
@@ -143,6 +149,8 @@ export const defineFormWrapper = <Schema extends FormSchema>(
 						| undefined
 						? undefined
 						: Partial<TypeOf<Schema>> | undefined
+					submit: () => boolean
+					validate: () => boolean
 					errors: Readonly<
 						Ref<DeepReadonly<z.inferFormattedError<Schema>>>
 					>

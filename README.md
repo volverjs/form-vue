@@ -171,7 +171,7 @@ The **default settings** are **inherited** from the plugin (if it's installed).
 `useForm()` can create a form also outside a Vue 3 Component, plugin settings are **not inherited**.
 
 ```ts
-import { formFactory } from '@volverjs/form-vue'
+import { useForm } from '@volverjs/form-vue'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -187,7 +187,7 @@ const {
   formData,
   status,
   errors
-} = formFactory(schema, {
+} = useForm(schema, {
   lazyLoad: true
 })
 

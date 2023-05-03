@@ -2,22 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.0.10] - 2023-05-02
+## [0.0.10] - 2023-05-03
 
 ### Fixed
 
-- `VvFormWrapper` default slot `formData` and `errors` properties;
-- `VvFormTemplate` component;
 - `VvForm` bug with emit update on zod parsed result;
 - `defaultObjectBySchema()` support for nested `ZodEffects`;
 - `defaultObjectBySchema()` safe parse of `ZodEffects`;
 - `formFactory()` deprecated, use `useForm()` instead;
-- `validate()` method is now exposed by `VvForm` component;
 - Experimental components slots types;
 - Typescript improvements.
 
 ### Added
 
+- `validate()` method is now exposed by `VvForm` component;
+- Add `formData` and `errors` to `VvFormWrapper` default slot scope;
+- Add `validate()` and `submit()` to `VvFormWrapper` and `VvFormField` default slot scope;
+- `VvFormTemplate` component for template based forms;
 - `formFactory()` now export `errors`, `status` and `formData`;
 
 ## [0.0.9] - 2023-03-23

@@ -45,7 +45,7 @@
     "*.d.ts"
   ],
   "dependencies": {
-    "@volverjs/ui-vue": "0.0.6-beta.7",
+    "@volverjs/ui-vue": "0.0.6",
     "@vueuse/core": "^10.1.2",
     "ts-dot-prop": "^2.1.2",
     "vue": "^3.2.47",

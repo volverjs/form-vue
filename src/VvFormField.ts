@@ -297,6 +297,10 @@ export const defineFormField = <Schema extends FormSchema>(
 							return import(
 								'@volverjs/ui-vue/vv-checkbox-group'
 							) as Component
+						case FormFieldType.select:
+							return import(
+								'@volverjs/ui-vue/vv-select'
+							) as Component
 						case FormFieldType.combobox:
 							return import(
 								'@volverjs/ui-vue/vv-combobox'

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.11] - 2023-05-16
+
+### Fixed
+
+- `VvFormField` type `select`
+
 ## [0.0.10] - 2023-05-03
 
 ### Fixed

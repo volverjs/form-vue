@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.12] - 2023-05-16
+
+### Fixed
+
+- `defaultObjectBySchema()` support for nested `ZodOptional`;
+
 ## [0.0.11] - 2023-05-16
 
 ### Fixed
@@ -83,6 +89,9 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[0.0.12]: https://github.com/volverjs/form-vue/compare/v0.0.11...v0.0.12
+[0.0.11]: https://github.com/volverjs/form-vue/compare/v0.0.10...v0.0.11
+[0.0.10]: https://github.com/volverjs/form-vue/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/volverjs/form-vue/compare/v0.0.5...v0.0.9
 [0.0.5]: https://github.com/volverjs/form-vue/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/volverjs/form-vue/compare/v0.0.3...v0.0.4

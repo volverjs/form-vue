@@ -7,6 +7,7 @@ import {
 	ZodEffects,
 	ZodSchema,
 	ZodNullable,
+	ZodOptional,
 } from 'zod'
 import type { FormSchema } from './types'
 
@@ -15,11 +16,18 @@ export const defaultObjectBySchema = <Schema extends FormSchema>(
 	original: Partial<z.infer<Schema>> = {},
 ): Partial<z.infer<Schema>> => {
 	const getInnerType = <Type extends ZodTypeAny>(
-		schema: Type | ZodEffects<Type> | ZodEffects<ZodEffects<Type>>,
+		schema:
+			| Type
+			| ZodEffects<Type>
+			| ZodEffects<ZodEffects<Type>>
+			| ZodOptional<Type>,
 	) => {
 		let toReturn = schema
 		while (toReturn instanceof ZodEffects) {
 			toReturn = toReturn.innerType()
+		}
+		while (toReturn instanceof ZodOptional) {
+			toReturn = toReturn._def.innerType
 		}
 		return toReturn
 	}

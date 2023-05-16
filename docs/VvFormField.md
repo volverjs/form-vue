@@ -152,7 +152,7 @@ The following types are rendered as [`VvInputText`](https://volverjs.github.io/u
 
 ### `VvSelect`
 
-The `select` type is rendered as [`VvSelect`](https://volverjs.github.io/ui-vue/?path=/story/components-select--default-story).
+The `select` type is rendered as [`VvSelect`](https://volverjs.github.io/ui-vue/?path=/docs/components-select--docs).
 
 ### `VvCheckbox`
 

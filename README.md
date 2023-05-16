@@ -366,7 +366,7 @@ Forms can also be created using a template. A template is an **array of objects*
 Template items, by default, are rendered as a `VvFormField` component but this can be changed using the `vvIs` property. The `vvIs` property can be a string or a component.
 
 `vvName` refers to the name of the field in the schema and can be a nested property using **dot notation**.
-`vvType` refers to the type of the field and can be any of the supported types.
+`vvType` refers to the type of the field and can be any of the supported [types](./docs/VvFormField.md#ui-components).
 `vvDefaultValue` can be used to set default values for the form item.
 `vvShowValid` can be used to show the valid state of the form item.
 `vvSlots` can be used to pass a slots to the template item.

@@ -134,7 +134,7 @@ Using the `is` prop.
 
 ### `VvInputText`
 
-The following types are rendered as [`VvInputText`](https://volverjs.github.io/ui-vue/?path=/story/components-inputtext--default-story):
+The following types are rendered as [`VvInputText`](https://volverjs.github.io/ui-vue/?path=/docs/components-inputtext--docs):
 
 - `text`;
 - `number`;
@@ -156,27 +156,27 @@ The `select` type is rendered as [`VvSelect`](https://volverjs.github.io/ui-vue/
 
 ### `VvCheckbox`
 
-The `checkbox` type is rendered as [`VvCheckbox`](https://volverjs.github.io/ui-vue/?path=/story/components-checkbox--default-story).
+The `checkbox` type is rendered as [`VvCheckbox`](https://volverjs.github.io/ui-vue/?path=/docs/components-checkbox--docs).
 
 ### `VvCheckboxGroup`
 
-The `checkboxGroup` type is rendered as [`VvCheckboxGroup`](https://volverjs.github.io/ui-vue/?path=/story/components-checkboxgroup--default-story).
+The `checkboxGroup` type is rendered as [`VvCheckboxGroup`](https://volverjs.github.io/ui-vue/?path=/docs/components-checkboxgroup--docs).
 
 ### `VvRadio`
 
-The `radio` type is rendered as [`VvRadio`](https://volverjs.github.io/ui-vue/?path=/story/components-radio--default-story).
+The `radio` type is rendered as [`VvRadio`](https://volverjs.github.io/ui-vue/?path=/docs/components-radio--docs).
 
 ### `VvRadioGroup`
 
-The `radioGroup` type is rendered as [`VvRadioGroup`](https://volverjs.github.io/ui-vue/?path=/story/components-radiogroup--default-story).
+The `radioGroup` type is rendered as [`VvRadioGroup`](https://volverjs.github.io/ui-vue/?path=/docs/components-radiogroup--docs).
 
 ### `VvTextarea`
 
-The `textarea` type is rendered as [`VvTextarea`](https://volverjs.github.io/ui-vue/?path=/story/components-textarea--default-story).
+The `textarea` type is rendered as [`VvTextarea`](https://volverjs.github.io/ui-vue/?path=/docs/components-textarea--docs).
 
 ### `VvCombobox`
 
-The `combobox` type is rendered as [`VvCombobox`](https://volverjs.github.io/ui-vue/?path=/story/components-combobox--default-story).
+The `combobox` type is rendered as [`VvCombobox`](https://volverjs.github.io/ui-vue/?path=/docs/components-combobox--docs).
 
 ## Events
 

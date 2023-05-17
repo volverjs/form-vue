@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { defaultObjectBySchema } from '../src/utils' //'../dist/index.es.js'
+import { defaultObjectBySchema } from '../dist/index.es.js'
 import { z } from 'zod'
 import { it, expect } from 'vitest'
 

@@ -58,6 +58,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 							vvShowValid,
 							...props
 						} = normalizedField
+
 						// conditions
 						if (vvIf !== undefined) {
 							if (typeof vvIf === 'string') {

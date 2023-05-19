@@ -17,6 +17,7 @@ import {
 	watch,
 	defineComponent,
 	onBeforeUnmount,
+	unref,
 } from 'vue'
 import type { z } from 'zod'
 import { FormFieldType } from './enums'
@@ -173,10 +174,17 @@ export const defineFormField = <Schema extends FormSchema>(
 				modelValue.value = value
 			}
 			const hasFieldProps = computed(() => {
-				if (typeof fieldProps.value === 'function') {
-					return fieldProps.value(injectedFormData?.formData)
+				let toReturn = fieldProps.value
+				if (typeof toReturn === 'function') {
+					toReturn = toReturn(injectedFormData?.formData)
 				}
-				return fieldProps.value
+				return Object.keys(toReturn).reduce<Record<string, unknown>>(
+					(acc, key) => {
+						acc[key] = unref(toReturn[key])
+						return acc
+					},
+					{},
+				)
 			})
 			const hasProps = computed(() => ({
 				...hasFieldProps.value,

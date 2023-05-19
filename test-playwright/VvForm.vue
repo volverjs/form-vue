@@ -3,14 +3,9 @@
 	import { z } from 'zod'
 	import { ref, type Ref } from 'vue'
 
-	const props = defineProps([
-		'onSubmit',
-		'submitForm',
-		'onInvalid',
-		'onValid',
-		'invalid',
-		'continuosValidation',
-	])
+	const props = defineProps(['invalid', 'continuosValidation'])
+
+	defineEmits(['submit', 'invalid', 'valid', 'click'])
 
 	const zodSchema = z.object({
 		firstname: z.string(),
@@ -32,11 +27,11 @@
 <template>
 	<div>
 		<VvForm
+			v-bind="{ continuosValidation }"
 			v-model="model"
-			@submit="onSubmit"
-			@invalid="onInvalid"
-			@valid="onValid"
-			:continuosValidation="props.continuosValidation"
+			@submit="$emit('submit')"
+			@invalid="$emit('invalid')"
+			@valid="$emit('valid')"
 			ref="formEl"
 		>
 			<VvFormField name="firstname" type="text" label="firstname" />
@@ -47,9 +42,9 @@
 				type="button"
 				title="Submit"
 				class="vv-button"
-				@click.stop="submitForm"
+				@click.stop="$emit('click')"
 			>
-				Submit
+				Click
 			</button>
 
 			<button type="submit" class="vv-button" title="Submit">

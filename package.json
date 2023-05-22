@@ -45,7 +45,6 @@
     "*.d.ts"
   ],
   "dependencies": {
-    "@volverjs/ui-vue": "0.0.7",
     "@vueuse/core": "^10.1.2",
     "ts-dot-prop": "^2.1.2",
     "vue": "^3.3.4",
@@ -73,6 +72,9 @@
     "vite-plugin-externalize-deps": "^0.6.0",
     "vitest": "^0.31.1",
     "vue-tsc": "^1.6.5"
+  },
+  "peerDependencies": {
+    "@volverjs/ui-vue": "^0.0.8-beta.4"
   },
   "typesVersions": {
     "*": {

@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - `VvFormTemplate` and `VvFormField` support for `ref()` props.
 
+### Updated
+
+- `@volverjs/ui-vue` to `v0.0.8-beta.4` and added to peerDependencies
+
 ## [0.0.12] - 2023-05-16
 
 ### Fixed

@@ -2,7 +2,7 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@volverjs/ui-vue':
-    specifier: ^0.0.8-beta.4
+    specifier: 0.0.8-beta.4
     version: 0.0.8-beta.4
   '@vueuse/core':
     specifier: ^10.1.2

@@ -5,21 +5,29 @@ on:
     release:
         types: [published]
 
+permissions:
+    contents: read
+    id-token: write
+    pull-requests: read
+
 jobs:
+    # Sonarcloud analysis
     analysis:
         uses: ./.github/workflows/sonarcloud.yml
         secrets: inherit
 
+    # Build package
     build:
-        needs: analysis
         uses: ./.github/workflows/build.yml
 
+    # Run test
     test:
         needs: build
         uses: ./.github/workflows/test.yml
 
+    # Publish package to NPM
     publish-npm:
-        needs: test
+        needs: [test, analysis]
         runs-on: ubuntu-latest
         steps:
             - name: Download artifact
@@ -34,8 +42,9 @@ jobs:
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
+    # Publish package to GPR
     publish-gpr:
-        needs: test
+        needs: [test, analysis]
         runs-on: ubuntu-latest
         permissions:
             contents: read

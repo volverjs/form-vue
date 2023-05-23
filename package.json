@@ -46,10 +46,12 @@
   ],
   "dependencies": {
     "@vueuse/core": "^10.1.2",
-    "@volverjs/ui-vue": "0.0.8-beta.4",
     "ts-dot-prop": "^2.1.2",
     "vue": "^3.3.4",
     "zod": "^3.21.4"
+  },
+  "peerDependencies": {
+    "@volverjs/ui-vue": "0.*"
   },
   "devDependencies": {
     "@playwright/experimental-ct-vue": "1.33.0",
@@ -58,6 +60,7 @@
     "@typescript-eslint/parser": "^5.59.6",
     "@vitejs/plugin-vue": "^4.2.3",
     "@volverjs/style": "^0.1.10",
+    "@volverjs/ui-vue": "0.0.8-beta.7",
     "@vue/compiler-sfc": "^3.3.4",
     "@vue/runtime-core": "^3.3.4",
     "@vue/test-utils": "^2.3.2",

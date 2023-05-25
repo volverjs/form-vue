@@ -12,11 +12,6 @@ permissions:
     id-token: write
     pull-requests: read
 
-# Allow one concurrent deployment
-concurrency:
-    group: 'pages'
-    cancel-in-progress: true
-
 jobs:
     # Sonarcloud analysis
     analysis:

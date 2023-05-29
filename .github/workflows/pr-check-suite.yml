@@ -10,7 +10,7 @@ permissions:
     contents: write
     pages: write
     id-token: write
-    pull-requests: read
+    pull-requests: write
 
 jobs:
     # Sonarcloud analysis

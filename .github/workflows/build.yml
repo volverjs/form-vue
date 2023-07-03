@@ -11,19 +11,25 @@ jobs:
             - uses: pnpm/action-setup@v2.2.4
               with:
                   version: 7
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: 'pnpm'
+
             - name: Install dependencies
               run: pnpm install --no-frozen-lockfile
+
             - name: Build release
               run: pnpm build
+
             - name: Bump version with release tag name
               run: pnpm version --no-git-tag-version ${{ github.event.release.tag_name }}
+
             - name: Pack package
               run: pnpm pack
+
             - name: Upload artifact
               uses: actions/upload-artifact@v3
               with:

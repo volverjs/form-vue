@@ -8,7 +8,7 @@ export enum FormFieldType {
 	search = 'search',
 	date = 'date',
 	time = 'time',
-	datetimeLocal = 'datetimeLocal',
+	datetimeLocal = 'datetime-local',
 	month = 'month',
 	week = 'week',
 	color = 'color',

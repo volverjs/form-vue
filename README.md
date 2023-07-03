@@ -6,6 +6,8 @@
 
 `form` `form-field` `form-wrapper` `vue3` `zod` `validation`
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=volverjs_form-vue&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=volverjs_form-vue) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=volverjs_form-vue&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=volverjs_form-vue) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=volverjs_form-vue&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=volverjs_form-vue) [![Depfu](https://badges.depfu.com/badges/e2c464e3cb95f98ee6a9a566dd44e0a9/status.svg)](https://depfu.com) [![Depfu](https://badges.depfu.com/badges/e2c464e3cb95f98ee6a9a566dd44e0a9/overview.svg)](https://depfu.com/github/volverjs/form-vue?project_id=38569)
+
 <br>
 
 #### proudly powered by

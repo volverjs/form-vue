@@ -145,7 +145,7 @@ The following types are rendered as [`VvInputText`](https://volverjs.github.io/u
 - `search`;
 - `date`;
 - `time`;
-- `datetimeLocal`;
+- `datetime-local`;
 - `month`;
 - `week`;
 - `color`.

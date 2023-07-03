@@ -25,15 +25,18 @@ test('VvForm label and value', async ({ mount }) => {
 
 test('VvForm events', async ({ mount }) => {
 	let submitted = false
+	let clicked = false
 	let invalid = false
 	let valid = false
 
 	const component = await mount(VvForm, {
 		props: {
-			onSubmit: () => (submitted = true),
-			submitForm: () => (submitted = true),
-			onInvalid: () => (invalid = true),
 			invalid: true,
+		},
+		on: {
+			submit: () => (submitted = true),
+			click: () => (clicked = true),
+			invalid: () => (invalid = true),
 		},
 	})
 
@@ -41,20 +44,17 @@ test('VvForm events', async ({ mount }) => {
 	await expect(component).toContainText('Submit')
 
 	// Perform first button click. This will trigger the event.
-	const button1 = await component.locator('button[type=button]', {
-		hasText: 'Submit',
+	const button = await component.locator('button[type=button]', {
+		hasText: 'Click',
 	})
-	await button1.click()
+	await button.click()
 
-	// Assert that submitted event has been fired.
-	expect(submitted).toBeTruthy()
-
-	// reset submitted to false
-	submitted = false
+	// Assert that clicked event has been fired.
+	expect(clicked).toBeTruthy()
 
 	// Perform first button click. This will trigger the event.
-	const button2 = await component.locator('button[type=submit]')
-	await button2.click()
+	const buttonSubmit = await component.locator('button[type=submit]')
+	await buttonSubmit.click()
 
 	// Assert that submitted event has NOT been fired (cause of invalid)
 	expect(submitted).toBeFalsy()
@@ -65,9 +65,11 @@ test('VvForm events', async ({ mount }) => {
 	// check valid event
 	const componentValid = await mount(VvForm, {
 		props: {
-			onSubmit: () => (submitted = true),
-			onValid: () => (valid = true),
 			invalid: false,
+		},
+		on: {
+			submit: () => (submitted = true),
+			valid: () => (valid = true),
 		},
 	})
 
@@ -88,9 +90,11 @@ test('VvForm continuosValidation', async ({ mount }) => {
 
 	const component = await mount(VvForm, {
 		props: {
-			onInvalid: () => (invalid = true),
-			onValid: () => (valid = true),
 			continuosValidation: true,
+		},
+		on: {
+			invalid: () => (invalid = true),
+			valid: () => (valid = true),
 		},
 	})
 

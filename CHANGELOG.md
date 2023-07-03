@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.13] - 2023-05-19
+
+### Fixed
+
+- `VvFormTemplate` and `VvFormField` support for `ref()` props;
+- `VvFormField` datetime correct type is `datetime-local`.
+
+### Updated
+
+- `@volverjs/ui-vue` to `v0.0.8-beta.4` and added to peerDependencies
+
 ## [0.0.12] - 2023-05-16
 
 ### Fixed
@@ -89,6 +100,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[0.0.13]: https://github.com/volverjs/form-vue/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/volverjs/form-vue/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/volverjs/form-vue/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/volverjs/form-vue/compare/v0.0.9...v0.0.10

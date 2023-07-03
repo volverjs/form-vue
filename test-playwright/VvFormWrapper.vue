@@ -40,48 +40,37 @@
 </script>
 
 <template>
-	<div>
-		<VvForm ref="formEl" v-model="model">
-			<VvFormField
-				name="firstname"
-				type="text"
-				label="firstname"
-				showValid
-			/>
-			<VvFormField name="surname" type="text" label="surname" />
-			<VvFormWrapper name="location" v-slot="{ invalid }">
-				<div class="form-section-1">
-					<small v-if="invalid" class="text-danger"
-						>There is a validation error</small
-					>
-					<VvFormField
-						name="location.city"
-						type="text"
-						label="city"
-					/>
-					<VvFormField
-						name="location.address"
-						type="text"
-						label="address"
-					/>
-					<VvFormField
-						name="location.civicNumber"
-						type="number"
-						label="civicNumber"
-						min="0"
-					/>
-					<VvFormField
-						name="location.country"
-						type="text"
-						label="country"
-					/>
-					<VvFormField
-						name="location.region"
-						type="text"
-						label="region"
-					/>
-				</div>
-			</VvFormWrapper>
-		</VvForm>
-	</div>
+	<VvForm ref="formEl" v-model="model">
+		<VvFormField name="firstname" type="text" label="firstname" showValid />
+		<VvFormField name="surname" type="text" label="surname" />
+		<VvFormWrapper name="location" v-slot="{ invalid }">
+			<div class="form-section-1">
+				<small v-if="invalid" class="text-danger"
+					>There is a validation error</small
+				>
+				<VvFormField name="location.city" type="text" label="city" />
+				<VvFormField
+					name="location.address"
+					type="text"
+					label="address"
+				/>
+				<VvFormField
+					name="location.civicNumber"
+					type="number"
+					label="civicNumber"
+					min="0"
+				/>
+				<VvFormField
+					name="location.country"
+					type="text"
+					label="country"
+				/>
+				<VvFormField
+					name="location.region"
+					type="text"
+					label="region"
+				/>
+			</div>
+		</VvFormWrapper>
+	</VvForm>
 </template>

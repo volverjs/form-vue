@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.14] - 2023-07-03
+
+### Fixed
+
+- `VvFormField` type `datetime-local`.
+
 ## [0.0.13] - 2023-05-19
 
 ### Fixed

@@ -25,31 +25,27 @@
 </script>
 
 <template>
-	<div>
-		<VvForm
-			v-bind="{ continuosValidation }"
-			v-model="model"
-			@submit="$emit('submit')"
-			@invalid="$emit('invalid')"
-			@valid="$emit('valid')"
-			ref="formEl"
+	<VvForm
+		v-bind="{ continuosValidation }"
+		v-model="model"
+		@submit="$emit('submit')"
+		@invalid="$emit('invalid')"
+		@valid="$emit('valid')"
+		ref="formEl"
+	>
+		<VvFormField name="firstname" type="text" label="firstname" />
+		<VvFormField name="surname" type="text" label="surname" />
+		<VvFormField name="age" type="number" label="age" />
+
+		<button
+			type="button"
+			title="Submit"
+			class="vv-button"
+			@click.stop="$emit('click')"
 		>
-			<VvFormField name="firstname" type="text" label="firstname" />
-			<VvFormField name="surname" type="text" label="surname" />
-			<VvFormField name="age" type="number" label="age" />
+			Click
+		</button>
 
-			<button
-				type="button"
-				title="Submit"
-				class="vv-button"
-				@click.stop="$emit('click')"
-			>
-				Click
-			</button>
-
-			<button type="submit" class="vv-button" title="Submit">
-				Submit
-			</button>
-		</VvForm>
-	</div>
+		<button type="submit" class="vv-button" title="Submit">Submit</button>
+	</VvForm>
 </template>

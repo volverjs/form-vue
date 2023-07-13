@@ -52,7 +52,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@playwright/experimental-ct-vue": "1.35.1",
+    "@playwright/experimental-ct-vue": "1.36.0",
     "@testing-library/vue": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -64,7 +64,7 @@
     "copy": "^0.3.2",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-prettier": "^5.0.0",
     "happy-dom": "^10.0.3",
     "prettier": "^3.0.0",
     "typescript": "^5.1.6",

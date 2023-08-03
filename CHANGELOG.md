@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.14] - 2023-08-03
+
+### Fixed
+
+- `defaultObjectBySchema()` improved support for `ZodDefault` and `ZodArray`;
+- Dependencies update.
+
 ## [0.0.13] - 2023-05-19
 
 ### Fixed

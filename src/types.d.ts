@@ -77,7 +77,8 @@ export type Path<T> = T extends readonly (infer V)[]
 	: {
 			[K in keyof T]-?: PathConcat<K & string, T[K]>
 	  }[keyof T]
-
+	  
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type PathValue<T, TPath extends Path<T> | ArrayPath<T>> = T extends any
 	? TPath extends `${infer K}.${infer R}`
 		? K extends keyof T

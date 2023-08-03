@@ -8,6 +8,7 @@ import {
 	ZodSchema,
 	ZodNullable,
 	ZodOptional,
+	ZodArray,
 } from 'zod'
 import type { FormSchema } from './types'
 
@@ -26,7 +27,7 @@ export const defaultObjectBySchema = <Schema extends FormSchema>(
 		while (toReturn instanceof ZodEffects) {
 			toReturn = toReturn.innerType()
 		}
-		while (toReturn instanceof ZodOptional) {
+		if (toReturn instanceof ZodOptional) {
 			toReturn = toReturn._def.innerType
 		}
 		return toReturn
@@ -42,10 +43,12 @@ export const defaultObjectBySchema = <Schema extends FormSchema>(
 			(Object.entries(innerType.shape) as [string, ZodTypeAny][]).map(
 				([key, subSchema]) => {
 					const originalValue = original[key]
-					const innerType = getInnerType(subSchema)
-					let defaultValue = undefined
+					let innerType = getInnerType(subSchema)
+					let defaultValue: Partial<z.infer<Schema>> | undefined =
+						undefined
 					if (innerType instanceof ZodDefault) {
 						defaultValue = innerType._def.defaultValue()
+						innerType = innerType._def.innerType
 					}
 					if (
 						originalValue === null &&
@@ -59,6 +62,26 @@ export const defaultObjectBySchema = <Schema extends FormSchema>(
 							return [key, parse.data ?? defaultValue]
 						}
 					}
+					if (
+						innerType instanceof ZodArray &&
+						Array.isArray(originalValue) &&
+						originalValue.length
+					) {
+						const arrayType = innerType._def.type
+						if (arrayType instanceof ZodObject) {
+							return [
+								key,
+								originalValue.map((element: unknown) =>
+									defaultObjectBySchema(
+										arrayType,
+										element && typeof element === 'object'
+											? element
+											: undefined,
+									),
+								) ?? defaultValue,
+							]
+						}
+					}
 					if (innerType instanceof ZodObject) {
 						return [
 							key,
@@ -67,7 +90,7 @@ export const defaultObjectBySchema = <Schema extends FormSchema>(
 								originalValue &&
 									typeof originalValue === 'object'
 									? originalValue
-									: {},
+									: defaultValue,
 							),
 						]
 					}

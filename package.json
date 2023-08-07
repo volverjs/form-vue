@@ -63,7 +63,7 @@
     "@vue/test-utils": "^2.4.1",
     "copy": "^0.3.2",
     "eslint": "^8.46.0",
-    "eslint-config-prettier": "^8.10.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "happy-dom": "^10.6.3",
     "prettier": "^3.0.1",

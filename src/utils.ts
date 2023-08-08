@@ -67,7 +67,7 @@ export const defaultObjectBySchema = <Schema extends FormSchema>(
 						Array.isArray(originalValue) &&
 						originalValue.length
 					) {
-						const arrayType = innerType._def.type
+						const arrayType = getInnerType(innerType._def.type)
 						if (arrayType instanceof ZodObject) {
 							return [
 								key,

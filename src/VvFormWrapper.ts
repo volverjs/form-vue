@@ -42,7 +42,7 @@ export const defineFormWrapper = <Schema extends FormSchema>(
 			const wrapperProvided = inject(wrapperProvideKey, undefined)
 			const fields = ref(new Set<string>())
 			const fieldsErrors: Ref<
-				Map<string, Record<string, { _errors: string[] }>>
+				Map<string, z.inferFormattedError<Schema>>
 			> = ref(new Map())
 			const { name } = toRefs(props)
 

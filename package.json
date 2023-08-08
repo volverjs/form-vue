@@ -23,11 +23,12 @@
   "engines": {
     "node": ">= 16.x"
   },
-  "packageManager": "pnpm@7.8.0",
+  "packageManager": "pnpm@8.6.12",
   "scripts": {
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "type-check": "tsc --noEmit",
-    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly && copy src/**/types.d.ts dist",
+    "build": "vite build",
+    "dev": "vite build --watch",
     "test": "pnpm run test-vitest && pnpm run test-playwright",
     "test-vitest": "vitest run",
     "test-vitest-watch": "vitest",
@@ -54,8 +55,8 @@
   "devDependencies": {
     "@playwright/experimental-ct-vue": "1.36.2",
     "@testing-library/vue": "^7.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.2.1",
-    "@typescript-eslint/parser": "^6.2.1",
+    "@typescript-eslint/eslint-plugin": "^6.3.0",
+    "@typescript-eslint/parser": "^6.3.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "@volverjs/style": "^0.1.11",
     "@vue/compiler-sfc": "^3.3.4",
@@ -65,14 +66,14 @@
     "eslint": "^8.46.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "happy-dom": "^10.6.3",
+    "happy-dom": "^10.9.0",
     "prettier": "^3.0.1",
     "typescript": "^5.1.6",
-    "vite": "^4.4.8",
+    "vite": "^4.4.9",
+    "vite-plugin-dts": "^3.5.1",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-externalize-deps": "^0.7.0",
-    "vitest": "^0.34.1",
-    "vue-tsc": "^1.8.8"
+    "vitest": "^0.34.1"
   },
   "typesVersions": {
     "*": {

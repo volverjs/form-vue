@@ -28,7 +28,7 @@ export const defineForm = <Schema extends FormSchema>(
 	provideKey: InjectionKey<InjectedFormData<Schema>>,
 	options?: FormComponentOptions,
 ) => {
-	const errors = ref<ZodFormattedError<z.infer<Schema>>>()
+	const errors = ref<z.inferFormattedError<Schema> | undefined>()
 	const status = ref<FormStatus | undefined>()
 	const formData = ref<Partial<z.infer<Schema> | undefined>>()
 	const component = defineComponent({

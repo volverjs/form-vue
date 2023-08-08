@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type { Component, DeepReadonly, Ref } from 'vue'
 import type { z, AnyZodObject, ZodEffects } from 'zod'
 import type { FormFieldType, FormStatus } from './enums'
 
@@ -9,7 +9,7 @@ export type FormSchema =
 
 export type FormFieldComponentOptions = {
 	lazyLoad?: boolean
-	sideEffects?: (type: `${FormFieldType}`) => Promise | void
+	sideEffects?: (type: `${FormFieldType}`) => Promise<void> | void
 }
 
 export type FormComponentOptions = {
@@ -21,12 +21,14 @@ export type FormComposableOptions = FormFieldComponentOptions &
 	FormComponentOptions
 
 export type FormPluginOptions = {
-	schema?: ZodSchema
+	schema?: FormSchema
 } & FormComposableOptions
 
 export type InjectedFormData<Schema extends FormSchema> = {
 	formData: Ref<Partial<z.infer<Schema>> | undefined>
-	errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
+	errors: Readonly<
+		Ref<DeepReadonly<z.inferFormattedError<Schema>> | undefined>
+	>
 	submit: () => boolean
 	validate: () => boolean
 	status: Readonly<Ref<FormStatus | undefined>>
@@ -36,7 +38,7 @@ export type InjectedFormData<Schema extends FormSchema> = {
 export type InjectedFormWrapperData<Schema extends FormSchema> = {
 	name: Ref<string>
 	fields: Ref<Set<string>>
-	errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
+	errors: Ref<Map<string, z.inferFormattedError<Schema, string>>>
 }
 
 export type InjectedFormFieldData<Schema extends FormSchema> = {
@@ -77,9 +79,9 @@ export type Path<T> = T extends readonly (infer V)[]
 	: {
 			[K in keyof T]-?: PathConcat<K & string, T[K]>
 	  }[keyof T]
-	  
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PathValue<T, TPath extends Path<T> | ArrayPath<T>> = T extends any
+export type PathValue<T, TPath extends Path<T> | Path<T>[]> = T extends any
 	? TPath extends `${infer K}.${infer R}`
 		? K extends keyof T
 			? R extends Path<T[K]>
@@ -101,7 +103,7 @@ export type PathValue<T, TPath extends Path<T> | ArrayPath<T>> = T extends any
 		: never
 	: never
 
-export type AnyBoolean<Schema> =
+export type AnyBoolean<Schema extends FormSchema> =
 	| boolean
 	| Ref<boolean>
 	| ((data?: InjectedFormData<Schema>) => boolean | Ref<boolean>)

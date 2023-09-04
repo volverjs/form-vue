@@ -1,7 +1,7 @@
 <script setup lang="ts">
-	import { useForm } from '../dist/index.es.js'
+	import { useForm } from '../src'
 	import { z } from 'zod'
-	import { ref, toRefs, type Ref } from 'vue'
+	import { ref, type Ref } from 'vue'
 
 	const props = defineProps(['continuosValidation'])
 
@@ -20,7 +20,7 @@
 	const model: Ref<z.infer<typeof zodSchema>> = ref({
 		firstname: 'Massimo',
 		surname: 'Rossi',
-		age: 18
+		age: 18,
 	})
 </script>
 

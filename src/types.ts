@@ -1,5 +1,5 @@
-import type { Component, DeepReadonly, Ref } from 'vue'
-import type { z, AnyZodObject, ZodEffects } from 'zod'
+import { type Component, type DeepReadonly, type Ref } from 'vue'
+import type { z, AnyZodObject, ZodEffects, inferFormattedError } from 'zod'
 import type { FormFieldType, FormStatus } from './enums'
 
 export type FormSchema =
@@ -12,17 +12,33 @@ export type FormFieldComponentOptions = {
 	sideEffects?: (type: `${FormFieldType}`) => Promise<void> | void
 }
 
-export type FormComponentOptions = {
+export type FormComponentOptions<Schema> = {
 	updateThrottle?: number
 	continuosValidation?: boolean
+	template?: Schema extends FormSchema ? FormTemplate<Schema> : never
+	onUpdate?: Schema extends FormSchema
+		? (data: Partial<z.infer<Schema> | undefined>) => void
+		: never
+	onSubmit?: Schema extends FormSchema
+		? (data: z.infer<Schema>) => void
+		: never
+	onInvalid?: Schema extends FormSchema
+		? (error: inferFormattedError<Schema, string>) => void
+		: never
+	onValid?: Schema extends FormSchema
+		? (data: z.infer<Schema>) => void
+		: never
 }
 
-export type FormComposableOptions = FormFieldComponentOptions &
-	FormComponentOptions
+export type FormComposableOptions<Schema> = FormFieldComponentOptions &
+	FormComponentOptions<Schema>
 
-export type FormPluginOptions = {
+type FormPluginOptionsSchema = {
 	schema?: FormSchema
-} & FormComposableOptions
+}
+
+export type FormPluginOptions = FormPluginOptionsSchema &
+	FormComposableOptions<FormPluginOptionsSchema['schema']>
 
 export type InjectedFormData<Schema extends FormSchema> = {
 	formData: Ref<Partial<z.infer<Schema>> | undefined>
@@ -125,6 +141,7 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
 	vvElseIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
 	vvType?: `${FormFieldType}`
 	vvShowValid?: boolean
+	vvContent?: string
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	vvDefaultValue?: any
 }
@@ -132,3 +149,7 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
 export type FormTemplateItem<Schema extends FormSchema> =
 	| SimpleFormTemplateItem<Schema>
 	| ((data?: InjectedFormData<Schema>) => SimpleFormTemplateItem<Schema>)
+
+export type FormTemplate<Schema extends FormSchema> =
+	| FormTemplateItem<Schema>[]
+	| ((data?: InjectedFormData<Schema>) => FormTemplateItem<Schema>[])

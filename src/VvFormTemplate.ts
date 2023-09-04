@@ -12,35 +12,30 @@ import {
 	unref,
 } from 'vue'
 import type { TypeOf, z } from 'zod'
-import type { FormSchema, InjectedFormData, FormTemplateItem } from './types'
+import type { FormSchema, InjectedFormData, FormTemplate } from './types'
 import type { FormStatus } from './enums'
 
 export const defineFormTemplate = <Schema extends FormSchema>(
 	formProvideKey: InjectionKey<InjectedFormData<Schema>>,
 	VvFormField: Component,
 ) => {
-	const VvFormTemplate: Component = defineComponent({
+	const VvFormTemplate = defineComponent({
 		props: {
 			schema: {
-				type: [Array, Function] as PropType<
-					| FormTemplateItem<Schema>[]
-					| ((
-							data?: InjectedFormData<Schema>,
-					  ) => FormTemplateItem<Schema>[])
-				>,
+				type: [Array, Function] as PropType<FormTemplate<Schema>>,
 				required: true,
 			},
 		},
 		setup(templateProps, { slots: templateSlots }) {
 			const injectedFormData = inject(formProvideKey)
 			if (!injectedFormData?.formData) return
-			const normalizedSchema =
-				typeof templateProps.schema === 'function'
-					? templateProps.schema(injectedFormData)
-					: templateProps.schema
-			let lastIf: boolean | undefined = undefined
-			return () =>
-				normalizedSchema.reduce<(VNode | VNode[] | undefined)[]>(
+			return () => {
+				const normalizedSchema =
+					typeof templateProps.schema === 'function'
+						? templateProps.schema(injectedFormData)
+						: templateProps.schema
+				let lastIf: boolean | undefined = undefined
+				return normalizedSchema.reduce<(VNode | VNode[] | undefined)[]>(
 					(acc, field) => {
 						const normalizedField =
 							typeof field === 'function'
@@ -56,6 +51,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 							vvType,
 							vvDefaultValue,
 							vvShowValid,
+							vvContent,
 							...props
 						} = normalizedField
 
@@ -120,7 +116,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 										showValid: vvShowValid,
 										props,
 									},
-									vvSlots ?? hChildren,
+									vvSlots ?? hChildren ?? vvContent,
 								),
 							)
 							return acc
@@ -130,7 +126,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 								h(
 									vvIs as Component,
 									props,
-									vvSlots ?? hChildren,
+									vvSlots ?? hChildren ?? vvContent,
 								),
 							)
 							return acc
@@ -152,6 +148,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 						}),
 					],
 				)
+			}
 		},
 	})
 

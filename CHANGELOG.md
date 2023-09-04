@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.15] - 2023-09-04
+
+### Added
+
+- `template` prop to `VvForm` component;
+- `template` option to `createForm()` and `useForm()` functions.
+
 ## [0.0.14] - 2023-08-03
 
 ### Fixed
@@ -111,6 +118,8 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[0.0.15]: https://github.com/volverjs/form-vue/compare/v0.0.14...v0.0.15
+[0.0.14]: https://github.com/volverjs/form-vue/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/volverjs/form-vue/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/volverjs/form-vue/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/volverjs/form-vue/compare/v0.0.10...v0.0.11

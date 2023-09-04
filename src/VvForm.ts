@@ -1,7 +1,9 @@
 import {
+	type Component,
 	type InjectionKey,
 	type DeepReadonly,
 	type Ref,
+	type PropType,
 	withModifiers,
 	defineComponent,
 	ref,
@@ -18,6 +20,7 @@ import type { z, ZodFormattedError, TypeOf } from 'zod'
 import type {
 	FormComponentOptions,
 	FormSchema,
+	FormTemplate,
 	InjectedFormData,
 } from './types'
 import { FormStatus } from './enums'
@@ -26,7 +29,8 @@ import { defaultObjectBySchema } from './utils'
 export const defineForm = <Schema extends FormSchema>(
 	schema: Schema,
 	provideKey: InjectionKey<InjectedFormData<Schema>>,
-	options?: FormComponentOptions,
+	options?: FormComponentOptions<Schema>,
+	VvFormTemplate?: Component,
 ) => {
 	const errors = ref<z.inferFormattedError<Schema> | undefined>()
 	const status = ref<FormStatus | undefined>()
@@ -45,6 +49,9 @@ export const defineForm = <Schema extends FormSchema>(
 			continuosValidation: {
 				type: Boolean,
 				default: false,
+			},
+			template: {
+				type: [Array, Function] as PropType<FormTemplate<Schema>>,
 			},
 		},
 		emits: ['invalid', 'valid', 'submit', 'update:modelValue'],
@@ -89,6 +96,7 @@ export const defineForm = <Schema extends FormSchema>(
 							JSON.stringify(props.modelValue)
 					) {
 						emit('update:modelValue', newValue)
+						options?.onUpdate?.(toRaw(newValue))
 					}
 				},
 				{
@@ -107,13 +115,16 @@ export const defineForm = <Schema extends FormSchema>(
 						>
 					status.value = FormStatus.invalid
 					emit('invalid', errors.value)
+					options?.onInvalid?.(toRaw(errors.value))
 					return false
 				}
 				errors.value = undefined
 				status.value = FormStatus.valid
 				formData.value = parseResult.data
 				emit('update:modelValue', formData.value)
+				options?.onUpdate?.(toRaw(formData.value))
 				emit('valid', parseResult.data)
+				options?.onValid?.(toRaw(formData.value))
 				return true
 			}
 
@@ -122,7 +133,8 @@ export const defineForm = <Schema extends FormSchema>(
 				if (!validate()) {
 					return false
 				}
-				emit('submit', formData.value)
+				emit('submit', formData.value as z.infer<Schema>)
+				options?.onSubmit?.(toRaw(formData.value) as z.infer<Schema>)
 				return true
 			}
 
@@ -153,17 +165,23 @@ export const defineForm = <Schema extends FormSchema>(
 				{
 					onSubmit: withModifiers(this.submit, ['prevent']),
 				},
-				{
-					default: () =>
-						this.$slots?.default?.({
-							formData: this.formData,
-							submit: this.submit,
-							validate: this.validate,
-							errors: this.errors,
-							status: this.status,
-							invalid: this.invalid,
-						}) ?? this.$slots.default,
-				},
+				(this.template ?? options?.template) && VvFormTemplate
+					? [
+							h(VvFormTemplate, {
+								schema: this.template ?? options?.template,
+							}),
+					  ]
+					: {
+							default: () =>
+								this.$slots?.default?.({
+									formData: this.formData,
+									submit: this.submit,
+									validate: this.validate,
+									errors: this.errors,
+									status: this.status,
+									invalid: this.invalid,
+								}) ?? this.$slots.default,
+					  },
 			)
 		},
 	})

@@ -52,6 +52,7 @@ export const defineForm = <Schema extends FormSchema>(
 			},
 			template: {
 				type: [Array, Function] as PropType<FormTemplate<Schema>>,
+				default: undefined,
 			},
 		},
 		emits: ['invalid', 'valid', 'submit', 'update:modelValue'],
@@ -160,6 +161,15 @@ export const defineForm = <Schema extends FormSchema>(
 			}
 		},
 		render() {
+			const defaultSlot = () =>
+				this.$slots?.default?.({
+					formData: this.formData,
+					submit: this.submit,
+					validate: this.validate,
+					errors: this.errors,
+					status: this.status,
+					invalid: this.invalid,
+				}) ?? this.$slots.default
 			return h(
 				'form',
 				{
@@ -167,20 +177,18 @@ export const defineForm = <Schema extends FormSchema>(
 				},
 				(this.template ?? options?.template) && VvFormTemplate
 					? [
-							h(VvFormTemplate, {
-								schema: this.template ?? options?.template,
-							}),
+							h(
+								VvFormTemplate,
+								{
+									schema: this.template ?? options?.template,
+								},
+								{
+									default: defaultSlot,
+								},
+							),
 					  ]
 					: {
-							default: () =>
-								this.$slots?.default?.({
-									formData: this.formData,
-									submit: this.submit,
-									validate: this.validate,
-									errors: this.errors,
-									status: this.status,
-									invalid: this.invalid,
-								}) ?? this.$slots.default,
+							default: defaultSlot,
 					  },
 			)
 		},

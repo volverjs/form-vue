@@ -1,4 +1,6 @@
-import { useForm } from '../dist/index.es.js'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-ignore
+import { useForm } from '../dist/index.es'
 import { z } from 'zod'
 import { it, expect } from 'vitest'
 

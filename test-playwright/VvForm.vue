@@ -3,8 +3,7 @@
 	import { z } from 'zod'
 	import { ref, type Ref } from 'vue'
 
-	const props = defineProps(['continuosValidation'])
-
+	defineProps(['continuosValidation'])
 	defineEmits(['submit', 'invalid', 'valid'])
 
 	const zodSchema = z.object({

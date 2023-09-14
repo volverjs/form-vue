@@ -132,6 +132,7 @@ export type {
 	InjectedFormWrapperData,
 	InjectedFormFieldData,
 	FormComposableOptions,
+	FormSchema,
 	FormPluginOptions,
 	FormComponent,
 	FormWrapperComponent,

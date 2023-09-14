@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Pass default slot to `VvFormTemplate` component from `VvForm` component with `template` prop;
+- Expose type `FormSchema`;
 - `template` prop to `VvForm` component;
 - `template` option to `createForm()` and `useForm()` functions.
 

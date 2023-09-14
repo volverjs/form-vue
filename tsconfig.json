@@ -15,7 +15,7 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "strict": true,
     "strictNullChecks": true,
@@ -33,5 +33,5 @@
     "declaration": true,
     "noErrorTruncation": true
   },
-  "include": ["src/*"]
+  "include": ["src/*", "test-vitest/*", "test-playwright/*"]
 }

@@ -162,8 +162,8 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 						| undefined
 						? undefined
 						: Partial<TypeOf<Schema>> | undefined
-					submit: () => boolean
-					validate: () => boolean
+					submit: () => Promise<boolean>
+					validate: () => Promise<boolean>
 					errors: Readonly<
 						Ref<DeepReadonly<z.inferFormattedError<Schema>>>
 					>

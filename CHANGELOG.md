@@ -9,16 +9,13 @@ All notable changes to this project will be documented in this file.
 - Pass default slot to `VvFormTemplate` component from `VvForm` component with `template` prop;
 - Expose type `FormSchema`;
 - `template` prop to `VvForm` component;
-- `template` option to `createForm()` and `useForm()` functions.
+- `template` option to `createForm()` and `useForm()` functions;
+- Replace `vue-tsc` with `vite-plugin-dts` for types generation.
 
 ### Fixed
 
 - `defaultObjectBySchema()` improved support for `ZodDefault` and `ZodArray`;
 - Dependencies update.
-
-### Added
-
-- Replace `vue-tsc` with `vite-plugin-dts` for types generation.
 
 ## [0.0.13] - 2023-05-19
 

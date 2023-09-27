@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2023-09-27
+
+### Added
+
+- support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
+
+### Changed
+
+- `submit()` and `validate()` methods of `VvForm` component now return a `Promise` of `boolean` instead of `boolean` directly.
+
 ## [0.0.14] - 2023-08-03
 
 ### Added
@@ -115,6 +125,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.0.0]: https://github.com/volverjs/form-vue/compare/v0.0.14...v1.0.0
 [0.0.14]: https://github.com/volverjs/form-vue/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/volverjs/form-vue/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/volverjs/form-vue/compare/v0.0.11...v0.0.12

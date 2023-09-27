@@ -83,12 +83,12 @@ export const defineForm = <Schema extends FormSchema>(
 			// emit update:modelValue on formData change
 			watchThrottled(
 				formData,
-				(newValue) => {
+				async (newValue) => {
 					if (
 						(errors.value || options?.continuosValidation) ??
 						props.continuosValidation
 					) {
-						validate()
+						await validate()
 					}
 					if (
 						!newValue ||
@@ -107,8 +107,8 @@ export const defineForm = <Schema extends FormSchema>(
 			)
 
 			// validate formData with safeParse
-			const validate = (value = formData.value) => {
-				const parseResult = schema.safeParse(value)
+			const validate = async (value = formData.value) => {
+				const parseResult = await schema.safeParseAsync(value)
 				if (!parseResult.success) {
 					errors.value =
 						parseResult.error.format() as ZodFormattedError<
@@ -130,8 +130,8 @@ export const defineForm = <Schema extends FormSchema>(
 			}
 
 			// emit submit event if form is valid
-			const submit = () => {
-				if (!validate()) {
+			const submit = async () => {
+				if (!(await validate())) {
 					return false
 				}
 				emit('submit', formData.value as z.infer<Schema>)
@@ -209,8 +209,8 @@ export const defineForm = <Schema extends FormSchema>(
 							| undefined
 							? undefined
 							: Partial<TypeOf<Schema>> | undefined
-						submit: () => boolean
-						validate: () => boolean
+						submit: () => Promise<boolean>
+						validate: () => Promise<boolean>
 						errors: Readonly<
 							Ref<DeepReadonly<z.inferFormattedError<Schema>>>
 						>

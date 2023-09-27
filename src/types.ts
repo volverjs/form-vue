@@ -45,8 +45,8 @@ export type InjectedFormData<Schema extends FormSchema> = {
 	errors: Readonly<
 		Ref<DeepReadonly<z.inferFormattedError<Schema>> | undefined>
 	>
-	submit: () => boolean
-	validate: () => boolean
+	submit: () => Promise<boolean>
+	validate: () => Promise<boolean>
 	status: Readonly<Ref<FormStatus | undefined>>
 	invalid: Readonly<Ref<boolean>>
 }
@@ -71,8 +71,6 @@ export type Primitive =
 	| symbol
 	| bigint
 
-type ArrayKey = number
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type IsTuple<T extends readonly any[]> = number extends T['length']
 	? false
@@ -91,7 +89,7 @@ export type Path<T> = T extends readonly (infer V)[]
 		? {
 				[K in TupleKeys<T>]-?: PathConcat<K & string, T[K]>
 		  }[TupleKeys<T>]
-		: PathConcat<ArrayKey, V>
+		: PathConcat<number, V>
 	: {
 			[K in keyof T]-?: PathConcat<K & string, T[K]>
 	  }[keyof T]
@@ -105,14 +103,14 @@ export type PathValue<T, TPath extends Path<T> | Path<T>[]> = T extends any
 					? PathValue<T[K], R> | undefined
 					: PathValue<T[K], R>
 				: never
-			: K extends `${ArrayKey}`
+			: K extends `${number}`
 			? T extends readonly (infer V)[]
 				? PathValue<V, R & Path<V>>
 				: never
 			: never
 		: TPath extends keyof T
 		? T[TPath]
-		: TPath extends `${ArrayKey}`
+		: TPath extends `${number}`
 		? T extends readonly (infer V)[]
 			? V
 			: never

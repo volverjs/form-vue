@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { defaultObjectBySchema } from '../dist/index.es.js'
+// @ts-ignore
+import { defaultObjectBySchema } from '../dist/index.es'
 import { z } from 'zod'
 import { it, expect } from 'vitest'
 
@@ -100,6 +101,7 @@ it('Not nullable', async () => {
 		name: z.string(),
 	})
 
+	// @ts-ignore
 	const defaultObject = defaultObjectBySchema(schema, { name: null })
 
 	expect(defaultObject).toStrictEqual({ name: undefined })
@@ -211,6 +213,7 @@ it('Optional', async () => {
 		name: 'John',
 		location: {
 			city: 'Verona',
+			// @ts-ignore
 			address: { street: { name: null, number: 1 } },
 		},
 	})

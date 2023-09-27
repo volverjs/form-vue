@@ -1,5 +1,5 @@
-import type { Ref } from 'vue'
-import type { z, AnyZodObject, ZodEffects } from 'zod'
+import { type Component, type DeepReadonly, type Ref } from 'vue'
+import type { z, AnyZodObject, ZodEffects, inferFormattedError } from 'zod'
 import type { FormFieldType, FormStatus } from './enums'
 
 export type FormSchema =
@@ -9,24 +9,42 @@ export type FormSchema =
 
 export type FormFieldComponentOptions = {
 	lazyLoad?: boolean
-	sideEffects?: (type: `${FormFieldType}`) => Promise | void
+	sideEffects?: (type: `${FormFieldType}`) => Promise<void> | void
 }
 
-export type FormComponentOptions = {
+export type FormComponentOptions<Schema> = {
 	updateThrottle?: number
 	continuosValidation?: boolean
+	template?: Schema extends FormSchema ? FormTemplate<Schema> : never
+	onUpdate?: Schema extends FormSchema
+		? (data: Partial<z.infer<Schema> | undefined>) => void
+		: never
+	onSubmit?: Schema extends FormSchema
+		? (data: z.infer<Schema>) => void
+		: never
+	onInvalid?: Schema extends FormSchema
+		? (error: inferFormattedError<Schema, string>) => void
+		: never
+	onValid?: Schema extends FormSchema
+		? (data: z.infer<Schema>) => void
+		: never
 }
 
-export type FormComposableOptions = FormFieldComponentOptions &
-	FormComponentOptions
+export type FormComposableOptions<Schema> = FormFieldComponentOptions &
+	FormComponentOptions<Schema>
 
-export type FormPluginOptions = {
-	schema?: ZodSchema
-} & FormComposableOptions
+type FormPluginOptionsSchema = {
+	schema?: FormSchema
+}
+
+export type FormPluginOptions = FormPluginOptionsSchema &
+	FormComposableOptions<FormPluginOptionsSchema['schema']>
 
 export type InjectedFormData<Schema extends FormSchema> = {
 	formData: Ref<Partial<z.infer<Schema>> | undefined>
-	errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
+	errors: Readonly<
+		Ref<DeepReadonly<z.inferFormattedError<Schema>> | undefined>
+	>
 	submit: () => boolean
 	validate: () => boolean
 	status: Readonly<Ref<FormStatus | undefined>>
@@ -36,7 +54,7 @@ export type InjectedFormData<Schema extends FormSchema> = {
 export type InjectedFormWrapperData<Schema extends FormSchema> = {
 	name: Ref<string>
 	fields: Ref<Set<string>>
-	errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
+	errors: Ref<Map<string, z.inferFormattedError<Schema, string>>>
 }
 
 export type InjectedFormFieldData<Schema extends FormSchema> = {
@@ -78,7 +96,8 @@ export type Path<T> = T extends readonly (infer V)[]
 			[K in keyof T]-?: PathConcat<K & string, T[K]>
 	  }[keyof T]
 
-export type PathValue<T, TPath extends Path<T> | ArrayPath<T>> = T extends any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type PathValue<T, TPath extends Path<T> | Path<T>[]> = T extends any
 	? TPath extends `${infer K}.${infer R}`
 		? K extends keyof T
 			? R extends Path<T[K]>
@@ -100,7 +119,7 @@ export type PathValue<T, TPath extends Path<T> | ArrayPath<T>> = T extends any
 		: never
 	: never
 
-export type AnyBoolean<Schema> =
+export type AnyBoolean<Schema extends FormSchema> =
 	| boolean
 	| Ref<boolean>
 	| ((data?: InjectedFormData<Schema>) => boolean | Ref<boolean>)
@@ -122,6 +141,7 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
 	vvElseIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
 	vvType?: `${FormFieldType}`
 	vvShowValid?: boolean
+	vvContent?: string
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	vvDefaultValue?: any
 }
@@ -129,3 +149,7 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
 export type FormTemplateItem<Schema extends FormSchema> =
 	| SimpleFormTemplateItem<Schema>
 	| ((data?: InjectedFormData<Schema>) => SimpleFormTemplateItem<Schema>)
+
+export type FormTemplate<Schema extends FormSchema> =
+	| FormTemplateItem<Schema>[]
+	| ((data?: InjectedFormData<Schema>) => FormTemplateItem<Schema>[])

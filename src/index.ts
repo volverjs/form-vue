@@ -19,11 +19,13 @@ import type {
 	Path,
 	PathValue,
 	FormSchema,
+	FormTemplate,
 } from './types'
+import type { AnyZodObject } from 'zod'
 
 const _formFactory = <Schema extends FormSchema>(
 	schema: Schema,
-	options: FormComposableOptions = {},
+	options: FormComposableOptions<Schema> = {},
 ) => {
 	// create injection keys
 	const formInjectionKey = Symbol() as InjectionKey<InjectedFormData<Schema>>
@@ -35,11 +37,6 @@ const _formFactory = <Schema extends FormSchema>(
 	>
 
 	// create components
-	const { VvForm, errors, status, formData } = defineForm(
-		schema,
-		formInjectionKey,
-		options,
-	)
 	const VvFormWrapper = defineFormWrapper(
 		formInjectionKey,
 		formWrapperInjectionKey,
@@ -51,6 +48,12 @@ const _formFactory = <Schema extends FormSchema>(
 		options,
 	)
 	const VvFormTemplate = defineFormTemplate(formInjectionKey, VvFormField)
+	const { VvForm, errors, status, formData } = defineForm(
+		schema,
+		formInjectionKey,
+		options,
+		VvFormTemplate,
+	)
 
 	return {
 		VvForm,
@@ -73,7 +76,7 @@ export const createForm = (
 ): Plugin & Partial<ReturnType<typeof useForm>> => {
 	let toReturn: Partial<ReturnType<typeof useForm>> = {}
 	if (options.schema) {
-		toReturn = _formFactory(options.schema, options)
+		toReturn = _formFactory(options.schema as AnyZodObject, options)
 	}
 	return {
 		...toReturn,
@@ -102,15 +105,18 @@ export const createForm = (
 
 export const useForm = <Schema extends FormSchema>(
 	schema: Schema,
-	options: FormComposableOptions = {},
+	options: FormComposableOptions<Schema> = {},
 ) => {
 	if (!getCurrentInstance()) {
 		return _formFactory(schema, options)
 	}
-	return _formFactory(schema, {
-		...inject(pluginInjectionKey, {}),
-		...options,
-	})
+	return _formFactory(
+		schema as AnyZodObject,
+		{
+			...inject(pluginInjectionKey, {}),
+			...options,
+		} as FormComposableOptions<AnyZodObject>,
+	)
 }
 
 export { FormFieldType } from './enums'
@@ -126,10 +132,12 @@ export type {
 	InjectedFormWrapperData,
 	InjectedFormFieldData,
 	FormComposableOptions,
+	FormSchema,
 	FormPluginOptions,
 	FormComponent,
 	FormWrapperComponent,
 	FormFieldComponent,
+	FormTemplate,
 	FormTemplateComponent,
 	FormTemplateItem,
 	Path,
@@ -141,7 +149,7 @@ export type {
  */
 export const formFactory = <Schema extends FormSchema>(
 	schema: Schema,
-	options: FormComposableOptions = {},
+	options: FormComposableOptions<Schema> = {},
 ) => {
 	return _formFactory(schema, options)
 }

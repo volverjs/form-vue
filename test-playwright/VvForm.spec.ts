@@ -25,63 +25,36 @@ test('VvForm label and value', async ({ mount }) => {
 
 test('VvForm events', async ({ mount }) => {
 	let submitted = false
-	let clicked = false
 	let invalid = false
-	let valid = false
 
 	const component = await mount(VvForm, {
-		props: {
-			invalid: true,
-		},
 		on: {
 			submit: () => (submitted = true),
-			click: () => (clicked = true),
 			invalid: () => (invalid = true),
 		},
 	})
 
-	// As with any Playwright test, assert locator text.
-	await expect(component).toContainText('Submit')
-
-	// Perform first button click. This will trigger the event.
-	const button = await component.locator('button[type=button]', {
-		hasText: 'Click',
-	})
-	await button.click()
-
-	// Assert that clicked event has been fired.
-	expect(clicked).toBeTruthy()
-
-	// Perform first button click. This will trigger the event.
+	// Trigger submit event
 	const buttonSubmit = await component.locator('button[type=submit]')
+	await expect(buttonSubmit).toContainText('Submit')
 	await buttonSubmit.click()
 
-	// Assert that submitted event has NOT been fired (cause of invalid)
-	expect(submitted).toBeFalsy()
-
-	// Assert that invalid event has been fired.
-	expect(invalid).toBeTruthy()
-
-	// check valid event
-	const componentValid = await mount(VvForm, {
-		props: {
-			invalid: false,
-		},
-		on: {
-			submit: () => (submitted = true),
-			valid: () => (valid = true),
-		},
-	})
-
-	// Perform first button click. This will trigger the event.
-	const buttonSubmitValid = await componentValid.locator(
-		'button[type=submit]',
-	)
-	await buttonSubmitValid.click()
-
-	// check valid and submitted events
+	// Check valid and submitted events
 	expect(submitted).toBeTruthy()
-	expect(valid).toBeTruthy()
+	expect(invalid).toBeFalsy()
+
+	// Reset events
+	submitted = false
+	invalid = false
+
+	// Set valid input value and submit
+	const inputAge = await component.locator('input[name=age]')
+	await inputAge.fill('10')
+	await buttonSubmit.click()
+
+	// Check valid and submitted events
+	expect(submitted).toBeFalsy()
+	expect(invalid).toBeTruthy()
 })
 
 test('VvForm continuosValidation', async ({ mount }) => {

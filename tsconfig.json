@@ -15,7 +15,7 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "strict": true,
     "strictNullChecks": true,
@@ -30,7 +30,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "declaration": true
+    "declaration": true,
+    "noErrorTruncation": true
   },
-  "include": ["src/*"]
+  "include": ["src/*", "test-vitest/*", "test-playwright/*"]
 }

@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.14] - 2023-08-03
+
+### Added
+
+- Pass default slot to `VvFormTemplate` component from `VvForm` component with `template` prop;
+- Expose type `FormSchema`;
+- `template` prop to `VvForm` component;
+- `template` option to `createForm()` and `useForm()` functions;
+- Replace `vue-tsc` with `vite-plugin-dts` for types generation.
+
+### Fixed
+
+- `defaultObjectBySchema()` improved support for `ZodDefault` and `ZodArray`;
+- Dependencies update.
+
 ## [0.0.13] - 2023-05-19
 
 ### Fixed
@@ -9,7 +24,7 @@ All notable changes to this project will be documented in this file.
 - `VvFormTemplate` and `VvFormField` support for `ref()` props;
 - `VvFormField` datetime correct type is `datetime-local`.
 
-### Updated
+### Added
 
 - `@volverjs/ui-vue` to `v0.0.8-beta.4` and added to peerDependencies
 
@@ -100,6 +115,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[0.0.14]: https://github.com/volverjs/form-vue/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/volverjs/form-vue/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/volverjs/form-vue/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/volverjs/form-vue/compare/v0.0.10...v0.0.11

@@ -151,7 +151,7 @@ export const defineFormField = <Schema extends FormSchema>(
 							props.name as string,
 							{
 								_errors: invalidLabel.value,
-							},
+							} as z.inferFormattedError<Schema>,
 						)
 					}
 				} else {

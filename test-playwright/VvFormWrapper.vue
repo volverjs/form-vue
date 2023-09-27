@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { useForm } from '../dist/index.es.js'
+	import { useForm } from '../src'
 	import { z } from 'zod'
 	import { ref, onMounted, type Ref } from 'vue'
 

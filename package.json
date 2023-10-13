@@ -53,7 +53,7 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@playwright/experimental-ct-vue": "1.38.1",
+    "@playwright/experimental-ct-vue": "1.39.0",
     "@testing-library/vue": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@vitejs/plugin-vue": "^4.3.4",

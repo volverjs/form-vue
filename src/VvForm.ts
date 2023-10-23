@@ -39,6 +39,7 @@ export const defineForm = <Schema extends FormSchema>(
 ) => {
 	const errors = ref<z.inferFormattedError<Schema> | undefined>()
 	const status = ref<FormStatus | undefined>()
+	const invalid = computed(() => status.value === FormStatus.invalid)
 	const formData = ref<Partial<z.infer<Schema> | undefined>>()
 
 	const validate = async (value = formData.value) => {
@@ -167,8 +168,6 @@ export const defineForm = <Schema extends FormSchema>(
 				}
 			})
 
-			const invalid = computed(() => status.value === FormStatus.invalid)
-
 			provide(provideKey, {
 				formData,
 				submit,
@@ -229,6 +228,7 @@ export const defineForm = <Schema extends FormSchema>(
 	return {
 		errors,
 		status,
+		invalid,
 		formData,
 		validate,
 		submit,

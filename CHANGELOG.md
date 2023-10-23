@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `submit()` and `validate()` methods are now exposed directly by `useForm()`;
+- `VvForm` component `tag` prop;
 - support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
 
 ### Changed

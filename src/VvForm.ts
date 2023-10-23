@@ -16,7 +16,7 @@ import {
 	computed,
 } from 'vue'
 import { watchThrottled } from '@vueuse/core'
-import type { z, ZodFormattedError, TypeOf } from 'zod'
+import { type z, type ZodFormattedError, type TypeOf } from 'zod'
 import type {
 	FormComponentOptions,
 	FormSchema,
@@ -35,9 +35,41 @@ export const defineForm = <Schema extends FormSchema>(
 	const errors = ref<z.inferFormattedError<Schema> | undefined>()
 	const status = ref<FormStatus | undefined>()
 	const formData = ref<Partial<z.infer<Schema> | undefined>>()
+
+	const validate = async (value = formData.value) => {
+		const parseResult = await schema.safeParseAsync(value)
+		if (!parseResult.success) {
+			errors.value = parseResult.error.format() as ZodFormattedError<
+				z.infer<Schema>
+			>
+			status.value = FormStatus.invalid
+			options?.onInvalid?.(toRaw(errors.value))
+			return false
+		}
+		errors.value = undefined
+		status.value = FormStatus.valid
+		formData.value = parseResult.data
+		options?.onUpdate?.(toRaw(formData.value))
+		options?.onValid?.(toRaw(formData.value))
+		return true
+	}
+
+	const submit = async () => {
+		if (!(await validate())) {
+			return false
+		}
+		options?.onSubmit?.(toRaw(formData.value) as z.infer<Schema>)
+		status.value = FormStatus.submitting
+		return true
+	}
+
 	const component = defineComponent({
 		name: 'FormComponent',
 		props: {
+			continuosValidation: {
+				type: Boolean,
+				default: false,
+			},
 			modelValue: {
 				type: Object,
 				default: () => ({}),
@@ -46,9 +78,9 @@ export const defineForm = <Schema extends FormSchema>(
 				type: Number,
 				default: 500,
 			},
-			continuosValidation: {
-				type: Boolean,
-				default: false,
+			tag: {
+				type: String,
+				default: 'form',
 			},
 			template: {
 				type: [Array, Function] as PropType<FormTemplate<Schema>>,
@@ -106,38 +138,23 @@ export const defineForm = <Schema extends FormSchema>(
 				},
 			)
 
-			// validate formData with safeParse
-			const validate = async (value = formData.value) => {
-				const parseResult = await schema.safeParseAsync(value)
-				if (!parseResult.success) {
-					errors.value =
-						parseResult.error.format() as ZodFormattedError<
-							z.infer<Schema>
-						>
-					status.value = FormStatus.invalid
-					emit('invalid', errors.value)
-					options?.onInvalid?.(toRaw(errors.value))
-					return false
+			watch(status, (newValue) => {
+				if (newValue === FormStatus.valid) {
+					emit('valid', formData.value as z.infer<Schema>)
+					emit('update:modelValue', formData.value as z.infer<Schema>)
+					return
 				}
-				errors.value = undefined
-				status.value = FormStatus.valid
-				formData.value = parseResult.data
-				emit('update:modelValue', formData.value)
-				options?.onUpdate?.(toRaw(formData.value))
-				emit('valid', parseResult.data)
-				options?.onValid?.(toRaw(formData.value))
-				return true
-			}
-
-			// emit submit event if form is valid
-			const submit = async () => {
-				if (!(await validate())) {
-					return false
+				if (newValue === FormStatus.invalid) {
+					emit(
+						'invalid',
+						errors.value as ZodFormattedError<z.infer<Schema>>,
+					)
+					return
 				}
-				emit('submit', formData.value as z.infer<Schema>)
-				options?.onSubmit?.(toRaw(formData.value) as z.infer<Schema>)
-				return true
-			}
+				if (newValue === FormStatus.submitting) {
+					emit('submit', formData.value as z.infer<Schema>)
+				}
+			})
 
 			const invalid = computed(() => status.value === FormStatus.invalid)
 
@@ -171,7 +188,7 @@ export const defineForm = <Schema extends FormSchema>(
 					invalid: this.invalid,
 				}) ?? this.$slots.default
 			return h(
-				'form',
+				this.tag,
 				{
 					onSubmit: withModifiers(this.submit, ['prevent']),
 				},
@@ -197,6 +214,8 @@ export const defineForm = <Schema extends FormSchema>(
 		errors,
 		status,
 		formData,
+		validate,
+		submit,
 		/**
 		 * An hack to add types to the default slot
 		 */

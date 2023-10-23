@@ -48,7 +48,7 @@ const _formFactory = <Schema extends FormSchema>(
 		options,
 	)
 	const VvFormTemplate = defineFormTemplate(formInjectionKey, VvFormField)
-	const { VvForm, errors, status, formData } = defineForm(
+	const { VvForm, errors, status, formData, validate, submit } = defineForm(
 		schema,
 		formInjectionKey,
 		options,
@@ -66,6 +66,8 @@ const _formFactory = <Schema extends FormSchema>(
 		errors,
 		status,
 		formData,
+		validate,
+		submit,
 	}
 }
 

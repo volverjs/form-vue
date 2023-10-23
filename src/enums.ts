@@ -25,4 +25,5 @@ export enum FormFieldType {
 export enum FormStatus {
 	invalid = 'invalid',
 	valid = 'valid',
+	submitting = 'submitting',
 }

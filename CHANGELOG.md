@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - `submit()` and `validate()` methods are now exposed directly by `useForm()`;
 - `ignoreUpdates()` and `stopUpdatesWatch()` methods are now exposed by `useForm()` and in `VvForm` component default slot scope;
 - `VvForm` component `tag` prop;
+- `invalid` ref is now exposed by `useForm()`;
 - support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
 
 ### Changed

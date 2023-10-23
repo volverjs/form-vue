@@ -3,7 +3,9 @@
 	import { z } from 'zod'
 	import { ref, type Ref } from 'vue'
 
-	defineProps(['continuosValidation'])
+	defineProps({
+		continuosValidation: Boolean,
+	})
 	defineEmits(['submit', 'invalid', 'valid'])
 
 	const zodSchema = z.object({
@@ -25,12 +27,12 @@
 
 <template>
 	<VvForm
+		ref="formEl"
 		v-bind="{ continuosValidation }"
 		v-model="model"
 		@submit="$emit('submit')"
 		@invalid="$emit('invalid')"
 		@valid="$emit('valid')"
-		ref="formEl"
 	>
 		<VvFormField name="firstname" type="text" label="firstname" />
 		<VvFormField name="surname" type="text" label="surname" />

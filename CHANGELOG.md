@@ -7,11 +7,13 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - `submit()` and `validate()` methods are now exposed directly by `useForm()`;
+- `ignoreUpdates()` and `stopUpdatesWatch()` methods are now exposed by `useForm()` and in `VvForm` component default slot scope;
 - `VvForm` component `tag` prop;
 - support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
 
 ### Changed
 
+- `VvForm` prop `updateThrottle` is not used anymore, use `updateThrottle` option of `useForm()` instead;
 - `submit()` and `validate()` methods of `VvForm` component now return a `Promise` of `boolean` instead of `boolean` directly.
 
 ## [0.0.14] - 2023-08-03

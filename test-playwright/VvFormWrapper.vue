@@ -41,9 +41,14 @@
 
 <template>
 	<VvForm ref="formEl" v-model="model">
-		<VvFormField name="firstname" type="text" label="firstname" showValid />
+		<VvFormField
+			name="firstname"
+			type="text"
+			label="firstname"
+			show-valid
+		/>
 		<VvFormField name="surname" type="text" label="surname" />
-		<VvFormWrapper name="location" v-slot="{ invalid }">
+		<VvFormWrapper v-slot="{ invalid }" name="location">
 			<div class="form-section-1">
 				<small v-if="invalid" class="text-danger"
 					>There is a validation error</small

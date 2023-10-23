@@ -1,5 +1,6 @@
-import { type Component, type DeepReadonly, type Ref } from 'vue'
+import type { Component, DeepReadonly, Ref, WatchStopHandle } from 'vue'
 import type { z, AnyZodObject, ZodEffects, inferFormattedError } from 'zod'
+import type { IgnoredUpdater } from '@vueuse/core'
 import type { FormFieldType, FormStatus } from './enums'
 
 export type FormSchema =
@@ -47,6 +48,8 @@ export type InjectedFormData<Schema extends FormSchema> = {
 	>
 	submit: () => Promise<boolean>
 	validate: () => Promise<boolean>
+	ignoreUpdates: IgnoredUpdater
+	stopUpdatesWatch: WatchStopHandle
 	status: Readonly<Ref<FormStatus | undefined>>
 	invalid: Readonly<Ref<boolean>>
 }

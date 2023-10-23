@@ -26,4 +26,6 @@ export enum FormStatus {
 	invalid = 'invalid',
 	valid = 'valid',
 	submitting = 'submitting',
+	updated = 'updated',
+	unknown = 'unknown',
 }

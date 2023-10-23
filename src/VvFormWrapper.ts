@@ -24,7 +24,7 @@ export const defineFormWrapper = <Schema extends FormSchema>(
 	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,
 ) => {
 	const VvFormWrapper = defineComponent({
-		name: 'WrapperComponent',
+		name: 'VvFormWrapper',
 		props: {
 			name: {
 				type: String,

@@ -4,6 +4,7 @@ import {
 	type DeepReadonly,
 	type Ref,
 	type PropType,
+	type WatchStopHandle,
 	withModifiers,
 	defineComponent,
 	ref,
@@ -15,7 +16,11 @@ import {
 	isProxy,
 	computed,
 } from 'vue'
-import { watchThrottled } from '@vueuse/core'
+import {
+	watchIgnorable,
+	throttleFilter,
+	type IgnoredUpdater,
+} from '@vueuse/core'
 import { type z, type ZodFormattedError, type TypeOf } from 'zod'
 import type {
 	FormComponentOptions,
@@ -43,14 +48,11 @@ export const defineForm = <Schema extends FormSchema>(
 				z.infer<Schema>
 			>
 			status.value = FormStatus.invalid
-			options?.onInvalid?.(toRaw(errors.value))
 			return false
 		}
 		errors.value = undefined
 		status.value = FormStatus.valid
 		formData.value = parseResult.data
-		options?.onUpdate?.(toRaw(formData.value))
-		options?.onValid?.(toRaw(formData.value))
 		return true
 	}
 
@@ -58,13 +60,23 @@ export const defineForm = <Schema extends FormSchema>(
 		if (!(await validate())) {
 			return false
 		}
-		options?.onSubmit?.(toRaw(formData.value) as z.infer<Schema>)
 		status.value = FormStatus.submitting
 		return true
 	}
 
+	const { ignoreUpdates, stop: stopUpdatesWatch } = watchIgnorable(
+		formData,
+		() => {
+			status.value = FormStatus.updated
+		},
+		{
+			deep: true,
+			eventFilter: throttleFilter(options?.updateThrottle ?? 500),
+		},
+	)
+
 	const component = defineComponent({
-		name: 'FormComponent',
+		name: 'VvForm',
 		props: {
 			continuosValidation: {
 				type: Boolean,
@@ -73,10 +85,6 @@ export const defineForm = <Schema extends FormSchema>(
 			modelValue: {
 				type: Object,
 				default: () => ({}),
-			},
-			updateThrottle: {
-				type: Number,
-				default: 500,
 			},
 			tag: {
 				type: String,
@@ -95,7 +103,6 @@ export const defineForm = <Schema extends FormSchema>(
 				toRaw(props.modelValue),
 			)
 
-			// clone modelValue and update formData
 			watch(
 				() => props.modelValue,
 				(newValue) => {
@@ -112,57 +119,62 @@ export const defineForm = <Schema extends FormSchema>(
 				{ deep: true },
 			)
 
-			// emit update:modelValue on formData change
-			watchThrottled(
-				formData,
-				async (newValue) => {
+			watch(status, async (newValue) => {
+				if (newValue === FormStatus.invalid) {
+					const toReturn = toRaw(
+						errors.value as ZodFormattedError<z.infer<Schema>>,
+					)
+					emit('invalid', toReturn)
+					options?.onInvalid?.(toReturn)
+					return
+				}
+				if (newValue === FormStatus.valid) {
+					const toReturn = toRaw(formData.value as z.infer<Schema>)
+					emit('valid', toReturn)
+					options?.onValid?.(toReturn)
+					emit('update:modelValue', toReturn)
+					options?.onUpdate?.(toReturn)
+					return
+				}
+				if (newValue === FormStatus.submitting) {
+					const toReturn = toRaw(formData.value as z.infer<Schema>)
+					emit('submit', toReturn)
+					options?.onSubmit?.(toReturn)
+				}
+				if (newValue === FormStatus.updated) {
 					if (
-						(errors.value || options?.continuosValidation) ??
+						errors.value ||
+						options?.continuosValidation ||
 						props.continuosValidation
 					) {
 						await validate()
 					}
 					if (
-						!newValue ||
+						!formData.value ||
 						!props.modelValue ||
-						JSON.stringify(newValue) !==
+						JSON.stringify(formData.value) !==
 							JSON.stringify(props.modelValue)
 					) {
-						emit('update:modelValue', newValue)
-						options?.onUpdate?.(toRaw(newValue))
+						const toReturn = toRaw(
+							formData.value as z.infer<Schema>,
+						)
+						emit('update:modelValue', toReturn)
+						options?.onUpdate?.(toReturn)
 					}
-				},
-				{
-					deep: true,
-					throttle: options?.updateThrottle ?? props.updateThrottle,
-				},
-			)
-
-			watch(status, (newValue) => {
-				if (newValue === FormStatus.valid) {
-					emit('valid', formData.value as z.infer<Schema>)
-					emit('update:modelValue', formData.value as z.infer<Schema>)
-					return
-				}
-				if (newValue === FormStatus.invalid) {
-					emit(
-						'invalid',
-						errors.value as ZodFormattedError<z.infer<Schema>>,
-					)
-					return
-				}
-				if (newValue === FormStatus.submitting) {
-					emit('submit', formData.value as z.infer<Schema>)
+					if (status.value === FormStatus.updated) {
+						status.value = FormStatus.unknown
+					}
 				}
 			})
 
 			const invalid = computed(() => status.value === FormStatus.invalid)
 
-			// provide data to children
 			provide(provideKey, {
 				formData,
 				submit,
 				validate,
+				ignoreUpdates,
+				stopUpdatesWatch,
 				errors: readonly(errors),
 				status: readonly(status),
 				invalid,
@@ -172,6 +184,8 @@ export const defineForm = <Schema extends FormSchema>(
 				formData,
 				submit,
 				validate,
+				ignoreUpdates,
+				stopUpdatesWatch,
 				errors: readonly(errors),
 				status: readonly(status),
 				invalid,
@@ -183,6 +197,8 @@ export const defineForm = <Schema extends FormSchema>(
 					formData: this.formData,
 					submit: this.submit,
 					validate: this.validate,
+					ignoreUpdates: this.ignoreUpdates,
+					stopUpdatesWatch: this.stopUpdatesWatch,
 					errors: this.errors,
 					status: this.status,
 					invalid: this.invalid,
@@ -216,6 +232,8 @@ export const defineForm = <Schema extends FormSchema>(
 		formData,
 		validate,
 		submit,
+		ignoreUpdates,
+		stopUpdatesWatch,
 		/**
 		 * An hack to add types to the default slot
 		 */
@@ -230,6 +248,8 @@ export const defineForm = <Schema extends FormSchema>(
 							: Partial<TypeOf<Schema>> | undefined
 						submit: () => Promise<boolean>
 						validate: () => Promise<boolean>
+						ignoreUpdates: IgnoredUpdater
+						stopUpdatesWatch: WatchStopHandle
 						errors: Readonly<
 							Ref<DeepReadonly<z.inferFormattedError<Schema>>>
 						>

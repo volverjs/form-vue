@@ -38,7 +38,7 @@ export const defineFormField = <Schema extends FormSchema>(
 ) => {
 	// define component
 	return defineComponent({
-		name: 'FieldComponent',
+		name: 'VvFormField',
 		props: {
 			type: {
 				type: String as PropType<`${FormFieldType}`>,

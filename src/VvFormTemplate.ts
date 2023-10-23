@@ -20,6 +20,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 	VvFormField: Component,
 ) => {
 	const VvFormTemplate = defineComponent({
+		name: 'VvFormTemplate',
 		props: {
 			schema: {
 				type: [Array, Function] as PropType<FormTemplate<Schema>>,

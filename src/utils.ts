@@ -14,7 +14,7 @@ import type { FormSchema } from './types'
 
 export const defaultObjectBySchema = <Schema extends FormSchema>(
 	schema: Schema,
-	original: Partial<z.infer<Schema>> = {},
+	original: Partial<z.infer<Schema>> & Record<string, unknown> = {},
 ): Partial<z.infer<Schema>> => {
 	const getInnerType = <Type extends ZodTypeAny>(
 		schema:
@@ -74,9 +74,11 @@ export const defaultObjectBySchema = <Schema extends FormSchema>(
 								originalValue.map((element: unknown) =>
 									defaultObjectBySchema(
 										arrayType,
-										element && typeof element === 'object'
+										(element && typeof element === 'object'
 											? element
-											: undefined,
+											: undefined) as Partial<
+											typeof arrayType
+										>,
 									),
 								) ?? defaultValue,
 							]

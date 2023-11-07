@@ -87,7 +87,7 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
-      "default": "./dist/index.umd.cjs"
+      "default": "./dist/index.umd.js"
     },
     "./src/*": "./src/*",
     "./dist/*": "./dist/*"

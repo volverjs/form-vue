@@ -111,6 +111,14 @@ export const defineForm = <Schema extends FormSchema>(
 						const original = isProxy(newValue)
 							? toRaw(newValue)
 							: newValue
+
+						if (
+							JSON.stringify(original) ===
+							JSON.stringify(toRaw(formData.value))
+						) {
+							return
+						}
+
 						formData.value =
 							typeof original?.clone === 'function'
 								? original.clone()

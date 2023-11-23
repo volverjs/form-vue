@@ -16,6 +16,7 @@ export type FormFieldComponentOptions = {
 export type FormComponentOptions<Schema> = {
 	updateThrottle?: number
 	continuosValidation?: boolean
+	readonly?: boolean
 	template?: Schema extends FormSchema ? FormTemplate<Schema> : never
 	onUpdate?: Schema extends FormSchema
 		? (data: Partial<z.infer<Schema> | undefined>) => void
@@ -52,6 +53,7 @@ export type InjectedFormData<Schema extends FormSchema> = {
 	stopUpdatesWatch: WatchStopHandle
 	status: Readonly<Ref<FormStatus | undefined>>
 	invalid: Readonly<Ref<boolean>>
+	readonly: Ref<boolean>
 }
 
 export type InjectedFormWrapperData<Schema extends FormSchema> = {
@@ -107,17 +109,17 @@ export type PathValue<T, TPath extends Path<T> | Path<T>[]> = T extends any
 					: PathValue<T[K], R>
 				: never
 			: K extends `${number}`
-			? T extends readonly (infer V)[]
-				? PathValue<V, R & Path<V>>
-				: never
-			: never
+			  ? T extends readonly (infer V)[]
+					? PathValue<V, R & Path<V>>
+					: never
+			  : never
 		: TPath extends keyof T
-		? T[TPath]
-		: TPath extends `${number}`
-		? T extends readonly (infer V)[]
-			? V
-			: never
-		: never
+		  ? T[TPath]
+		  : TPath extends `${number}`
+		    ? T extends readonly (infer V)[]
+					? V
+					: never
+		    : never
 	: never
 
 export type AnyBoolean<Schema extends FormSchema> =

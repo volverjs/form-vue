@@ -81,6 +81,10 @@ export const defineFormField = <Schema extends FormSchema>(
 				type: Boolean,
 				default: false,
 			},
+			readonly: {
+				type: Boolean,
+				default: undefined,
+			},
 		},
 		emits: ['invalid', 'valid', 'update:formData', 'update:modelValue'],
 		expose: ['invalid', 'invalidLabel', 'errors'],
@@ -186,6 +190,15 @@ export const defineFormField = <Schema extends FormSchema>(
 					{},
 				)
 			})
+			const isReadonly = computed(() => {
+				const fieldReadonly =
+					hasFieldProps.value.readonly ?? props.readonly
+				if (fieldReadonly === undefined) {
+					return injectedFormData?.readonly.value
+				}
+				return fieldReadonly
+			})
+
 			const hasProps = computed(() => ({
 				...hasFieldProps.value,
 				name: hasFieldProps.value.name ?? props.name,
@@ -217,6 +230,7 @@ export const defineFormField = <Schema extends FormSchema>(
 				})(props.type as FormFieldType),
 				invalidLabel: invalidLabel.value,
 				modelValue: modelValue.value,
+				readonly: isReadonly.value,
 				'onUpdate:modelValue': onUpdate,
 			}))
 
@@ -240,6 +254,7 @@ export const defineFormField = <Schema extends FormSchema>(
 									formData: injectedFormData?.formData.value,
 									formErrors: injectedFormData?.errors.value,
 									errors: errors.value,
+									readonly: isReadonly.value,
 								}) ?? slots.defalut
 							)
 						},

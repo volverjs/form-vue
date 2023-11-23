@@ -9,12 +9,13 @@ import {
 	defineComponent,
 	ref,
 	provide,
-	readonly,
+	readonly as makeReadonly,
 	watch,
 	h,
 	toRaw,
 	isProxy,
 	computed,
+	onMounted,
 } from 'vue'
 import {
 	watchIgnorable,
@@ -41,8 +42,12 @@ export const defineForm = <Schema extends FormSchema>(
 	const status = ref<FormStatus | undefined>()
 	const invalid = computed(() => status.value === FormStatus.invalid)
 	const formData = ref<Partial<z.infer<Schema> | undefined>>()
+	const readonly = ref<boolean>(false)
 
 	const validate = async (value = formData.value) => {
+		if (readonly.value) {
+			return true
+		}
 		const parseResult = await schema.safeParseAsync(value)
 		if (!parseResult.success) {
 			errors.value = parseResult.error.format() as ZodFormattedError<
@@ -58,6 +63,9 @@ export const defineForm = <Schema extends FormSchema>(
 	}
 
 	const submit = async () => {
+		if (readonly.value) {
+			return false
+		}
 		if (!(await validate())) {
 			return false
 		}
@@ -87,6 +95,10 @@ export const defineForm = <Schema extends FormSchema>(
 				type: Object,
 				default: () => ({}),
 			},
+			readonly: {
+				type: Boolean,
+				default: options?.readonly ?? false,
+			},
 			tag: {
 				type: String,
 				default: 'form',
@@ -96,8 +108,22 @@ export const defineForm = <Schema extends FormSchema>(
 				default: undefined,
 			},
 		},
-		emits: ['invalid', 'valid', 'submit', 'update:modelValue'],
-		expose: ['submit', 'validate', 'errors', 'status', 'valid', 'invalid'],
+		emits: [
+			'invalid',
+			'valid',
+			'submit',
+			'update:modelValue',
+			'update:readonly',
+		],
+		expose: [
+			'submit',
+			'validate',
+			'errors',
+			'status',
+			'valid',
+			'invalid',
+			'readonly',
+		],
 		setup(props, { emit }) {
 			formData.value = defaultObjectBySchema(
 				schema,
@@ -176,15 +202,34 @@ export const defineForm = <Schema extends FormSchema>(
 				}
 			})
 
+			onMounted(() => {
+				if (props.readonly && !readonly.value) {
+					readonly.value = props.readonly
+				}
+			})
+
+			watch(
+				() => props.readonly,
+				(newValue) => {
+					readonly.value = newValue
+				},
+			)
+			watch(readonly, (newValue) => {
+				if (newValue !== props.readonly) {
+					emit('update:readonly', readonly.value)
+				}
+			})
+
 			provide(provideKey, {
 				formData,
 				submit,
 				validate,
 				ignoreUpdates,
 				stopUpdatesWatch,
-				errors: readonly(errors),
-				status: readonly(status),
+				errors: makeReadonly(errors),
+				status: makeReadonly(status),
 				invalid,
+				readonly,
 			})
 
 			return {
@@ -193,9 +238,10 @@ export const defineForm = <Schema extends FormSchema>(
 				validate,
 				ignoreUpdates,
 				stopUpdatesWatch,
-				errors: readonly(errors),
-				status: readonly(status),
+				errors: makeReadonly(errors),
+				status: makeReadonly(status),
 				invalid,
+				isReadonly: readonly,
 			}
 		},
 		render() {
@@ -209,6 +255,7 @@ export const defineForm = <Schema extends FormSchema>(
 					errors: this.errors,
 					status: this.status,
 					invalid: this.invalid,
+					readonly: this.isReadonly,
 				}) ?? this.$slots.default
 			return h(
 				this.tag,
@@ -237,6 +284,7 @@ export const defineForm = <Schema extends FormSchema>(
 		errors,
 		status,
 		invalid,
+		readonly,
 		formData,
 		validate,
 		submit,
@@ -263,6 +311,7 @@ export const defineForm = <Schema extends FormSchema>(
 						>
 						status: Ref<DeepReadonly<`${FormStatus}` | undefined>>
 						invalid: Ref<DeepReadonly<boolean>>
+						readonly: Ref<boolean>
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					}) => any
 				}

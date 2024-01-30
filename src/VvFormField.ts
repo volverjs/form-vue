@@ -191,14 +191,11 @@ export const defineFormField = <Schema extends FormSchema>(
 				)
 			})
 			const isReadonly = computed(() => {
-				const fieldReadonly =
-					hasFieldProps.value.readonly ?? props.readonly
-				if (fieldReadonly === undefined) {
-					return injectedFormData?.readonly.value
+				if (injectedFormData?.readonly.value) {
+					return true
 				}
-				return fieldReadonly
+				return hasFieldProps.value.readonly ?? props.readonly
 			})
-
 			const hasProps = computed(() => ({
 				...hasFieldProps.value,
 				name: hasFieldProps.value.name ?? props.name,
@@ -234,11 +231,13 @@ export const defineFormField = <Schema extends FormSchema>(
 				'onUpdate:modelValue': onUpdate,
 			}))
 
+			// provide data to children
 			provide(formFieldInjectionKey, {
 				name: readonly(fieldName as Ref<string>),
 				errors: readonly(errors),
 			})
 
+			// load component
 			const component = computed(() => {
 				if (props.type === FormFieldType.custom) {
 					return {

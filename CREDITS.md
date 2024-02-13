@@ -12,7 +12,7 @@ https://github.com/volverjs/style
 ### License
 MIT License
 
-Copyright (c) 2022-2023 24/Consulting
+Copyright (c) 2024 8 Wave
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ https://github.com/volverjs/ui-vue
 ### License
 MIT License
 
-Copyright (c) 2022-2023 24/Consulting
+Copyright (c) 2024 8 Wave
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

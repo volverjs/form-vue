@@ -10,7 +10,7 @@
 
 <br>
 
-#### proudly powered by
+maintained with ❤️ by
 
 <br>
 

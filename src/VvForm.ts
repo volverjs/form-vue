@@ -202,12 +202,10 @@ export const defineForm = <Schema extends FormSchema>(
 				}
 			})
 
+			// readonly
 			onMounted(() => {
-				if (props.readonly && !readonly.value) {
-					readonly.value = props.readonly
-				}
+				readonly.value = props.readonly
 			})
-
 			watch(
 				() => props.readonly,
 				(newValue) => {
@@ -273,10 +271,10 @@ export const defineForm = <Schema extends FormSchema>(
 									default: defaultSlot,
 								},
 							),
-					  ]
+						]
 					: {
 							default: defaultSlot,
-					  },
+						},
 			)
 		},
 	})

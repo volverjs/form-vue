@@ -45,6 +45,7 @@ export default () => {
 			// https://github.com/qmhc/vite-plugin-dts
 			dts({
 				insertTypesEntry: true,
+				exclude: ['**/test-*/**'],
 			}),
 		],
 	})

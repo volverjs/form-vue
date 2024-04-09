@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@volverjs/ui-vue':
-    specifier: 0.0.10-beta.30
-    version: 0.0.10-beta.30(@volverjs/style@0.1.12-beta.15)(typescript@5.4.4)(vitest@1.4.0)
+    specifier: 0.0.10-beta.31
+    version: 0.0.10-beta.31(@volverjs/style@0.1.12-beta.15)(typescript@5.4.4)(vitest@1.4.0)
   '@vueuse/core':
     specifier: ^10.9.0
     version: 10.9.0(vue@3.4.21)
@@ -1355,8 +1355,8 @@ packages:
     resolution: {integrity: sha512-hZH382STKlF9V5L1zHb78vA5/8JkgM7EnJTwqrVfcqiyn/h0T0m3N+IXsbJLh7MLGTzc9em1z0rcP21vukAE9g==}
     engines: {node: '>= 12.x'}
 
-  /@volverjs/ui-vue@0.0.10-beta.30(@volverjs/style@0.1.12-beta.15)(typescript@5.4.4)(vitest@1.4.0):
-    resolution: {integrity: sha512-Qdpf2vzxfcL8A1Nx11q0NNe7w5RzQMZxGjnYcAoFGxHi7D4FAAkOzWvIn4a7kF3eDyn9nrkhamGv3NBjjuscUQ==}
+  /@volverjs/ui-vue@0.0.10-beta.31(@volverjs/style@0.1.12-beta.15)(typescript@5.4.4)(vitest@1.4.0):
+    resolution: {integrity: sha512-9/iYvrjRuHip7p00E+XJDl/SYoxVHX0y051IGTe7/XsZ7SZuT7FDzoMYHPBOPToFMpAHRxluGS53E3AMgVJ7Nw==}
     hasBin: true
     peerDependencies:
       '@volverjs/style': 0.*

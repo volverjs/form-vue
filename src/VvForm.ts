@@ -22,7 +22,7 @@ import {
 	throttleFilter,
 	type IgnoredUpdater,
 } from '@vueuse/core'
-import { type z, type ZodFormattedError, type TypeOf } from 'zod'
+import { type z } from 'zod'
 import type {
 	FormComponentOptions,
 	FormSchema,
@@ -50,9 +50,8 @@ export const defineForm = <Schema extends FormSchema>(
 		}
 		const parseResult = await schema.safeParseAsync(value)
 		if (!parseResult.success) {
-			errors.value = parseResult.error.format() as ZodFormattedError<
-				z.infer<Schema>
-			>
+			errors.value =
+				parseResult.error.format() as z.inferFormattedError<Schema>
 			status.value = FormStatus.invalid
 			return false
 		}
@@ -156,15 +155,13 @@ export const defineForm = <Schema extends FormSchema>(
 
 			watch(status, async (newValue) => {
 				if (newValue === FormStatus.invalid) {
-					const toReturn = toRaw(
-						errors.value as ZodFormattedError<z.infer<Schema>>,
-					)
+					const toReturn = toRaw(errors.value)
 					emit('invalid', toReturn)
 					options?.onInvalid?.(toReturn)
 					return
 				}
 				if (newValue === FormStatus.valid) {
-					const toReturn = toRaw(formData.value as z.infer<Schema>)
+					const toReturn = toRaw(formData.value)
 					emit('valid', toReturn)
 					options?.onValid?.(toReturn)
 					emit('update:modelValue', toReturn)
@@ -172,7 +169,7 @@ export const defineForm = <Schema extends FormSchema>(
 					return
 				}
 				if (newValue === FormStatus.submitting) {
-					const toReturn = toRaw(formData.value as z.infer<Schema>)
+					const toReturn = toRaw(formData.value)
 					emit('submit', toReturn)
 					options?.onSubmit?.(toReturn)
 				}
@@ -190,9 +187,7 @@ export const defineForm = <Schema extends FormSchema>(
 						JSON.stringify(formData.value) !==
 							JSON.stringify(props.modelValue)
 					) {
-						const toReturn = toRaw(
-							formData.value as z.infer<Schema>,
-						)
+						const toReturn = toRaw(formData.value)
 						emit('update:modelValue', toReturn)
 						options?.onUpdate?.(toReturn)
 					}
@@ -296,10 +291,10 @@ export const defineForm = <Schema extends FormSchema>(
 				$slots: {
 					default: (_: {
 						formData: unknown extends
-							| Partial<TypeOf<Schema>>
+							| Partial<z.TypeOf<Schema>>
 							| undefined
 							? undefined
-							: Partial<TypeOf<Schema>> | undefined
+							: Partial<z.TypeOf<Schema>> | undefined
 						submit: () => Promise<boolean>
 						validate: () => Promise<boolean>
 						ignoreUpdates: IgnoredUpdater

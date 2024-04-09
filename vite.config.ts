@@ -1,7 +1,7 @@
 import path from 'path'
 import { defineConfig, configDefaults } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
-import ESLint from 'vite-plugin-eslint'
+import ESLint from '@nabla/vite-plugin-eslint'
 import dts from 'vite-plugin-dts'
 
 // https://vitejs.dev/config/
@@ -45,6 +45,7 @@ export default () => {
 			// https://github.com/qmhc/vite-plugin-dts
 			dts({
 				insertTypesEntry: true,
+				exclude: ['**/test-*/**'],
 			}),
 		],
 	})

@@ -4,15 +4,15 @@ This application uses Open Source components. You can find the source code of th
 -------------------------------------------------------------------------------
 
 ## Project
-@volverjs/style
+@volverjs/ui-vue
 
 ### Source
-https://github.com/volverjs/style
+https://github.com/volverjs/ui-vue
 
 ### License
 MIT License
 
-Copyright (c) 2024 8 Wave
+Copyright (c) 2022-2023 8 Wave
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,15 +36,15 @@ SOFTWARE.
 -------------------------------------------------------------------------------
 
 ## Project
-@volverjs/ui-vue
+@vueuse/core
 
 ### Source
-https://github.com/volverjs/ui-vue
+https://github.com/vueuse/vueuse
 
 ### License
 MIT License
 
-Copyright (c) 2024 8 Wave
+Copyright (c) 2019-PRESENT Anthony Fu<https://github.com/antfu>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -108,7 +108,7 @@ https://github.com/vuejs/core
 ### License
 The MIT License (MIT)
 
-Copyright (c) 2018-present, Yuxi (Evan) You
+Copyright (c) 2018-present, Yuxi (Evan) You and Vue contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

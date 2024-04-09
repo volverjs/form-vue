@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	root: true,
 	env: {
 		browser: true,
@@ -21,5 +21,5 @@ module.exports = {
 		'@typescript-eslint/no-unused-vars': 'off',
 		'sort-imports': 'off',
 	},
-	ignorePatterns: ['**/node_modules/**', '**/*.cjs'],
+	ignore: ['/dist', '/coverage', '/node', '/node_modules/**/*'],
 }

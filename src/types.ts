@@ -1,12 +1,12 @@
 import type { Component, DeepReadonly, Ref, WatchStopHandle } from 'vue'
-import type { z, AnyZodObject, ZodEffects, inferFormattedError } from 'zod'
+import type { z } from 'zod'
 import type { IgnoredUpdater } from '@vueuse/core'
 import type { FormFieldType, FormStatus } from './enums'
 
 export type FormSchema =
-	| AnyZodObject
-	| ZodEffects<AnyZodObject>
-	| ZodEffects<ZodEffects<AnyZodObject>>
+	| z.AnyZodObject
+	| z.ZodEffects<z.AnyZodObject>
+	| z.ZodEffects<z.ZodEffects<z.AnyZodObject>>
 
 export type FormFieldComponentOptions = {
 	lazyLoad?: boolean
@@ -19,16 +19,16 @@ export type FormComponentOptions<Schema> = {
 	readonly?: boolean
 	template?: Schema extends FormSchema ? FormTemplate<Schema> : never
 	onUpdate?: Schema extends FormSchema
-		? (data: Partial<z.infer<Schema> | undefined>) => void
+		? (data?: Partial<z.infer<Schema>>) => void
 		: never
 	onSubmit?: Schema extends FormSchema
-		? (data: z.infer<Schema>) => void
+		? (data?: z.infer<Schema>) => void
 		: never
 	onInvalid?: Schema extends FormSchema
-		? (error: inferFormattedError<Schema, string>) => void
+		? (error?: z.inferFormattedError<Schema>) => void
 		: never
 	onValid?: Schema extends FormSchema
-		? (data: z.infer<Schema>) => void
+		? (data?: z.infer<Schema>) => void
 		: never
 }
 
@@ -59,7 +59,7 @@ export type InjectedFormData<Schema extends FormSchema> = {
 export type InjectedFormWrapperData<Schema extends FormSchema> = {
 	name: Ref<string>
 	fields: Ref<Set<string>>
-	errors: Ref<Map<string, z.inferFormattedError<Schema, string>>>
+	errors: Ref<Map<string, z.inferFormattedError<Schema>>>
 }
 
 export type InjectedFormFieldData<Schema extends FormSchema> = {
@@ -93,11 +93,11 @@ export type Path<T> = T extends readonly (infer V)[]
 	? IsTuple<T> extends true
 		? {
 				[K in TupleKeys<T>]-?: PathConcat<K & string, T[K]>
-		  }[TupleKeys<T>]
+			}[TupleKeys<T>]
 		: PathConcat<number, V>
 	: {
 			[K in keyof T]-?: PathConcat<K & string, T[K]>
-	  }[keyof T]
+		}[keyof T]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type PathValue<T, TPath extends Path<T> | Path<T>[]> = T extends any
@@ -109,17 +109,17 @@ export type PathValue<T, TPath extends Path<T> | Path<T>[]> = T extends any
 					: PathValue<T[K], R>
 				: never
 			: K extends `${number}`
-			  ? T extends readonly (infer V)[]
+				? T extends readonly (infer V)[]
 					? PathValue<V, R & Path<V>>
 					: never
-			  : never
+				: never
 		: TPath extends keyof T
-		  ? T[TPath]
-		  : TPath extends `${number}`
-		    ? T extends readonly (infer V)[]
+			? T[TPath]
+			: TPath extends `${number}`
+				? T extends readonly (infer V)[]
 					? V
 					: never
-		    : never
+				: never
 	: never
 
 export type AnyBoolean<Schema extends FormSchema> =
@@ -136,10 +136,24 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
 	vvName?: Path<z.infer<Schema>>
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	vvSlots?: Record<string, any>
-	vvChildren?: Array<
-		| SimpleFormTemplateItem<Schema>
-		| ((data?: InjectedFormData<Schema>) => SimpleFormTemplateItem<Schema>)
-	>
+	vvChildren?:
+		| Array<
+				| SimpleFormTemplateItem<Schema>
+				| ((
+						data?: InjectedFormData<Schema>,
+						scope?: Record<string, unknown>,
+				  ) => SimpleFormTemplateItem<Schema>)
+		  >
+		| ((
+				data?: InjectedFormData<Schema>,
+				scope?: Record<string, unknown>,
+		  ) => Array<
+				| SimpleFormTemplateItem<Schema>
+				| ((
+						data?: InjectedFormData<Schema>,
+						scope?: Record<string, unknown>,
+				  ) => SimpleFormTemplateItem<Schema>)
+		  >)
 	vvIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
 	vvElseIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
 	vvType?: `${FormFieldType}`
@@ -151,8 +165,14 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
 
 export type FormTemplateItem<Schema extends FormSchema> =
 	| SimpleFormTemplateItem<Schema>
-	| ((data?: InjectedFormData<Schema>) => SimpleFormTemplateItem<Schema>)
+	| ((
+			data?: InjectedFormData<Schema>,
+			scope?: Record<string, unknown>,
+	  ) => SimpleFormTemplateItem<Schema>)
 
 export type FormTemplate<Schema extends FormSchema> =
 	| FormTemplateItem<Schema>[]
-	| ((data?: InjectedFormData<Schema>) => FormTemplateItem<Schema>[])
+	| ((
+			data?: InjectedFormData<Schema>,
+			scope?: Record<string, unknown>,
+	  ) => FormTemplateItem<Schema>[])

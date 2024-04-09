@@ -26,6 +26,10 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 				type: [Array, Function] as PropType<FormTemplate<Schema>>,
 				required: true,
 			},
+			scope: {
+				type: Object as PropType<Record<string, unknown>>,
+				default: () => ({}),
+			},
 		},
 		setup(templateProps, { slots: templateSlots }) {
 			const injectedFormData = inject(formProvideKey)
@@ -33,7 +37,10 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 			return () => {
 				const normalizedSchema =
 					typeof templateProps.schema === 'function'
-						? templateProps.schema(injectedFormData)
+						? templateProps.schema(
+								injectedFormData,
+								templateProps.scope,
+							)
 						: templateProps.schema
 				let lastIf: boolean | undefined = undefined
 				const toReturn = normalizedSchema.reduce<
@@ -41,7 +48,7 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 				>((acc, field) => {
 					const normalizedField =
 						typeof field === 'function'
-							? field(injectedFormData)
+							? field(injectedFormData, templateProps.scope)
 							: field
 					const {
 						vvIs,
@@ -98,9 +105,13 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 					}
 					// children
 					const hChildren = vvChildren
-						? h(VvFormTemplate, {
-								schema: vvChildren,
-						  })
+						? {
+								default: (scope: Record<string, unknown>) =>
+									h(VvFormTemplate, {
+										schema: vvChildren,
+										scope,
+									}),
+							}
 						: undefined
 					// render
 					if (vvName) {
@@ -130,8 +141,8 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 						)
 						return acc
 					}
-					if (vvChildren) {
-						acc.push(hChildren)
+					if (hChildren) {
+						acc.push(hChildren.default(templateProps.scope))
 						return acc
 					}
 					return acc

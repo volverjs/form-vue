@@ -15,7 +15,7 @@ export type FormFieldComponentOptions = {
 
 export type FormComponentOptions<Schema> = {
 	updateThrottle?: number
-	continuosValidation?: boolean
+	continuousValidation?: boolean
 	readonly?: boolean
 	template?: Schema extends FormSchema ? FormTemplate<Schema> : never
 	onUpdate?: Schema extends FormSchema

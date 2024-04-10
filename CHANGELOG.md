@@ -17,7 +17,8 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - `VvForm` prop `updateThrottle` is not used anymore, use `updateThrottle` option of `useForm()` instead;
-- `submit()` and `validate()` methods of `VvForm` component now return a `Promise` of `boolean` instead of `boolean` directly.
+- `submit()` and `validate()` methods of `VvForm` component now return a `Promise` of `boolean` instead of `boolean` directly;
+- `continuos-validation` option is now `continuous-validation`.
 
 ## [0.0.14] - 2023-08-03
 
@@ -100,7 +101,7 @@ All notable changes to this project will be documented in this file.
 
 Update docs with:
 
-- `continuosValidation` prop/option;
+- `continuousValidation` prop/option;
 - Nested `VvFormField`.
 
 ## [0.0.3] - 2023-03-15
@@ -111,7 +112,7 @@ Update docs with:
 
 ### Added
 
-- Continuos validation feature available with `continuosValidation` option.
+- Continuous validation feature available with `continuousValidation` option.
 
 ## [0.0.2] - 2023-03-10
 

@@ -4,7 +4,7 @@
 	import { ref, type Ref } from 'vue'
 
 	defineProps({
-		continuosValidation: Boolean,
+		continuousValidation: Boolean,
 	})
 	defineEmits(['submit', 'invalid', 'valid'])
 
@@ -28,7 +28,7 @@
 <template>
 	<VvForm
 		ref="formEl"
-		v-bind="{ continuosValidation }"
+		v-bind="{ continuousValidation }"
 		v-model="model"
 		@submit="$emit('submit')"
 		@invalid="$emit('invalid')"

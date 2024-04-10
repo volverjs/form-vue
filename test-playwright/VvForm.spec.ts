@@ -57,13 +57,13 @@ test('VvForm events', async ({ mount }) => {
 	expect(invalid).toBeTruthy()
 })
 
-test('VvForm continuosValidation', async ({ mount }) => {
+test('VvForm continuousValidation', async ({ mount }) => {
 	let invalid = false
 	let valid = false
 
 	const component = await mount(VvForm, {
 		props: {
-			continuosValidation: true,
+			continuousValidation: true,
 		},
 		on: {
 			invalid: () => (invalid = true),

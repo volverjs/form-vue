@@ -86,7 +86,7 @@ export const defineForm = <Schema extends FormSchema>(
 	const component = defineComponent({
 		name: 'VvForm',
 		props: {
-			continuosValidation: {
+			continuousValidation: {
 				type: Boolean,
 				default: false,
 			},
@@ -176,8 +176,8 @@ export const defineForm = <Schema extends FormSchema>(
 				if (newValue === FormStatus.updated) {
 					if (
 						errors.value ||
-						options?.continuosValidation ||
-						props.continuosValidation
+						options?.continuousValidation ||
+						props.continuousValidation
 					) {
 						await validate()
 					}

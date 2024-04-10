@@ -56,7 +56,7 @@ const form = createForm({
   schema
   // lazyLoad: boolean - default false
   // updateThrottle: number - default 500
-  // continuosValidation: boolean - default false
+  // continuousValidation: boolean - default false
   // sideEffects?: (data: any) => void
 })
 
@@ -118,7 +118,7 @@ Use the `v-model` directive (or only `:model-value` to set the initial value of 
 The form data two way binding is **throttled** by default (500ms) to avoid performance issues. The throttle can be changed with the `updateThrottle` option or prop.
 
 By default form validation **stops** when a **valid state** is reached.
-To activate **continuos validation** use the `continuosValidation` option or prop.
+To activate **continuous validation** use the `continuousValidation` option or prop.
 
 ```vue
 <script lang="ts" setup>
@@ -131,7 +131,7 @@ To activate **continuos validation** use the `continuosValidation` option or pro
 </script>
 
 <template>
-  <VvForm v-model="formData" :update-throttle="1000" continuos-validation>
+  <VvForm v-model="formData" :update-throttle="1000" continuous-validation>
     <!-- ... -->
   </VvForm>
 </template>
@@ -155,7 +155,7 @@ The **default settings** are **inherited** from the plugin (if it's installed).
   const { VvForm, VvFormWrapper, VvFormField } = useForm(schema, {
     // lazyLoad: boolean - default false
     // updateThrottle: number - default 500
-    // continuosValidation: boolean - default false
+    // continuousValidation: boolean - default false
     // sideEffects?: (formData: any) => void
   })
 </script>

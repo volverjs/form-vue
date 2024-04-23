@@ -12,7 +12,7 @@ import {
 	unref,
 } from 'vue'
 import type { TypeOf, z } from 'zod'
-import type { FormSchema, InjectedFormData, FormTemplate } from './types'
+import type { FormSchema, InjectedFormData, FormTemplate, RenderFunctionOutput } from './types'
 import type { FormStatus } from './enums'
 
 export const defineFormTemplate = <Schema extends FormSchema>(
@@ -103,16 +103,25 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 					} else {
 						lastIf = undefined
 					}
+
 					// children
-					const hChildren = vvChildren
-						? {
+					let hChildren: RenderFunctionOutput | {default: (scope: Record<string, unknown>) => RenderFunctionOutput} | undefined
+					if(vvChildren) {
+						if(typeof vvIs === 'string') {
+							hChildren = h(VvFormTemplate, {
+								schema: vvChildren,
+							})
+						} else {
+							hChildren = {
 								default: (scope: Record<string, unknown>) =>
 									h(VvFormTemplate, {
 										schema: vvChildren,
 										scope,
 									}),
 							}
-						: undefined
+						}
+					}
+
 					// render
 					if (vvName) {
 						acc.push(
@@ -142,7 +151,11 @@ export const defineFormTemplate = <Schema extends FormSchema>(
 						return acc
 					}
 					if (hChildren) {
-						acc.push(hChildren.default(templateProps.scope))
+						if('default' in hChildren) {
+							acc.push(hChildren.default(templateProps.scope))
+						} else {
+							acc.push(hChildren)
+						}
 						return acc
 					}
 					return acc

@@ -1,4 +1,4 @@
-import type { Component, DeepReadonly, Ref, WatchStopHandle } from 'vue'
+import type { Component, DeepReadonly, Ref, RendererElement, RendererNode, VNode, WatchStopHandle } from 'vue'
 import type { z } from 'zod'
 import type { IgnoredUpdater } from '@vueuse/core'
 import type { FormFieldType, FormStatus } from './enums'
@@ -176,3 +176,5 @@ export type FormTemplate<Schema extends FormSchema> =
 			data?: InjectedFormData<Schema>,
 			scope?: Record<string, unknown>,
 	  ) => FormTemplateItem<Schema>[])
+
+export type RenderFunctionOutput = VNode<RendererNode, RendererElement, { [key: string]: any; }>

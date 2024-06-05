@@ -63,7 +63,7 @@
         "credits": "npx @opengovsg/credits-generator"
     },
     "dependencies": {
-        "@volverjs/ui-vue": "0.0.10-beta.31",
+        "@volverjs/ui-vue": "0.0.10-beta.35",
         "@vueuse/core": "^10.10.0",
         "ts-dot-prop": "^2.1.4",
         "vue": "^3.4.27",

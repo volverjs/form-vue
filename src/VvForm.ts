@@ -1,314 +1,310 @@
 import {
-	type Component,
-	type InjectionKey,
-	type DeepReadonly,
-	type Ref,
-	type PropType,
-	type WatchStopHandle,
-	withModifiers,
-	defineComponent,
-	ref,
-	provide,
-	readonly as makeReadonly,
-	watch,
-	h,
-	toRaw,
-	isProxy,
-	computed,
-	onMounted,
+    type Component,
+    type InjectionKey,
+    type DeepReadonly,
+    type Ref,
+    type PropType,
+    type WatchStopHandle,
+    withModifiers,
+    defineComponent,
+    ref,
+    provide,
+    readonly as makeReadonly,
+    watch,
+    h,
+    toRaw,
+    isProxy,
+    computed,
+    onMounted,
 } from 'vue'
 import {
-	watchIgnorable,
-	throttleFilter,
-	type IgnoredUpdater,
+    watchIgnorable,
+    throttleFilter,
+    type IgnoredUpdater,
 } from '@vueuse/core'
-import { type z } from 'zod'
+import type { z } from 'zod'
 import type {
-	FormComponentOptions,
-	FormSchema,
-	FormTemplate,
-	InjectedFormData,
+    FormComponentOptions,
+    FormSchema,
+    FormTemplate,
+    InjectedFormData,
 } from './types'
 import { FormStatus } from './enums'
 import { defaultObjectBySchema } from './utils'
 
-export const defineForm = <Schema extends FormSchema>(
-	schema: Schema,
-	provideKey: InjectionKey<InjectedFormData<Schema>>,
-	options?: FormComponentOptions<Schema>,
-	VvFormTemplate?: Component,
-) => {
-	const errors = ref<z.inferFormattedError<Schema> | undefined>()
-	const status = ref<FormStatus | undefined>()
-	const invalid = computed(() => status.value === FormStatus.invalid)
-	const formData = ref<Partial<z.infer<Schema> | undefined>>()
-	const readonly = ref<boolean>(false)
+export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey: InjectionKey<InjectedFormData<Schema>>,	options?: FormComponentOptions<Schema>,	VvFormTemplate?: Component) {
+    const errors = ref<z.inferFormattedError<Schema> | undefined>()
+    const status = ref<FormStatus | undefined>()
+    const invalid = computed(() => status.value === FormStatus.invalid)
+    const formData = ref<Partial<z.infer<Schema> | undefined>>()
+    const readonly = ref<boolean>(false)
 
-	const validate = async (value = formData.value) => {
-		if (readonly.value) {
-			return true
-		}
-		const parseResult = await schema.safeParseAsync(value)
-		if (!parseResult.success) {
-			errors.value =
-				parseResult.error.format() as z.inferFormattedError<Schema>
-			status.value = FormStatus.invalid
-			return false
-		}
-		errors.value = undefined
-		status.value = FormStatus.valid
-		formData.value = parseResult.data
-		return true
-	}
+    const validate = async (value = formData.value) => {
+        if (readonly.value) {
+            return true
+        }
+        const parseResult = await schema.safeParseAsync(value)
+        if (!parseResult.success) {
+            errors.value
+				= parseResult.error.format() as z.inferFormattedError<Schema>
+            status.value = FormStatus.invalid
+            return false
+        }
+        errors.value = undefined
+        status.value = FormStatus.valid
+        formData.value = parseResult.data
+        return true
+    }
 
-	const submit = async () => {
-		if (readonly.value) {
-			return false
-		}
-		if (!(await validate())) {
-			return false
-		}
-		status.value = FormStatus.submitting
-		return true
-	}
+    const submit = async () => {
+        if (readonly.value) {
+            return false
+        }
+        if (!(await validate())) {
+            return false
+        }
+        status.value = FormStatus.submitting
+        return true
+    }
 
-	const { ignoreUpdates, stop: stopUpdatesWatch } = watchIgnorable(
-		formData,
-		() => {
-			status.value = FormStatus.updated
-		},
-		{
-			deep: true,
-			eventFilter: throttleFilter(options?.updateThrottle ?? 500),
-		},
-	)
+    const { ignoreUpdates, stop: stopUpdatesWatch } = watchIgnorable(
+        formData,
+        () => {
+            status.value = FormStatus.updated
+        },
+        {
+            deep: true,
+            eventFilter: throttleFilter(options?.updateThrottle ?? 500),
+        },
+    )
 
-	const component = defineComponent({
-		name: 'VvForm',
-		props: {
-			continuousValidation: {
-				type: Boolean,
-				default: false,
-			},
-			modelValue: {
-				type: Object,
-				default: () => ({}),
-			},
-			readonly: {
-				type: Boolean,
-				default: options?.readonly ?? false,
-			},
-			tag: {
-				type: String,
-				default: 'form',
-			},
-			template: {
-				type: [Array, Function] as PropType<FormTemplate<Schema>>,
-				default: undefined,
-			},
-		},
-		emits: [
-			'invalid',
-			'valid',
-			'submit',
-			'update:modelValue',
-			'update:readonly',
-		],
-		expose: [
-			'submit',
-			'validate',
-			'errors',
-			'status',
-			'valid',
-			'invalid',
-			'readonly',
-		],
-		setup(props, { emit }) {
-			formData.value = defaultObjectBySchema(
-				schema,
-				toRaw(props.modelValue),
-			)
+    const component = defineComponent({
+        name: 'VvForm',
+        props: {
+            continuousValidation: {
+                type: Boolean,
+                default: false,
+            },
+            modelValue: {
+                type: Object,
+                default: () => ({}),
+            },
+            readonly: {
+                type: Boolean,
+                default: options?.readonly ?? false,
+            },
+            tag: {
+                type: String,
+                default: 'form',
+            },
+            template: {
+                type: [Array, Function] as PropType<FormTemplate<Schema>>,
+                default: undefined,
+            },
+        },
+        emits: [
+            'invalid',
+            'valid',
+            'submit',
+            'update:modelValue',
+            'update:readonly',
+        ],
+        expose: [
+            'submit',
+            'validate',
+            'errors',
+            'status',
+            'valid',
+            'invalid',
+            'readonly',
+        ],
+        setup(props, { emit }) {
+            formData.value = defaultObjectBySchema(
+                schema,
+                toRaw(props.modelValue),
+            )
 
-			watch(
-				() => props.modelValue,
-				(newValue) => {
-					if (newValue) {
-						const original = isProxy(newValue)
-							? toRaw(newValue)
-							: newValue
+            watch(
+                () => props.modelValue,
+                (newValue) => {
+                    if (newValue) {
+                        const original = isProxy(newValue)
+                            ? toRaw(newValue)
+                            : newValue
 
-						if (
-							JSON.stringify(original) ===
-							JSON.stringify(toRaw(formData.value))
-						) {
-							return
-						}
+                        if (
+                            JSON.stringify(original)
+                            === JSON.stringify(toRaw(formData.value))
+                        ) {
+                            return
+                        }
 
-						formData.value =
-							typeof original?.clone === 'function'
-								? original.clone()
-								: JSON.parse(JSON.stringify(original))
-					}
-				},
-				{ deep: true },
-			)
+                        formData.value
+							= typeof original?.clone === 'function'
+							    ? original.clone()
+							    : JSON.parse(JSON.stringify(original))
+                    }
+                },
+                { deep: true },
+            )
 
-			watch(status, async (newValue) => {
-				if (newValue === FormStatus.invalid) {
-					const toReturn = toRaw(errors.value)
-					emit('invalid', toReturn)
-					options?.onInvalid?.(toReturn)
-					return
-				}
-				if (newValue === FormStatus.valid) {
-					const toReturn = toRaw(formData.value)
-					emit('valid', toReturn)
-					options?.onValid?.(toReturn)
-					emit('update:modelValue', toReturn)
-					options?.onUpdate?.(toReturn)
-					return
-				}
-				if (newValue === FormStatus.submitting) {
-					const toReturn = toRaw(formData.value)
-					emit('submit', toReturn)
-					options?.onSubmit?.(toReturn)
-				}
-				if (newValue === FormStatus.updated) {
-					if (
-						errors.value ||
-						options?.continuousValidation ||
-						props.continuousValidation
-					) {
-						await validate()
-					}
-					if (
-						!formData.value ||
-						!props.modelValue ||
-						JSON.stringify(formData.value) !==
-							JSON.stringify(props.modelValue)
-					) {
-						const toReturn = toRaw(formData.value)
-						emit('update:modelValue', toReturn)
-						options?.onUpdate?.(toReturn)
-					}
-					if (status.value === FormStatus.updated) {
-						status.value = FormStatus.unknown
-					}
-				}
-			})
+            watch(status, async (newValue) => {
+                if (newValue === FormStatus.invalid) {
+                    const toReturn = toRaw(errors.value)
+                    emit('invalid', toReturn)
+                    options?.onInvalid?.(
+                        toReturn as z.inferFormattedError<Schema> | undefined,
+                    )
+                    return
+                }
+                if (newValue === FormStatus.valid) {
+                    const toReturn = toRaw(formData.value)
+                    emit('valid', toReturn)
+                    options?.onValid?.(toReturn)
+                    emit('update:modelValue', toReturn)
+                    options?.onUpdate?.(toReturn)
+                    return
+                }
+                if (newValue === FormStatus.submitting) {
+                    const toReturn = toRaw(formData.value)
+                    emit('submit', toReturn)
+                    options?.onSubmit?.(toReturn)
+                }
+                if (newValue === FormStatus.updated) {
+                    if (
+                        errors.value
+                        || options?.continuousValidation
+                        || props.continuousValidation
+                    ) {
+                        await validate()
+                    }
+                    if (
+                        !formData.value
+                        || !props.modelValue
+                        || JSON.stringify(formData.value)
+                        !== JSON.stringify(props.modelValue)
+                    ) {
+                        const toReturn = toRaw(formData.value)
+                        emit('update:modelValue', toReturn)
+                        options?.onUpdate?.(toReturn)
+                    }
+                    if (status.value === FormStatus.updated) {
+                        status.value = FormStatus.unknown
+                    }
+                }
+            })
 
-			// readonly
-			onMounted(() => {
-				readonly.value = props.readonly
-			})
-			watch(
-				() => props.readonly,
-				(newValue) => {
-					readonly.value = newValue
-				},
-			)
-			watch(readonly, (newValue) => {
-				if (newValue !== props.readonly) {
-					emit('update:readonly', readonly.value)
-				}
-			})
+            // readonly
+            onMounted(() => {
+                readonly.value = props.readonly
+            })
+            watch(
+                () => props.readonly,
+                (newValue) => {
+                    readonly.value = newValue
+                },
+            )
+            watch(readonly, (newValue) => {
+                if (newValue !== props.readonly) {
+                    emit('update:readonly', readonly.value)
+                }
+            })
 
-			provide(provideKey, {
-				formData,
-				submit,
-				validate,
-				ignoreUpdates,
-				stopUpdatesWatch,
-				errors: makeReadonly(errors),
-				status: makeReadonly(status),
-				invalid,
-				readonly,
-			})
+            provide(provideKey, {
+                formData,
+                submit,
+                validate,
+                ignoreUpdates,
+                stopUpdatesWatch,
+                errors: makeReadonly(errors),
+                status: makeReadonly(status),
+                invalid,
+                readonly,
+            })
 
-			return {
-				formData,
-				submit,
-				validate,
-				ignoreUpdates,
-				stopUpdatesWatch,
-				errors: makeReadonly(errors),
-				status: makeReadonly(status),
-				invalid,
-				isReadonly: readonly,
-			}
-		},
-		render() {
-			const defaultSlot = () =>
-				this.$slots?.default?.({
-					formData: this.formData,
-					submit: this.submit,
-					validate: this.validate,
-					ignoreUpdates: this.ignoreUpdates,
-					stopUpdatesWatch: this.stopUpdatesWatch,
-					errors: this.errors,
-					status: this.status,
-					invalid: this.invalid,
-					readonly: this.isReadonly,
-				}) ?? this.$slots.default
-			return h(
-				this.tag,
-				{
-					onSubmit: withModifiers(this.submit, ['prevent']),
-				},
-				(this.template ?? options?.template) && VvFormTemplate
-					? [
-							h(
-								VvFormTemplate,
-								{
-									schema: this.template ?? options?.template,
-								},
-								{
-									default: defaultSlot,
-								},
-							),
-						]
-					: {
-							default: defaultSlot,
-						},
-			)
-		},
-	})
-	return {
-		errors,
-		status,
-		invalid,
-		readonly,
-		formData,
-		validate,
-		submit,
-		ignoreUpdates,
-		stopUpdatesWatch,
-		/**
-		 * An hack to add types to the default slot
-		 */
-		VvForm: component as typeof component & {
-			new (): {
-				$slots: {
-					default: (_: {
-						formData: unknown extends
-							| Partial<z.TypeOf<Schema>>
-							| undefined
-							? undefined
-							: Partial<z.TypeOf<Schema>> | undefined
-						submit: () => Promise<boolean>
-						validate: () => Promise<boolean>
-						ignoreUpdates: IgnoredUpdater
-						stopUpdatesWatch: WatchStopHandle
-						errors: Readonly<
+            return {
+                formData,
+                submit,
+                validate,
+                ignoreUpdates,
+                stopUpdatesWatch,
+                errors: makeReadonly(errors),
+                status: makeReadonly(status),
+                invalid,
+                isReadonly: readonly,
+            }
+        },
+        render() {
+            const defaultSlot = () =>
+                this.$slots?.default?.({
+                    formData: this.formData,
+                    submit: this.submit,
+                    validate: this.validate,
+                    ignoreUpdates: this.ignoreUpdates,
+                    stopUpdatesWatch: this.stopUpdatesWatch,
+                    errors: this.errors,
+                    status: this.status,
+                    invalid: this.invalid,
+                    readonly: this.isReadonly,
+                }) ?? this.$slots.default
+            return h(
+                this.tag,
+                {
+                    onSubmit: withModifiers(this.submit, ['prevent']),
+                },
+                (this.template ?? options?.template) && VvFormTemplate
+                    ? [
+                            h(
+                                VvFormTemplate,
+                                {
+                                    schema: this.template ?? options?.template,
+                                },
+                                {
+                                    default: defaultSlot,
+                                },
+                            ),
+                        ]
+                    : {
+                            default: defaultSlot,
+                        },
+            )
+        },
+    })
+    return {
+        errors,
+        status,
+        invalid,
+        readonly,
+        formData,
+        validate,
+        submit,
+        ignoreUpdates,
+        stopUpdatesWatch,
+        /**
+         * An hack to add types to the default slot
+         */
+        VvForm: component as typeof component & {
+            new (): {
+                $slots: {
+                    default: (_: {
+                        formData: unknown extends
+                        | Partial<z.TypeOf<Schema>>
+                        | undefined
+                            ? undefined
+                            : Partial<z.TypeOf<Schema>> | undefined
+                        submit: () => Promise<boolean>
+                        validate: () => Promise<boolean>
+                        ignoreUpdates: IgnoredUpdater
+                        stopUpdatesWatch: WatchStopHandle
+                        errors: Readonly<
 							Ref<DeepReadonly<z.inferFormattedError<Schema>>>
 						>
-						status: Ref<DeepReadonly<`${FormStatus}` | undefined>>
-						invalid: Ref<DeepReadonly<boolean>>
-						readonly: Ref<boolean>
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					}) => any
-				}
-			}
-		},
-	}
+                        status: Ref<DeepReadonly<`${FormStatus}` | undefined>>
+                        invalid: Ref<DeepReadonly<boolean>>
+                        readonly: Ref<boolean>
+                    }) => any
+                }
+            }
+        },
+    }
 }

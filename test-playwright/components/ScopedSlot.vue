@@ -1,11 +1,11 @@
 <script setup lang="ts">
-	defineProps<{
-		label: string
-	}>()
+defineProps<{
+    label: string
+}>()
 </script>
 
 <template>
-	<div>
-		<slot v-bind="{ label }"></slot>
-	</div>
+    <div>
+        <slot v-bind="{ label }" />
+    </div>
 </template>

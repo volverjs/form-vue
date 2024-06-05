@@ -1,5 +1,5 @@
 <div align="center">
-  
+
 [![volverjs](docs/static/volverjs-form.svg)](https://volverjs.github.io/form-vue)
 
 ## @volverjs/form-vue
@@ -47,17 +47,17 @@ import { createForm } from '@volverjs/form-vue'
 import { z } from 'zod'
 
 const schema = z.object({
-  firstName: z.string(),
-  lastName: z.string()
+    firstName: z.string(),
+    lastName: z.string()
 })
 
 const app = createApp(App)
 const form = createForm({
-  schema
-  // lazyLoad: boolean - default false
-  // updateThrottle: number - default 500
-  // continuousValidation: boolean - default false
-  // sideEffects?: (data: any) => void
+    schema
+    // lazyLoad: boolean - default false
+    // updateThrottle: number - default 500
+    // continuousValidation: boolean - default false
+    // sideEffects?: (data: any) => void
 })
 
 app.use(form)
@@ -73,19 +73,21 @@ A `valid` or `invalid` event is emitted when the form status changes.
 
 ```vue
 <script lang="ts" setup>
-  const onSubmit = (formData) => {
+function onSubmit(formData) {
     // ...
-  }
-  const onInvalid = (errors) => {
+}
+function onInvalid(errors) {
     // ...
-  }
+}
 </script>
 
 <template>
-  <VvForm @submit="onSubmit" @invalid="onInvalid">
-    <!-- ... -->
-    <button type="submit">Submit</button>
-  </VvForm>
+    <VvForm @submit="onSubmit" @invalid="onInvalid">
+        <!-- ... -->
+        <button type="submit">
+            Submit
+        </button>
+    </VvForm>
 </template>
 ```
 
@@ -93,23 +95,25 @@ The submit can be triggered programmatically with the `submit()` method.
 
 ```vue
 <script lang="ts" setup>
-  import { ref } from 'vue'
-  import type { FormComponent } from '@volverjs/form-vue'
+import { ref } from 'vue'
+import type { FormComponent } from '@volverjs/form-vue'
 
-  const formEl = ref<InstanceType<FormComponent>>(null)
-  const onSubmit = (formData) => {
+const formEl = ref<InstanceType<FormComponent>>(null)
+function onSubmit(formData) {
     // ...
-  }
-  const submitForm = () => {
+}
+function submitForm() {
     formEl.value.submit()
-  }
+}
 </script>
 
 <template>
-  <VvForm @submit="onSubmit" ref="formEl">
+    <VvForm ref="formEl" @submit="onSubmit">
     <!-- ... -->
-  </VvForm>
-  <button type="button" @click.stop="submitForm">Submit</button>
+    </VvForm>
+    <button type="button" @click.stop="submitForm">
+        Submit
+    </button>
 </template>
 ```
 
@@ -122,18 +126,18 @@ To activate **continuous validation** use the `continuousValidation` option or p
 
 ```vue
 <script lang="ts" setup>
-  import { ref } from 'vue'
+import { ref } from 'vue'
 
-  const formData = ref({
+const formData = ref({
     firstName: '',
     lastName: ''
-  })
+})
 </script>
 
 <template>
-  <VvForm v-model="formData" :update-throttle="1000" continuous-validation>
+    <VvForm v-model="formData" :update-throttle="1000" continuous-validation>
     <!-- ... -->
-  </VvForm>
+    </VvForm>
 </template>
 ```
 
@@ -144,27 +148,27 @@ The **default settings** are **inherited** from the plugin (if it's installed).
 
 ```vue
 <script lang="ts" setup>
-  import { useForm } from '@volverjs/form-vue'
-  import { z } from 'zod'
+import { useForm } from '@volverjs/form-vue'
+import { z } from 'zod'
 
-  const schema = z.object({
+const schema = z.object({
     firstName: z.string(),
     lastName: z.string()
-  })
+})
 
-  const { VvForm, VvFormWrapper, VvFormField } = useForm(schema, {
+const { VvForm, VvFormWrapper, VvFormField } = useForm(schema, {
     // lazyLoad: boolean - default false
     // updateThrottle: number - default 500
     // continuousValidation: boolean - default false
     // sideEffects?: (formData: any) => void
-  })
+})
 </script>
 
 <template>
-  <VvForm>
-    <VvFormField type="text" name="firstName" label="First Name" />
-    <VvFormField type="text" name="lastName" label="Last Name" />
-  </VvForm>
+    <VvForm>
+        <VvFormField type="text" name="firstName" label="First Name" />
+        <VvFormField type="text" name="lastName" label="Last Name" />
+    </VvForm>
 </template>
 ```
 
@@ -177,30 +181,30 @@ import { useForm } from '@volverjs/form-vue'
 import { z } from 'zod'
 
 const schema = z.object({
-  name: z.string(),
-  surname: z.string()
+    name: z.string(),
+    surname: z.string()
 })
 
 const {
-  VvForm,
-  VvFormWrapper,
-  VvFormField,
-  VvFormTemplate,
-  formData,
-  status,
-  errors
+    VvForm,
+    VvFormWrapper,
+    VvFormField,
+    VvFormTemplate,
+    formData,
+    status,
+    errors
 } = useForm(schema, {
-  lazyLoad: true
+    lazyLoad: true
 })
 
 export default {
-  VvForm,
-  VvFormWrapper,
-  VvFormField,
-  VvFormTemplate,
-  formData,
-  status,
-  errors
+    VvForm,
+    VvFormWrapper,
+    VvFormField,
+    VvFormTemplate,
+    formData,
+    status,
+    errors
 }
 ```
 
@@ -211,20 +215,20 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
 
 ```vue
 <template>
-  <VvForm>
-    <VvFormWrapper v-slot="{ invalid }">
-      <div class="form-section-1">
-        <span v-if="invalid">There is a validation error</span>
-        <!-- form fields of section 1 -->
-      </div>
-    </VvFormWrapper>
-    <VvFormWrapper v-slot="{ invalid }">
-      <div class="form-section-2">
-        <span v-if="invalid">There is a validation error</span>
-        <!-- form fields of the section 2 -->
-      </div>
-    </VvFormWrapper>
-  </VvForm>
+    <VvForm>
+        <VvFormWrapper v-slot="{ invalid }">
+            <div class="form-section-1">
+                <span v-if="invalid">There is a validation error</span>
+                <!-- form fields of section 1 -->
+            </div>
+        </VvFormWrapper>
+        <VvFormWrapper v-slot="{ invalid }">
+            <div class="form-section-2">
+                <span v-if="invalid">There is a validation error</span>
+                <!-- form fields of the section 2 -->
+            </div>
+        </VvFormWrapper>
+    </VvForm>
 </template>
 ```
 
@@ -232,20 +236,20 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
 
 ```vue
 <template>
-  <VvForm>
-    <VvFormWrapper v-slot="{ invalid }">
-      <div class="form-section">
-        <span v-if="invalid">There is a validation error</span>
-        <!-- form fields of section -->
-        <VvFormWrapper v-slot="{ invalid: groupInvalid }">
-          <div class="form-section__group">
-            <span v-if="groupInvalid">There is a validation error</span>
-            <!-- form fields of the group -->
-          </div>
+    <VvForm>
+        <VvFormWrapper v-slot="{ invalid }">
+            <div class="form-section">
+                <span v-if="invalid">There is a validation error</span>
+                <!-- form fields of section -->
+                <VvFormWrapper v-slot="{ invalid: groupInvalid }">
+                    <div class="form-section__group">
+                        <span v-if="groupInvalid">There is a validation error</span>
+                        <!-- form fields of the group -->
+                    </div>
+                </VvFormWrapper>
+            </div>
         </VvFormWrapper>
-      </div>
-    </VvFormWrapper>
-  </VvForm>
+    </VvForm>
 </template>
 ```
 
@@ -257,26 +261,26 @@ It automatically bind the form data through the `name` attribute. For nested obj
 
 ```vue
 <template>
-  <VvForm>
-    <VvFormField
-      v-slot="{ modelValue, invalid, invalidLabel, onUpdate }"
-      name="lastName"
-    >
-      <label for="lastName">Last Name</label>
-      <input
-        id="lastName"
-        type="text"
-        name="lastName"
-        :value="modelValue"
-        :aria-invalid="invalid"
-        :aria-errormessage="invalid ? 'last-name-alert' : undefined"
-        @input="onUpdate"
-      />
-      <small v-if="invalid" role="alert" id="last-name-alert">
-        {{ invalidLabel }}
-      </small>
-    </VvFormField>
-  </VvForm>
+    <VvForm>
+        <VvFormField
+            v-slot="{ modelValue, invalid, invalidLabel, onUpdate }"
+            name="lastName"
+        >
+            <label for="lastName">Last Name</label>
+            <input
+                id="lastName"
+                type="text"
+                name="lastName"
+                :value="modelValue"
+                :aria-invalid="invalid"
+                :aria-errormessage="invalid ? 'last-name-alert' : undefined"
+                @input="onUpdate"
+            >
+            <small v-if="invalid" id="last-name-alert" role="alert">
+                {{ invalidLabel }}
+            </small>
+        </VvFormField>
+    </VvForm>
 </template>
 ```
 
@@ -285,10 +289,10 @@ By default UI components must be installed globally, they can be lazy-loaded wit
 
 ```vue
 <template>
-  <VvForm>
-    <VvFormField type="text" name="username" label="Username" lazy-load />
-    <VvFormField type="password" name="password" label="Password" lazy-load />
-  </VvForm>
+    <VvForm>
+        <VvFormField type="text" name="username" label="Username" lazy-load />
+        <VvFormField type="password" name="password" label="Password" lazy-load />
+    </VvForm>
 </template>
 ```
 
@@ -300,68 +304,68 @@ Forms can also be created using a template. A template is an **array of objects*
 
 ```vue
 <script lang="ts" setup>
-  import { useForm } from '@volverjs/form-vue'
-  import { z } from 'zod'
+import { useForm } from '@volverjs/form-vue'
+import { z } from 'zod'
 
-  const schema = z.object({
+const schema = z.object({
     firstName: z.string(),
     lastName: z.string(),
     address: z.object({
-      street: z.string(),
-      number: z.string(),
-      city: z.string(),
-      zip: z.number()
+        street: z.string(),
+        number: z.string(),
+        city: z.string(),
+        zip: z.number()
     })
-  })
+})
 
-  const templateSchema = [
+const templateSchema = [
     {
-      vvName: 'firstName',
-      vvType: 'text',
-      label: 'First Name'
+        vvName: 'firstName',
+        vvType: 'text',
+        label: 'First Name'
     },
     {
-      vvName: 'lastName',
-      vvType: 'text',
-      label: 'Last Name'
+        vvName: 'lastName',
+        vvType: 'text',
+        label: 'Last Name'
     },
     {
-      vvIs: 'div',
-      class: 'grid grid-col-3 gap-4',
-      vvChildren: [
-        {
-          vvName: 'address.street',
-          vvType: 'text',
-          label: 'Street',
-          class: 'col-span-2'
-        },
-        {
-          vvName: 'address.number',
-          vvType: 'text',
-          label: 'Number'
-        },
-        {
-          vvName: 'address.city',
-          vvType: 'text',
-          label: 'City'
-          class: 'col-span-2',
-        },
-        {
-          vvName: 'address.zip',
-          vvType: 'number',
-          label: 'Zip'
-        }
-      ]
+        vvIs: 'div',
+        class: 'grid grid-col-3 gap-4',
+        vvChildren: [
+            {
+                vvName: 'address.street',
+                vvType: 'text',
+                label: 'Street',
+                class: 'col-span-2'
+            },
+            {
+                vvName: 'address.number',
+                vvType: 'text',
+                label: 'Number'
+            },
+            {
+                vvName: 'address.city',
+                vvType: 'text',
+                label: 'City',
+                class: 'col-span-2',
+            },
+            {
+                vvName: 'address.zip',
+                vvType: 'number',
+                label: 'Zip'
+            }
+        ]
     }
-  ]
+]
 
-  const { VvForm, VvFormTemplate } = useForm(schema)
+const { VvForm, VvFormTemplate } = useForm(schema)
 </script>
 
 <template>
-  <VvForm>
-    <VvFormTemplate :schema="templateSchema" />
-  </VvForm>
+    <VvForm>
+        <VvFormTemplate :schema="templateSchema" />
+    </VvForm>
 </template>
 ```
 
@@ -378,69 +382,69 @@ Conditional rendering can be achieved using the `vvIf` and `vvElseIf` properties
 
 ```vue
 <script lang="ts" setup>
-  import { useForm } from '@volverjs/form-vue'
-  import { z } from 'zod'
+import { useForm } from '@volverjs/form-vue'
+import { z } from 'zod'
 
-  const schema = z.object({
+const schema = z.object({
     firstName: z.string(),
     lastName: z.string(),
     hasUsername: z.boolean(),
-    username: z.string().optional()
+    username: z.string().optional(),
     email: z.string().email().optional()
-  }).superRefine((value, ctx) => {
+}).superRefine((value, ctx) => {
     if (value.hasUsername && !value.username) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Username is required'
-      })
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Username is required'
+        })
     }
     if (!value.hasUsername && !value.email) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Email is required'
-      })
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Email is required'
+        })
     }
-  })
+})
 
-  const templateSchema = [
+const templateSchema = [
     {
-      vvName: 'firstName',
-      vvType: 'text',
-      label: 'First Name'
+        vvName: 'firstName',
+        vvType: 'text',
+        label: 'First Name'
     },
     {
-      vvName: 'lastName',
-      vvType: 'text',
-      label: 'Last Name'
+        vvName: 'lastName',
+        vvType: 'text',
+        label: 'Last Name'
     },
     {
-      vvName: 'hasUsername',
-      vvType: 'checkbox',
-      label: 'Has Username'
-      value: true,
-      uncheckedValue: false
+        vvName: 'hasUsername',
+        vvType: 'checkbox',
+        label: 'Has Username',
+        value: true,
+        uncheckedValue: false
     },
     {
-      vvIf: 'hasUsername',
-      vvName: 'username',
-      vvType: 'text',
-      label: 'Username'
+        vvIf: 'hasUsername',
+        vvName: 'username',
+        vvType: 'text',
+        label: 'Username'
     },
     {
-      vvElseIf: true,
-      vvName: 'email',
-      vvType: 'email',
-      label: 'Email'
+        vvElseIf: true,
+        vvName: 'email',
+        vvType: 'email',
+        label: 'Email'
     }
-  ]
+]
 
-  const { VvForm, VvFormTemplate } = useForm(schema)
+const { VvForm, VvFormTemplate } = useForm(schema)
 </script>
 
 <template>
-  <VvForm>
-    <VvFormTemplate :schema="templateSchema" />
-  </VvForm>
+    <VvForm>
+        <VvFormTemplate :schema="templateSchema" />
+    </VvForm>
 </template>
 ```
 
@@ -449,39 +453,43 @@ Conditional rendering can be achieved using the `vvIf` and `vvElseIf` properties
 `vvIf` and `vvElseIf` can be a string or a function. If it is a string it will be evaluated as a **property** of the form data. If it is a function it will be called with the **form context** as the **first argument** and must return a boolean.
 
 ```ts
-{
-  vvIf: (ctx) => ctx.formData.value.hasUsername,
-  vvName: 'username',
-  vvType: 'text',
-  label: 'Username'
-}
+const templateSchema = [
+    {
+        vvIf: ctx => ctx.formData.value.hasUsername,
+        vvName: 'username',
+        vvType: 'text',
+        label: 'Username'
+    }
+]
 ```
 
 Also the template schema and all template items can be a function.
 The function will be called with the **form context** as the **first argument**.
 
 ```ts
-const templateSchema = (ctx) => [
-  {
-    vvName: 'firstName',
-    vvType: 'text',
-    label: `Hi ${ctx.formData.value.firstName}!`
-  }
-]
+function templateSchema(ctx) {
+    return [
+        {
+            vvName: 'firstName',
+            vvType: 'text',
+            label: `Hi ${ctx.formData.value.firstName}!`
+        }
+    ]
+}
 ```
 
 ```ts
 const templateSchema = [
-  (ctx) => ({
-    vvName: 'firstName',
-    vvType: 'text',
-    label: `Hi ${ctx.formData.value.firstName}!`
-  }),
-  {
-    vvName: 'username',
-    type: 'text',
-    label: 'username'
-  }
+    ctx => ({
+        vvName: 'firstName',
+        vvType: 'text',
+        label: `Hi ${ctx.formData.value.firstName}!`
+    }),
+    {
+        vvName: 'username',
+        type: 'text',
+        label: 'username'
+    }
 ]
 ```
 
@@ -495,8 +503,8 @@ import { z } from 'zod'
 import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z.object({
-  name: z.string().default('John'),
-  surname: z.string().default('Doe')
+    name: z.string().default('John'),
+    surname: z.string().default('Doe')
 })
 
 const defaultObject = defaultObjectBySchema(schema)
@@ -513,12 +521,12 @@ import { z } from 'zod'
 import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z.object({
-  name: z.string().default('John'),
-  surname: z.string().default('Doe'),
-  address: z.object({
-    street: z.string().default('Main Street'),
-    number: z.number().default(1)
-  })
+    name: z.string().default('John'),
+    surname: z.string().default('Doe'),
+    address: z.object({
+        street: z.string().default('Main Street'),
+        number: z.number().default(1)
+    })
 })
 
 const defaultObject = defaultObjectBySchema(schema)
@@ -532,22 +540,22 @@ import { z } from 'zod'
 import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z
-  .object({
-    name: z.string().default('John'),
-    surname: z.string().default('Doe'),
-    address: z.object({
-      street: z.string().default('Main Street'),
-      number: z.number().default(1)
-    }),
-    age: z.number().nullable().default(null),
-    height: z.coerce.number().default(1.8),
-    weight: z.number().default(80)
-  })
-  .passthrough()
+    .object({
+        name: z.string().default('John'),
+        surname: z.string().default('Doe'),
+        address: z.object({
+            street: z.string().default('Main Street'),
+            number: z.number().default(1)
+        }),
+        age: z.number().nullable().default(null),
+        height: z.coerce.number().default(1.8),
+        weight: z.number().default(80)
+    })
+    .passthrough()
 
 const defaultObject = defaultObjectBySchema(schema, {
-  height: '1.9',
-  email: 'john.doe@test.com'
+    height: '1.9',
+    email: 'john.doe@test.com'
 })
 // defaultObject = { name: 'John', surname: 'Doe', address: { street: 'Main Street', number: 1 }, age: null, height: 1.9, weight: 80, email: 'john.doe@test.com' }
 ```

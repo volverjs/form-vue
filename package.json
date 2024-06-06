@@ -60,10 +60,11 @@
         "test-vitest": "vitest run",
         "test-vitest-watch": "vitest",
         "test-playwright": "playwright test -c playwright-ct.config.ts",
+        "test-playwright:ui": "playwright test -c playwright-ct.config.ts --ui",
         "credits": "npx @opengovsg/credits-generator"
     },
     "dependencies": {
-        "@volverjs/ui-vue": "0.0.10-beta.35",
+        "@volverjs/ui-vue": "0.0.10-beta.36",
         "@vueuse/core": "^10.10.0",
         "ts-dot-prop": "^2.1.4",
         "vue": "^3.4.27",

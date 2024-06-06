@@ -1,228 +1,226 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-ignore
-import { defaultObjectBySchema } from '../dist/index.es'
 import { z } from 'zod'
 import { it, expect } from 'vitest'
+// @ts-ignore
+import { defaultObjectBySchema } from '../dist/index.es'
 
-it('Simple object', async () => {
-	const schema = z.object({
-		name: z.string(),
-		surname: z.string(),
-	})
+it('simple object', async () => {
+    const schema = z.object({
+        name: z.string(),
+        surname: z.string(),
+    })
 
-	const defaultObject = defaultObjectBySchema(schema)
+    const defaultObject = defaultObjectBySchema(schema)
 
-	expect(defaultObject).toStrictEqual({ name: undefined, surname: undefined })
+    expect(defaultObject).toStrictEqual({ name: undefined, surname: undefined })
 })
 
-it('Object with defaults', async () => {
-	const schema = z.object({
-		name: z.string().default(''),
-		surname: z.string(),
-		age: z.number().default(0),
-	})
+it('object with defaults', async () => {
+    const schema = z.object({
+        name: z.string().default(''),
+        surname: z.string(),
+        age: z.number().default(0),
+    })
 
-	const defaultObject = defaultObjectBySchema(schema)
+    const defaultObject = defaultObjectBySchema(schema)
 
-	expect(defaultObject).toStrictEqual({
-		name: '',
-		surname: undefined,
-		age: 0,
-	})
+    expect(defaultObject).toStrictEqual({
+        name: '',
+        surname: undefined,
+        age: 0,
+    })
 })
 
-it('Nested object', async () => {
-	const schema = z.object({
-		name: z.string().default(''),
-		surname: z.string(),
-		address: z.object({
-			city: z.string(),
-			country: z.string(),
-		}),
-	})
+it('nested object', async () => {
+    const schema = z.object({
+        name: z.string().default(''),
+        surname: z.string(),
+        address: z.object({
+            city: z.string(),
+            country: z.string(),
+        }),
+    })
 
-	const defaultObject = defaultObjectBySchema(schema)
+    const defaultObject = defaultObjectBySchema(schema)
 
-	expect(defaultObject).toStrictEqual({
-		name: '',
-		surname: undefined,
-		address: {
-			city: undefined,
-			country: undefined,
-		},
-	})
+    expect(defaultObject).toStrictEqual({
+        name: '',
+        surname: undefined,
+        address: {
+            city: undefined,
+            country: undefined,
+        },
+    })
 })
 
-it('Nested object with defaults', async () => {
-	const schema = z.object({
-		name: z.string().default(''),
-		surname: z.string(),
-		address: z.object({
-			city: z.string().default(''),
-			country: z.string(),
-		}),
-	})
+it('nested object with defaults', async () => {
+    const schema = z.object({
+        name: z.string().default(''),
+        surname: z.string(),
+        address: z.object({
+            city: z.string().default(''),
+            country: z.string(),
+        }),
+    })
 
-	const defaultObject = defaultObjectBySchema(schema)
+    const defaultObject = defaultObjectBySchema(schema)
 
-	expect(defaultObject).toStrictEqual({
-		name: '',
-		surname: undefined,
-		address: {
-			city: '',
-			country: undefined,
-		},
-	})
+    expect(defaultObject).toStrictEqual({
+        name: '',
+        surname: undefined,
+        address: {
+            city: '',
+            country: undefined,
+        },
+    })
 })
 
-it('Keep original value', async () => {
-	const schema = z.object({
-		name: z.string(),
-	})
+it('keep original value', async () => {
+    const schema = z.object({
+        name: z.string(),
+    })
 
-	const defaultObject = defaultObjectBySchema(schema, { name: 'John' })
+    const defaultObject = defaultObjectBySchema(schema, { name: 'John' })
 
-	expect(defaultObject).toStrictEqual({ name: 'John' })
+    expect(defaultObject).toStrictEqual({ name: 'John' })
 })
 
-it('Wrong original type to undefined', async () => {
-	const schema = z.object({
-		name: z.string(),
-	})
+it('wrong original type to undefined', async () => {
+    const schema = z.object({
+        name: z.string(),
+    })
 
-	// @ts-ignore
-	const defaultObject = defaultObjectBySchema(schema, { name: 1 })
+    // @ts-expect-error - For testing purposes
+    const defaultObject = defaultObjectBySchema(schema, { name: 1 })
 
-	expect(defaultObject).toStrictEqual({ name: undefined })
+    expect(defaultObject).toStrictEqual({ name: undefined })
 })
 
-it('Not nullable', async () => {
-	const schema = z.object({
-		name: z.string(),
-	})
+it('not nullable', async () => {
+    const schema = z.object({
+        name: z.string(),
+    })
 
-	// @ts-ignore
-	const defaultObject = defaultObjectBySchema(schema, { name: null })
+    // @ts-expect-error - For testing purposes
+    const defaultObject = defaultObjectBySchema(schema, { name: null })
 
-	expect(defaultObject).toStrictEqual({ name: undefined })
+    expect(defaultObject).toStrictEqual({ name: undefined })
 })
 
-it('Nullable', async () => {
-	const schema = z.object({
-		name: z.string().nullable(),
-	})
+it('nullable', async () => {
+    const schema = z.object({
+        name: z.string().nullable(),
+    })
 
-	const defaultObject = defaultObjectBySchema(schema, { name: null })
+    const defaultObject = defaultObjectBySchema(schema, { name: null })
 
-	expect(defaultObject).toStrictEqual({ name: null })
+    expect(defaultObject).toStrictEqual({ name: null })
 })
 
-it('Coerce to type string', async () => {
-	const schema = z.object({
-		name: z.coerce.string(),
-	})
+it('coerce to type string', async () => {
+    const schema = z.object({
+        name: z.coerce.string(),
+    })
 
-	// @ts-ignore
-	const defaultObject = defaultObjectBySchema(schema, { name: 1138 })
+    // @ts-expect-error - For testing purposes
+    const defaultObject = defaultObjectBySchema(schema, { name: 1138 })
 
-	expect(defaultObject).toStrictEqual({ name: '1138' })
+    expect(defaultObject).toStrictEqual({ name: '1138' })
 })
 
-it('Coerce to type number', async () => {
-	const schema = z.object({
-		age: z.coerce.number(),
-	})
+it('coerce to type number', async () => {
+    const schema = z.object({
+        age: z.coerce.number(),
+    })
 
-	// @ts-ignore
-	const defaultObject = defaultObjectBySchema(schema, { age: '22' })
+    // @ts-expect-error - For testing purposes
+    const defaultObject = defaultObjectBySchema(schema, { age: '22' })
 
-	expect(defaultObject).toStrictEqual({ age: 22 })
+    expect(defaultObject).toStrictEqual({ age: 22 })
 })
 
-it('Coerce to type number without default', async () => {
-	const schema = z.object({
-		age: z.coerce.number(),
-	})
+it('coerce to type number without default', async () => {
+    const schema = z.object({
+        age: z.coerce.number(),
+    })
 
-	// @ts-ignore
-	const defaultObject = defaultObjectBySchema(schema, { age: 'John' })
+    // @ts-expect-error - For testing purposes
+    const defaultObject = defaultObjectBySchema(schema, { age: 'John' })
 
-	expect(defaultObject).toStrictEqual({ age: undefined })
+    expect(defaultObject).toStrictEqual({ age: undefined })
 })
 
-it('Coerce to type number with default', async () => {
-	const schema = z.object({
-		age: z.coerce.number().default(0),
-	})
+it('coerce to type number with default', async () => {
+    const schema = z.object({
+        age: z.coerce.number().default(0),
+    })
 
-	// @ts-ignore
-	const defaultObject = defaultObjectBySchema(schema, { age: 'John' })
+    // @ts-expect-error - For testing purposes
+    const defaultObject = defaultObjectBySchema(schema, { age: 'John' })
 
-	expect(defaultObject).toStrictEqual({ age: 0 })
+    expect(defaultObject).toStrictEqual({ age: 0 })
 })
 
-it('Strip', async () => {
-	const schema = z.object({
-		name: z.string(),
-		surname: z.string(),
-	})
+it('strip', async () => {
+    const schema = z.object({
+        name: z.string(),
+        surname: z.string(),
+    })
 
-	// @ts-ignore
-	const defaultObject = defaultObjectBySchema(schema, { age: 21 })
-	expect(defaultObject).toStrictEqual({
-		name: undefined,
-		surname: undefined,
-	})
+    const defaultObject = defaultObjectBySchema(schema, { age: 21 })
+    expect(defaultObject).toStrictEqual({
+        name: undefined,
+        surname: undefined,
+    })
 })
 
-it('Passthrough', async () => {
-	const schema = z
-		.object({
-			name: z.string(),
-			surname: z.string(),
-		})
-		.passthrough()
+it('passthrough', async () => {
+    const schema = z
+        .object({
+            name: z.string(),
+            surname: z.string(),
+        })
+        .passthrough()
 
-	const defaultObject = defaultObjectBySchema(schema, { age: 21 })
+    const defaultObject = defaultObjectBySchema(schema, { age: 21 })
 
-	expect(defaultObject).toStrictEqual({
-		name: undefined,
-		surname: undefined,
-		age: 21,
-	})
+    expect(defaultObject).toStrictEqual({
+        name: undefined,
+        surname: undefined,
+        age: 21,
+    })
 })
 
-it('Optional', async () => {
-	const schema = z.object({
-		name: z.string(),
-		surname: z.string(),
-		location: z.object({
-			city: z.string().optional(),
-			address: z.object({
-				street: z
-					.object({
-						name: z.string().optional(),
-						number: z.number().optional(),
-					})
-					.optional(),
-			}),
-		}),
-	})
+it('optional', async () => {
+    const schema = z.object({
+        name: z.string(),
+        surname: z.string(),
+        location: z.object({
+            city: z.string().optional(),
+            address: z.object({
+                street: z
+                    .object({
+                        name: z.string().optional(),
+                        number: z.number().optional(),
+                    })
+                    .optional(),
+            }),
+        }),
+    })
 
-	const defaultObject = defaultObjectBySchema(schema, {
-		name: 'John',
-		location: {
-			city: 'Verona',
-			// @ts-ignore
-			address: { street: { name: null, number: 1 } },
-		},
-	})
-	expect(defaultObject).toStrictEqual({
-		name: 'John',
-		surname: undefined,
-		location: {
-			city: 'Verona',
-			address: { street: { name: undefined, number: 1 } },
-		},
-	})
+    const defaultObject = defaultObjectBySchema(schema, {
+        name: 'John',
+        location: {
+            city: 'Verona',
+            // @ts-expect-error - For testing purposes
+            address: { street: { name: null, number: 1 } },
+        },
+    })
+    expect(defaultObject).toStrictEqual({
+        name: 'John',
+        surname: undefined,
+        location: {
+            city: 'Verona',
+            address: { street: { name: undefined, number: 1 } },
+        },
+    })
 })

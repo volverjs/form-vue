@@ -63,28 +63,28 @@
         "test-playwright:ui": "playwright test -c playwright-ct.config.ts --ui",
         "credits": "npx @opengovsg/credits-generator"
     },
-    "dependencies": {
+    "peerDependencies": {
         "@volverjs/ui-vue": "0.0.10-beta.36",
-        "@vueuse/core": "^10.10.0",
+        "@vueuse/core": "^10.11.0",
         "ts-dot-prop": "^2.1.4",
-        "vue": "^3.4.27",
+        "vue": "^3.4.29",
         "zod": "^3.23.8"
     },
     "devDependencies": {
-        "@antfu/eslint-config": "^2.20.0",
+        "@antfu/eslint-config": "^2.21.1",
         "@nabla/vite-plugin-eslint": "^2.0.4",
         "@playwright/experimental-ct-vue": "1.44.1",
         "@testing-library/vue": "^8.1.0",
         "@vitejs/plugin-vue": "^5.0.5",
         "@volverjs/style": "0.1.12-beta.15",
-        "@vue/compiler-sfc": "^3.4.27",
-        "@vue/runtime-core": "^3.4.27",
+        "@vue/compiler-sfc": "^3.4.29",
+        "@vue/runtime-core": "^3.4.29",
         "@vue/test-utils": "^2.4.6",
         "copy": "^0.3.2",
-        "eslint": "^9.4.0",
+        "eslint": "^9.5.0",
         "happy-dom": "^14.12.0",
         "typescript": "^5.4.5",
-        "vite": "^5.2.12",
+        "vite": "^5.3.1",
         "vite-plugin-dts": "^3.9.1",
         "vite-plugin-externalize-deps": "^0.8.0",
         "vitest": "^1.6.0"

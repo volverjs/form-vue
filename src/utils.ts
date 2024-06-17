@@ -8,11 +8,12 @@ import {
     ZodSchema,
     ZodNullable,
     ZodOptional,
+    ZodRecord,
     ZodArray,
 } from 'zod'
 import type { FormSchema } from './types'
 
-export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,	original: Partial<z.infer<Schema>> & Record<string, unknown> = {}): Partial<z.infer<Schema>> {
+export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema, original: Partial<z.infer<Schema>> & Record<string, unknown> = {}): Partial<z.infer<Schema>> {
     const getInnerType = <Type extends ZodTypeAny>(
         schema:
             | Type
@@ -76,8 +77,17 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
 											typeof arrayType
 										>,
                                     ),
-                                ) ?? defaultValue,
+                                ),
                             ]
+                        }
+                    }
+                    if (innerType instanceof ZodRecord && originalValue) {
+                        const valueType = getInnerType(innerType._def.valueType)
+                        if (valueType instanceof ZodObject) {
+                            return [key, Object.keys(originalValue).reduce((acc: Record<string, unknown>, recordKey: string) => {
+                                acc[recordKey] = defaultObjectBySchema(valueType, originalValue[recordKey])
+                                return acc
+                            }, {})]
                         }
                     }
                     if (innerType instanceof ZodObject) {

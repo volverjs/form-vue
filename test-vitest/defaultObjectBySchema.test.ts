@@ -89,7 +89,6 @@ it('wrong original type to undefined', async () => {
         name: z.string(),
     })
 
-    // @ts-expect-error - For testing purposes
     const defaultObject = defaultObjectBySchema(schema, { name: 1 })
 
     expect(defaultObject).toStrictEqual({ name: undefined })
@@ -100,7 +99,6 @@ it('not nullable', async () => {
         name: z.string(),
     })
 
-    // @ts-expect-error - For testing purposes
     const defaultObject = defaultObjectBySchema(schema, { name: null })
 
     expect(defaultObject).toStrictEqual({ name: undefined })
@@ -121,7 +119,6 @@ it('coerce to type string', async () => {
         name: z.coerce.string(),
     })
 
-    // @ts-expect-error - For testing purposes
     const defaultObject = defaultObjectBySchema(schema, { name: 1138 })
 
     expect(defaultObject).toStrictEqual({ name: '1138' })
@@ -132,7 +129,6 @@ it('coerce to type number', async () => {
         age: z.coerce.number(),
     })
 
-    // @ts-expect-error - For testing purposes
     const defaultObject = defaultObjectBySchema(schema, { age: '22' })
 
     expect(defaultObject).toStrictEqual({ age: 22 })
@@ -143,7 +139,6 @@ it('coerce to type number without default', async () => {
         age: z.coerce.number(),
     })
 
-    // @ts-expect-error - For testing purposes
     const defaultObject = defaultObjectBySchema(schema, { age: 'John' })
 
     expect(defaultObject).toStrictEqual({ age: undefined })
@@ -154,7 +149,6 @@ it('coerce to type number with default', async () => {
         age: z.coerce.number().default(0),
     })
 
-    // @ts-expect-error - For testing purposes
     const defaultObject = defaultObjectBySchema(schema, { age: 'John' })
 
     expect(defaultObject).toStrictEqual({ age: 0 })
@@ -211,7 +205,6 @@ it('optional', async () => {
         name: 'John',
         location: {
             city: 'Verona',
-            // @ts-expect-error - For testing purposes
             address: { street: { name: null, number: 1 } },
         },
     })

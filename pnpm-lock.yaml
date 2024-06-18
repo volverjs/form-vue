@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@volverjs/ui-vue':
-        specifier: 0.0.10-beta.36
-        version: 0.0.10-beta.36(@volverjs/style@0.1.12-beta.15)(typescript@5.4.5)(vitest@1.6.0(@types/node@20.14.2)(happy-dom@14.12.0)(jsdom@24.1.0))
+        specifier: 0.0.10-beta.41
+        version: 0.0.10-beta.41(@volverjs/style@0.1.12-beta.15)(typescript@5.4.5)(vitest@1.6.0(@types/node@20.14.2)(happy-dom@14.12.0)(jsdom@24.1.0))
       '@vueuse/core':
         specifier: ^10.11.0
         version: 10.11.0(vue@3.4.29(typescript@5.4.5))
@@ -835,8 +835,8 @@ packages:
     resolution: {integrity: sha512-hZH382STKlF9V5L1zHb78vA5/8JkgM7EnJTwqrVfcqiyn/h0T0m3N+IXsbJLh7MLGTzc9em1z0rcP21vukAE9g==}
     engines: {node: '>= 12.x'}
 
-  '@volverjs/ui-vue@0.0.10-beta.36':
-    resolution: {integrity: sha512-T0a/sJXoSmSzAuid3Xp5z1pQDvRh0OKGiINPV5UXsPgBz7+YP6HzdpaegiopFH0WmIHcu0+p21ziArTSIW78eA==}
+  '@volverjs/ui-vue@0.0.10-beta.41':
+    resolution: {integrity: sha512-PXMHFCtC5OoqDn5n5rIx6GVf6UJGB5SnjvW5FRFqz3clVKYNsbXLSsJFzu/86/rplz7jN3/xOa0/RUGOpmMifg==}
     hasBin: true
     peerDependencies:
       '@volverjs/style': 0.*
@@ -4194,7 +4194,7 @@ snapshots:
 
   '@volverjs/style@0.1.12-beta.15': {}
 
-  '@volverjs/ui-vue@0.0.10-beta.36(@volverjs/style@0.1.12-beta.15)(typescript@5.4.5)(vitest@1.6.0(@types/node@20.14.2)(happy-dom@14.12.0)(jsdom@24.1.0))':
+  '@volverjs/ui-vue@0.0.10-beta.41(@volverjs/style@0.1.12-beta.15)(typescript@5.4.5)(vitest@1.6.0(@types/node@20.14.2)(happy-dom@14.12.0)(jsdom@24.1.0))':
     dependencies:
       '@floating-ui/vue': 1.0.6(vue@3.4.29(typescript@5.4.5))
       '@iconify/tools': 4.0.4

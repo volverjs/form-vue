@@ -64,7 +64,7 @@
         "credits": "npx @opengovsg/credits-generator"
     },
     "peerDependencies": {
-        "@volverjs/ui-vue": "0.0.10-beta.36",
+        "@volverjs/ui-vue": "0.0.10-beta.41",
         "@vueuse/core": "^10.11.0",
         "ts-dot-prop": "^2.1.4",
         "vue": "^3.4.29",

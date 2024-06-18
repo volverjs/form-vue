@@ -14,7 +14,7 @@ import {
 import type { FormSchema } from './types'
 
 export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema, original: Partial<z.infer<Schema>> & Record<string, unknown> = {}): Partial<z.infer<Schema>> {
-    const getInnerType = <Type extends ZodTypeAny>(
+    const getSchemaInnerType = <Type extends ZodTypeAny>(
         schema:
             | Type
             | ZodEffects<Type>
@@ -30,7 +30,23 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
         }
         return toReturn
     }
-    const innerType = getInnerType<AnyZodObject>(schema)
+    const isSchemaOptional = <Type extends ZodTypeAny>(
+        schema:
+            | Type
+            | ZodEffects<Type>
+            | ZodEffects<ZodEffects<Type>>
+            | ZodOptional<Type>,
+    ) => {
+        let toReturn = schema
+        while (toReturn instanceof ZodEffects) {
+            toReturn = toReturn.innerType()
+        }
+        if (toReturn instanceof ZodOptional) {
+            return true
+        }
+        return false
+    }
+    const innerType = getSchemaInnerType<AnyZodObject>(schema)
     const unknownKeys
 		= innerType instanceof ZodObject
 		    ? innerType._def.unknownKeys === 'passthrough'
@@ -41,7 +57,8 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
             (Object.entries(innerType.shape) as [string, ZodTypeAny][]).map(
                 ([key, subSchema]) => {
                     const originalValue = original[key]
-                    let innerType = getInnerType(subSchema)
+                    const isOptional = isSchemaOptional(subSchema)
+                    let innerType = getSchemaInnerType(subSchema)
                     let defaultValue: Partial<z.infer<Schema>> | undefined
                     if (innerType instanceof ZodDefault) {
                         defaultValue = innerType._def.defaultValue()
@@ -52,6 +69,9 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                         && innerType instanceof ZodNullable
                     ) {
                         return [key, originalValue]
+                    }
+                    if ((originalValue === undefined || originalValue === null) && isOptional) {
+                        return [key, defaultValue]
                     }
                     if (innerType instanceof ZodSchema) {
                         const parse = subSchema.safeParse(originalValue)
@@ -64,7 +84,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                         && Array.isArray(originalValue)
                         && originalValue.length
                     ) {
-                        const arrayType = getInnerType(innerType._def.type)
+                        const arrayType = getSchemaInnerType(innerType._def.type)
                         if (arrayType instanceof ZodObject) {
                             return [
                                 key,
@@ -82,7 +102,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                         }
                     }
                     if (innerType instanceof ZodRecord && originalValue) {
-                        const valueType = getInnerType(innerType._def.valueType)
+                        const valueType = getSchemaInnerType(innerType._def.valueType)
                         if (valueType instanceof ZodObject) {
                             return [key, Object.keys(originalValue).reduce((acc: Record<string, unknown>, recordKey: string) => {
                                 acc[recordKey] = defaultObjectBySchema(valueType, originalValue[recordKey])

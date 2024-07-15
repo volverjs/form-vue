@@ -64,29 +64,29 @@
         "credits": "npx @opengovsg/credits-generator"
     },
     "peerDependencies": {
-        "@volverjs/ui-vue": "0.0.10-beta.41",
+        "@volverjs/ui-vue": "^0.0.10-beta.45",
         "@vueuse/core": "^10.11.0",
         "ts-dot-prop": "^2.1.4",
         "vue": "^3.4.29",
         "zod": "^3.23.8"
     },
     "devDependencies": {
-        "@antfu/eslint-config": "^2.21.1",
+        "@antfu/eslint-config": "^2.22.3",
         "@nabla/vite-plugin-eslint": "^2.0.4",
-        "@playwright/experimental-ct-vue": "1.44.1",
+        "@playwright/experimental-ct-vue": "1.45.1",
         "@testing-library/vue": "^8.1.0",
         "@vitejs/plugin-vue": "^5.0.5",
         "@volverjs/style": "0.1.12-beta.15",
-        "@vue/compiler-sfc": "^3.4.29",
-        "@vue/runtime-core": "^3.4.29",
+        "@vue/compiler-sfc": "^3.4.31",
+        "@vue/runtime-core": "^3.4.31",
         "@vue/test-utils": "^2.4.6",
         "copy": "^0.3.2",
-        "eslint": "^9.5.0",
-        "happy-dom": "^14.12.0",
-        "typescript": "^5.4.5",
-        "vite": "^5.3.1",
+        "eslint": "^9.7.0",
+        "happy-dom": "^14.12.3",
+        "typescript": "^5.5.3",
+        "vite": "^5.3.3",
         "vite-plugin-dts": "^3.9.1",
         "vite-plugin-externalize-deps": "^0.8.0",
-        "vitest": "^1.6.0"
+        "vitest": "^2.0.3"
     }
 }

@@ -73,7 +73,7 @@
     "devDependencies": {
         "@antfu/eslint-config": "^2.22.3",
         "@nabla/vite-plugin-eslint": "^2.0.4",
-        "@playwright/experimental-ct-vue": "1.45.1",
+        "@playwright/experimental-ct-vue": "1.45.2",
         "@testing-library/vue": "^8.1.0",
         "@vitejs/plugin-vue": "^5.0.5",
         "@volverjs/style": "0.1.12-beta.15",

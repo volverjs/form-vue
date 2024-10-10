@@ -98,6 +98,7 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
             'type',
         ],
         slots: Object as SlotsType<{
+            [key: string]: unknown
             default: {
                 errors: z.inferFormattedError<Schema>
                 formData?: Partial<TypeOf<Schema>>

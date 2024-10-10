@@ -44,21 +44,18 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
         }
         const parseResult = await schema.safeParseAsync(value)
         if (!parseResult.success) {
+            status.value = FormStatus.invalid
             if (!fields) {
                 errors.value
 				= parseResult.error.format() as z.inferFormattedError<Schema>
-                status.value = FormStatus.invalid
                 return false
             }
             const fieldsIssues = parseResult.error.issues.filter(item => fields.has(item.path.join('.')))
             if (!fieldsIssues.length) {
                 errors.value = undefined
-                status.value = FormStatus.unknown
-                formData.value = parseResult.data
                 return true
             }
             errors.value = new ZodError(fieldsIssues).format() as z.inferFormattedError<Schema>
-            status.value = FormStatus.invalid
             return false
         }
         errors.value = undefined

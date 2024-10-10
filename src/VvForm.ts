@@ -1,28 +1,25 @@
 import {
     type Component,
     type InjectionKey,
-    type DeepReadonly,
-    type Ref,
     type PropType,
-    type WatchStopHandle,
-    withModifiers,
+    type SlotsType,
+    computed,
     defineComponent,
-    ref,
+    h,
+    isProxy,
+    onMounted,
     provide,
     readonly as makeReadonly,
-    watch,
-    h,
+    ref,
     toRaw,
-    isProxy,
-    computed,
-    onMounted,
+    watch,
+    withModifiers,
 } from 'vue'
 import {
-    watchIgnorable,
     throttleFilter,
-    type IgnoredUpdater,
+    watchIgnorable,
 } from '@vueuse/core'
-import type { z } from 'zod'
+import { type z, ZodError } from 'zod'
 import type {
     FormComponentOptions,
     FormSchema,
@@ -32,21 +29,35 @@ import type {
 import { FormStatus } from './enums'
 import { defaultObjectBySchema } from './utils'
 
-export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey: InjectionKey<InjectedFormData<Schema>>,	options?: FormComponentOptions<Schema>,	VvFormTemplate?: Component) {
+export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey: InjectionKey<InjectedFormData<Schema>>, options?: FormComponentOptions<Schema>, VvFormTemplate?: Component) {
     const errors = ref<z.inferFormattedError<Schema> | undefined>()
     const status = ref<FormStatus | undefined>()
     const invalid = computed(() => status.value === FormStatus.invalid)
     const formData = ref<Partial<z.infer<Schema> | undefined>>()
     const readonly = ref<boolean>(false)
+    let validationFields: Set<string> | undefined
 
-    const validate = async (value = formData.value) => {
+    const validate = async (value = formData.value, fields?: Set<string>) => {
+        validationFields = fields
         if (readonly.value) {
             return true
         }
         const parseResult = await schema.safeParseAsync(value)
         if (!parseResult.success) {
-            errors.value
+            if (!fields) {
+                errors.value
 				= parseResult.error.format() as z.inferFormattedError<Schema>
+                status.value = FormStatus.invalid
+                return false
+            }
+            const fieldsIssues = parseResult.error.issues.filter(item => fields.has(item.path.join('.')))
+            if (!fieldsIssues.length) {
+                errors.value = undefined
+                status.value = FormStatus.unknown
+                formData.value = parseResult.data
+                return true
+            }
+            errors.value = new ZodError(fieldsIssues).format() as z.inferFormattedError<Schema>
             status.value = FormStatus.invalid
             return false
         }
@@ -54,6 +65,18 @@ export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey
         status.value = FormStatus.valid
         formData.value = parseResult.data
         return true
+    }
+
+    const clear = () => {
+        errors.value = undefined
+        status.value = undefined
+        validationFields = undefined
+    }
+
+    const reset = () => {
+        formData.value = defaultObjectBySchema(schema)
+        clear()
+        status.value = FormStatus.reset
     }
 
     const submit = async () => {
@@ -78,7 +101,10 @@ export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey
         },
     )
 
-    const component = defineComponent({
+    const readonlyErrors = makeReadonly(errors)
+    const readonlyStatus = makeReadonly(status)
+
+    const VvForm = defineComponent({
         name: 'VvForm',
         props: {
             continuousValidation: {
@@ -104,20 +130,40 @@ export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey
         },
         emits: [
             'invalid',
-            'valid',
             'submit',
             'update:modelValue',
             'update:readonly',
+            'valid',
+            'reset',
         ],
         expose: [
-            'submit',
-            'validate',
             'errors',
-            'status',
-            'valid',
             'invalid',
             'readonly',
+            'status',
+            'submit',
+            'tag',
+            'template',
+            'valid',
+            'validate',
+            'clear',
+            'reset',
         ],
+        slots: Object as SlotsType<{
+            default: {
+                errors: typeof readonlyErrors
+                formData: typeof formData
+                ignoreUpdates: typeof ignoreUpdates
+                invalid: typeof invalid
+                readonly: typeof readonly
+                status: typeof readonlyStatus
+                stopUpdatesWatch: typeof stopUpdatesWatch
+                submit: typeof submit
+                validate: typeof validate
+                clear: typeof clear
+                reset: typeof reset
+            }
+        }>,
         setup(props, { emit }) {
             formData.value = defaultObjectBySchema(
                 schema,
@@ -141,8 +187,8 @@ export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey
 
                         formData.value
 							= typeof original?.clone === 'function'
-							    ? original.clone()
-							    : JSON.parse(JSON.stringify(original))
+                                ? original.clone()
+                                : JSON.parse(JSON.stringify(original))
                     }
                 },
                 { deep: true },
@@ -169,6 +215,13 @@ export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey
                     const toReturn = toRaw(formData.value)
                     emit('submit', toReturn)
                     options?.onSubmit?.(toReturn)
+                    return
+                }
+                if (newValue === FormStatus.reset) {
+                    const toReturn = toRaw(formData.value)
+                    emit('reset', toReturn)
+                    options?.onReset?.(toReturn)
+                    return
                 }
                 if (newValue === FormStatus.updated) {
                     if (
@@ -176,7 +229,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey
                         || options?.continuousValidation
                         || props.continuousValidation
                     ) {
-                        await validate()
+                        await validate(undefined, validationFields)
                     }
                     if (
                         !formData.value
@@ -211,46 +264,53 @@ export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey
             })
 
             provide(provideKey, {
+                clear,
+                errors: readonlyErrors,
                 formData,
-                submit,
-                validate,
                 ignoreUpdates,
-                stopUpdatesWatch,
-                errors: makeReadonly(errors),
-                status: makeReadonly(status),
                 invalid,
                 readonly,
+                reset,
+                status: readonlyStatus,
+                stopUpdatesWatch,
+                submit,
+                validate,
             })
 
             return {
+                clear,
+                errors: readonlyErrors,
                 formData,
-                submit,
-                validate,
                 ignoreUpdates,
-                stopUpdatesWatch,
-                errors: makeReadonly(errors),
-                status: makeReadonly(status),
                 invalid,
                 isReadonly: readonly,
+                reset,
+                status: readonlyStatus,
+                stopUpdatesWatch,
+                submit,
+                validate,
             }
         },
         render() {
             const defaultSlot = () =>
                 this.$slots?.default?.({
-                    formData: this.formData,
-                    submit: this.submit,
-                    validate: this.validate,
-                    ignoreUpdates: this.ignoreUpdates,
-                    stopUpdatesWatch: this.stopUpdatesWatch,
-                    errors: this.errors,
-                    status: this.status,
-                    invalid: this.invalid,
-                    readonly: this.isReadonly,
+                    clear,
+                    errors: readonlyErrors,
+                    formData,
+                    ignoreUpdates,
+                    invalid,
+                    readonly,
+                    reset,
+                    status: readonlyStatus,
+                    stopUpdatesWatch,
+                    submit,
+                    validate,
                 }) ?? this.$slots.default
             return h(
                 this.tag,
                 {
                     onSubmit: withModifiers(this.submit, ['prevent']),
+                    onReset: withModifiers(this.reset, ['prevent']),
                 },
                 (this.template ?? options?.template) && VvFormTemplate
                     ? [
@@ -271,40 +331,17 @@ export function defineForm<Schema extends FormSchema>(schema: Schema,	provideKey
         },
     })
     return {
+        clear,
         errors,
-        status,
+        formData,
+        ignoreUpdates,
         invalid,
         readonly,
-        formData,
-        validate,
-        submit,
-        ignoreUpdates,
+        reset,
+        status,
         stopUpdatesWatch,
-        /**
-         * An hack to add types to the default slot
-         */
-        VvForm: component as typeof component & {
-            new (): {
-                $slots: {
-                    default: (_: {
-                        formData: unknown extends
-                        | Partial<z.TypeOf<Schema>>
-                        | undefined
-                            ? undefined
-                            : Partial<z.TypeOf<Schema>> | undefined
-                        submit: () => Promise<boolean>
-                        validate: () => Promise<boolean>
-                        ignoreUpdates: IgnoredUpdater
-                        stopUpdatesWatch: WatchStopHandle
-                        errors: Readonly<
-							Ref<DeepReadonly<z.inferFormattedError<Schema>>>
-						>
-                        status: Ref<DeepReadonly<`${FormStatus}` | undefined>>
-                        invalid: Ref<DeepReadonly<boolean>>
-                        readonly: Ref<boolean>
-                    }) => any
-                }
-            }
-        },
+        submit,
+        validate,
+        VvForm,
     }
 }

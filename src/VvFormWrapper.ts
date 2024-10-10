@@ -1,26 +1,27 @@
 import {
+    type DeepReadonly,
     type InjectionKey,
     type Ref,
+    type SlotsType,
     computed,
     defineComponent,
+    h,
     inject,
     provide,
     readonly,
     ref,
     toRefs,
     watch,
-    h,
-    type DeepReadonly,
 } from 'vue'
-import type { TypeOf, z } from 'zod'
+import type { inferFormattedError, TypeOf, z } from 'zod'
 import type {
     FormSchema,
     InjectedFormData,
     InjectedFormWrapperData,
 } from './types'
 
-export function defineFormWrapper<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>,	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>) {
-    const VvFormWrapper = defineComponent({
+export function defineFormWrapper<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>) {
+    return defineComponent({
         name: 'VvFormWrapper',
         props: {
             name: {
@@ -33,14 +34,40 @@ export function defineFormWrapper<Schema extends FormSchema>(formProvideKey: Inj
             },
         },
         emits: ['invalid', 'valid'],
-        expose: ['fields', 'invalid'],
+        expose: [
+            'clear',
+            'errors',
+            'fields',
+            'fieldsErrors',
+            'formData',
+            'invalid',
+            'reset',
+            'submit',
+            'tag',
+            'validate',
+            'validateWrapper',
+        ],
+        slots: Object as SlotsType<{
+            default: {
+                errors?: DeepReadonly<z.inferFormattedError<Schema>>
+                formData?: Partial<TypeOf<Schema>>
+                formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
+                invalid: boolean
+                submit?: InjectedFormData<Schema>['submit']
+                validate?: InjectedFormData<Schema>['validate']
+                validateWrapper?: () => Promise<boolean>
+                fieldsErrors: Map<string, inferFormattedError<Schema, string>>
+                clear?: InjectedFormData<Schema>['clear']
+                reset?: InjectedFormData<Schema>['reset']
+            }
+        }>,
         setup(props, { emit }) {
             const injectedFormData = inject(formProvideKey)
             const wrapperProvided = inject(wrapperProvideKey, undefined)
             const fields = ref(new Set<string>())
             const fieldsErrors: Ref<
-				Map<string, z.inferFormattedError<Schema>>
-			> = ref(new Map())
+                Map<string, z.inferFormattedError<Schema>>
+            > = ref(new Map())
             const { name } = toRefs(props)
 
             // provide data to child fields
@@ -98,71 +125,42 @@ export function defineFormWrapper<Schema extends FormSchema>(formProvideKey: Inj
                 }
             })
 
+            const validateWrapper = () => {
+                return injectedFormData?.validate(undefined, fields.value) ?? Promise.resolve(true)
+            }
+
             return {
-                formData: injectedFormData?.formData,
+                clear: injectedFormData?.clear,
                 errors: injectedFormData?.errors,
-                submit: injectedFormData?.submit,
-                validate: injectedFormData?.validate,
-                invalid,
                 fields,
                 fieldsErrors,
+                formData: injectedFormData?.formData,
+                invalid,
+                reset: injectedFormData?.reset,
+                submit: injectedFormData?.submit,
+                validate: injectedFormData?.validate,
+                validateWrapper,
             }
         },
         render() {
-            if (this.tag) {
-                return h(this.tag, null, {
-                    default: () =>
-                        this.$slots.default?.({
-                            invalid: this.invalid,
-                            formData: this.formData,
-                            submit: this.submit,
-                            validate: this.validate,
-                            errors: this.errors,
-                            fieldsErrors: this.fieldsErrors,
-                        }) ?? this.$slots.defalut,
-                })
-            }
-            return (
+            const defaultSlot = () =>
                 this.$slots.default?.({
-                    invalid: this.invalid,
-                    formData: this.formData,
-                    submit: this.submit,
-                    validate: this.validate,
+                    clear: this.clear,
                     errors: this.errors,
                     fieldsErrors: this.fieldsErrors,
-                }) ?? this.$slots.defalut
-            )
+                    formData: this.formData,
+                    invalid: this.invalid,
+                    reset: this.reset,
+                    submit: this.submit,
+                    validate: this.validate,
+                    validateWrapper: this.validateWrapper,
+                })
+            if (this.tag) {
+                return h(this.tag, null, {
+                    default: defaultSlot,
+                })
+            }
+            return defaultSlot()
         },
     })
-    /**
-     * An hack to add types to the default slot
-     */
-    return VvFormWrapper as typeof VvFormWrapper & {
-        new (): {
-            $slots: {
-                default: (_: {
-                    invalid: boolean
-                    formData: unknown extends
-                    | Partial<TypeOf<Schema>>
-                    | undefined
-                        ? undefined
-                        : Partial<TypeOf<Schema>> | undefined
-                    submit: () => Promise<boolean>
-                    validate: () => Promise<boolean>
-                    errors: Readonly<
-						Ref<DeepReadonly<z.inferFormattedError<Schema>>>
-					>
-                    fieldsErrors: Map<
-						string,
-						Record<
-							string,
-							{
-							    _errors: string[]
-							}
-						>
-					>
-                }) => any
-            }
-        }
-    }
 }

@@ -1,37 +1,38 @@
 import { get, set } from 'ts-dot-prop'
 import {
     type Component,
+    type ConcreteComponent,
+    type DeepReadonly,
     type InjectionKey,
     type PropType,
     type Ref,
-    type ConcreteComponent,
+    type SlotsType,
     computed,
     defineAsyncComponent,
+    defineComponent,
     h,
     inject,
+    onBeforeUnmount,
     onMounted,
     provide,
     readonly,
     resolveComponent,
     toRefs,
-    watch,
-    defineComponent,
-    onBeforeUnmount,
     unref,
+    watch,
 } from 'vue'
-import type { z } from 'zod'
+import type { inferFormattedError, TypeOf, z } from 'zod'
 import { FormFieldType } from './enums'
 import type {
-    InjectedFormData,
-    InjectedFormWrapperData,
-    InjectedFormFieldData,
     FormFieldComponentOptions,
-    Path,
     FormSchema,
+    InjectedFormData,
+    InjectedFormFieldData,
+    InjectedFormWrapperData,
+    Path,
 } from './types'
 
-export function defineFormField<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>,	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,	formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>,	options?: FormFieldComponentOptions) {
-    // define component
+export function defineFormField<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>, options?: FormFieldComponentOptions) {
     return defineComponent({
         name: 'VvFormField',
         props: {
@@ -48,20 +49,20 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
             },
             name: {
                 type: [String, Number, Boolean, Symbol] as PropType<
-					Path<z.infer<Schema>>
-				>,
+                    Path<z.infer<Schema>>
+                >,
                 required: true,
             },
             props: {
                 type: [Object, Function] as PropType<
-					Partial<
-					    | z.infer<Schema>
-					    | undefined
-					    | ((
-						    formData?: Ref<ObjectConstructor>,
-						  ) => Partial<z.infer<Schema>> | undefined)
-					>
-				>,
+                    Partial<
+                        | z.infer<Schema>
+                        | undefined
+                        | ((
+                            formData?: Ref<ObjectConstructor>,
+                        ) => Partial<z.infer<Schema>> | undefined)
+                    >
+                >,
                 default: () => ({}),
             },
             showValid: {
@@ -81,8 +82,35 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                 default: undefined,
             },
         },
-        emits: ['invalid', 'valid', 'update:formData', 'update:modelValue'],
-        expose: ['invalid', 'invalidLabel', 'errors'],
+        emits: [
+            'invalid',
+            'update:formData',
+            'update:modelValue',
+            'valid',
+        ],
+        expose: [
+            'component',
+            'errors',
+            'hasProps',
+            'invalid',
+            'invalidLabel',
+            'is',
+            'type',
+        ],
+        slots: Object as SlotsType<{
+            default: {
+                errors: z.inferFormattedError<Schema>
+                formData?: Partial<TypeOf<Schema>>
+                formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
+                invalid: boolean
+                invalidLabel: string
+                modelValue: unknown
+                onUpdate: (value: unknown) => void
+                readonly: boolean
+                submit?: InjectedFormData<Schema>['submit']
+                validate?: InjectedFormData<Schema>['validate']
+            }
+        }>,
         setup(props, { slots, emit }) {
             // inject data from parent form wrapper
             const injectedWrapperData = inject(wrapperProvideKey, undefined)
@@ -100,7 +128,7 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                     if (!injectedFormData?.formData)
                         return
                     return get(
-                        Object(injectedFormData.formData.value),
+                        new Object(injectedFormData.formData.value),
                         String(props.name),
                     )
                 },
@@ -108,7 +136,7 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                     if (!injectedFormData?.formData)
                         return
                     set(
-                        Object(injectedFormData.formData.value),
+                        new Object(injectedFormData.formData.value),
                         String(props.name),
                         value,
                     )
@@ -191,7 +219,7 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                 if (injectedFormData?.readonly.value) {
                     return true
                 }
-                return hasFieldProps.value.readonly ?? props.readonly
+                return (hasFieldProps.value.readonly ?? props.readonly) as boolean
             })
             const hasProps = computed(() => ({
                 ...hasFieldProps.value,
@@ -203,19 +231,19 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                 'type': ((type: FormFieldType) => {
                     if (
                         [
-                            FormFieldType.text,
-                            FormFieldType.number,
-                            FormFieldType.email,
-                            FormFieldType.password,
-                            FormFieldType.tel,
-                            FormFieldType.url,
-                            FormFieldType.search,
-                            FormFieldType.date,
-                            FormFieldType.time,
-                            FormFieldType.datetimeLocal,
-                            FormFieldType.month,
-                            FormFieldType.week,
                             FormFieldType.color,
+                            FormFieldType.date,
+                            FormFieldType.datetimeLocal,
+                            FormFieldType.email,
+                            FormFieldType.month,
+                            FormFieldType.number,
+                            FormFieldType.password,
+                            FormFieldType.search,
+                            FormFieldType.tel,
+                            FormFieldType.text,
+                            FormFieldType.time,
+                            FormFieldType.url,
+                            FormFieldType.week,
                         ].includes(type)
                     ) {
                         return type
@@ -241,17 +269,17 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                         render() {
                             return (
                                 slots.default?.({
-                                    modelValue: modelValue.value,
-                                    onUpdate,
-                                    submit: injectedFormData?.submit,
-                                    validate: injectedFormData?.validate,
-                                    invalid: invalid.value,
-                                    invalidLabel: invalidLabel.value,
+                                    errors: errors.value,
                                     formData: injectedFormData?.formData.value,
                                     formErrors: injectedFormData?.errors.value,
-                                    errors: errors.value,
+                                    invalid: invalid.value,
+                                    invalidLabel: invalidLabel.value,
+                                    modelValue: modelValue.value,
+                                    onUpdate,
                                     readonly: isReadonly.value,
-                                }) ?? slots.defalut
+                                    submit: injectedFormData?.submit,
+                                    validate: injectedFormData?.validate,
+                                }) ?? slots.default
                             )
                         },
                     }
@@ -288,7 +316,7 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                     }
                     else {
                         console.warn(
-							`[form-vue warn]: ${component} not found, the component will be loaded asynchronously. To avoid this warning, please set "lazyLoad" option.`,
+                            `[form-vue warn]: ${component} not found, the component will be loaded asynchronously. To avoid this warning, please set "lazyLoad" option.`,
                         )
                     }
                 }

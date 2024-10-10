@@ -27,11 +27,11 @@ function _formFactory<Schema extends FormSchema>(schema: Schema,	options: FormCo
     // create injection keys
     const formInjectionKey = Symbol('formInjectionKey') as InjectionKey<InjectedFormData<Schema>>
     const formWrapperInjectionKey = Symbol('formWrapperInjectionKey') as InjectionKey<
-		InjectedFormWrapperData<Schema>
-	>
+        InjectedFormWrapperData<Schema>
+    >
     const formFieldInjectionKey = Symbol('formFieldInjectionKey') as InjectionKey<
-		InjectedFormFieldData<Schema>
-	>
+        InjectedFormFieldData<Schema>
+    >
 
     // create components
     const VvFormWrapper = defineFormWrapper(
@@ -46,35 +46,39 @@ function _formFactory<Schema extends FormSchema>(schema: Schema,	options: FormCo
     )
     const VvFormTemplate = defineFormTemplate(formInjectionKey, VvFormField)
     const {
-        VvForm,
+        clear,
         errors,
-        status,
+        formData,
+        ignoreUpdates,
         invalid,
         readonly,
-        formData,
-        validate,
-        submit,
-        ignoreUpdates,
+        reset,
+        status,
         stopUpdatesWatch,
+        submit,
+        validate,
+        VvForm,
     } = defineForm(schema, formInjectionKey, options, VvFormTemplate)
 
     return {
-        VvForm,
-        VvFormWrapper,
-        VvFormField,
-        VvFormTemplate,
+        clear,
+        errors,
+        formData,
+        formFieldInjectionKey,
         formInjectionKey,
         formWrapperInjectionKey,
-        formFieldInjectionKey,
-        errors,
-        status,
+        ignoreUpdates,
         invalid,
         readonly,
-        formData,
-        validate,
-        submit,
-        ignoreUpdates,
+        reset,
+        status,
         stopUpdatesWatch,
+        submit,
+        validate,
+        VvForm,
+        VvFormField,
+        VvFormTemplate,
+        VvFormWrapper,
     }
 }
 
@@ -132,18 +136,18 @@ type FormFieldComponent = ReturnType<typeof defineFormField>
 type FormTemplateComponent = ReturnType<typeof defineFormTemplate>
 
 export type {
-    InjectedFormData,
-    InjectedFormWrapperData,
-    InjectedFormFieldData,
-    FormComposableOptions,
-    FormSchema,
-    FormPluginOptions,
     FormComponent,
-    FormWrapperComponent,
+    FormComposableOptions,
     FormFieldComponent,
+    FormPluginOptions,
+    FormSchema,
     FormTemplate,
     FormTemplateComponent,
     FormTemplateItem,
+    FormWrapperComponent,
+    InjectedFormData,
+    InjectedFormFieldData,
+    InjectedFormWrapperData,
     Path,
     PathValue,
 }

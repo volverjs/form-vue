@@ -4,8 +4,8 @@ import { ref, onMounted, type Ref } from 'vue'
 import { useForm } from '../src'
 
 const zodSchema = z.object({
-    firstname: z.string(),
-    surname: z.string(),
+    firstname: z.string().min(3),
+    surname: z.string().min(3),
     location: z.object({
         city: z.string(),
         address: z.string(),
@@ -48,7 +48,7 @@ onMounted(() => {
             show-valid
         />
         <VvFormField name="surname" type="text" label="surname" />
-        <VvFormWrapper v-slot="{ invalid }" name="location">
+        <VvFormWrapper v-slot="{ invalid, validateWrapper }" name="location">
             <div class="form-section-1">
                 <small v-if="invalid" class="text-danger">There is a validation error</small>
                 <VvFormField name="location.city" type="text" label="city" />
@@ -74,6 +74,12 @@ onMounted(() => {
                     label="region"
                 />
             </div>
+            <button id="validation-button" type="button" class="vv-button" title="Wrapper validation" @click="validateWrapper">
+                Wrapper validation
+            </button>
         </VvFormWrapper>
+        <button type="reset" class="vv-button" title="Reset">
+            Reset
+        </button>
     </VvForm>
 </template>

@@ -6,7 +6,7 @@ import { useForm } from '../src'
 defineProps({
     continuousValidation: Boolean,
 })
-defineEmits(['submit', 'invalid', 'valid'])
+defineEmits(['submit', 'invalid', 'valid', 'reset'])
 
 const zodSchema = z.object({
     firstname: z.string(),
@@ -32,12 +32,16 @@ const model: Ref<z.infer<typeof zodSchema>> = ref({
         @submit="$emit('submit')"
         @invalid="$emit('invalid')"
         @valid="$emit('valid')"
+        @reset="$emit('reset')"
     >
         <VvFormField name="firstname" type="text" label="firstname" />
         <VvFormField name="surname" type="text" label="surname" />
         <VvFormField name="age" type="number" label="age" />
         <button type="submit" class="vv-button" title="Submit">
             Submit
+        </button>
+        <button type="reset" class="vv-button" title="Reset">
+            Reset
         </button>
     </VvForm>
 </template>

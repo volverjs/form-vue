@@ -95,7 +95,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                                             ? element
                                             : undefined) as Partial<
 											typeof arrayType
-										>,
+                                        >,
                                     ),
                                 ),
                             ]

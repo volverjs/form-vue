@@ -15,9 +15,10 @@ export default antfu({
         semi: false,
     },
     rules: {
-        'style/no-tabs': 'off',
-        'style/no-mixed-spaces-and-tabs': ['error', 'smart-tabs'],
         'sort-imports': 'off',
+        'perfectionist/sort-imports': 'off',
+        'perfectionist/sort-named-imports': 'off',
+        'antfu/top-level-function': 'off',
     },
 }, {
     ignores: ['.vscode', 'dist', 'node_modules', '*.config.ts', '**/*.test.ts'],

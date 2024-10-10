@@ -26,35 +26,64 @@ test('VvForm label and value', async ({ mount }) => {
 test('VvForm events', async ({ mount }) => {
     let submitted = false
     let invalid = false
+    let reset = false
 
     const component = await mount(VvForm, {
         on: {
             submit: () => (submitted = true),
             invalid: () => (invalid = true),
+            reset: () => (reset = true),
         },
     })
 
-    // Trigger submit event
     const buttonSubmit = await component.locator('button[type=submit]')
+    const buttonReset = await component.locator('button[type=reset]')
+    const inputAge = await component.locator('input[name=age]')
+    const inputFirstName = await component.locator('input[name=firstname]')
+    const inputSurname = await component.locator('input[name=surname]')
     await expect(buttonSubmit).toContainText('Submit')
+    await expect(buttonReset).toContainText('Reset')
+    await expect(inputAge).toHaveValue('18')
+    await expect(inputFirstName).toHaveValue('Massimo')
+    await expect(inputSurname).toHaveValue('Rossi')
+
+    // Trigger submit event
     await buttonSubmit.click()
 
     // Check valid and submitted events
     expect(submitted).toBeTruthy()
     expect(invalid).toBeFalsy()
+    expect(reset).toBeFalsy()
 
     // Reset events
     submitted = false
     invalid = false
+    reset = false
 
     // Set valid input value and submit
-    const inputAge = await component.locator('input[name=age]')
     await inputAge.fill('10')
     await buttonSubmit.click()
 
     // Check valid and submitted events
     expect(submitted).toBeFalsy()
     expect(invalid).toBeTruthy()
+    expect(reset).toBeFalsy()
+
+    // Reset events
+    submitted = false
+    invalid = false
+    reset = false
+
+    // Reset form
+    await buttonReset.click()
+    expect(submitted).toBeFalsy()
+    expect(invalid).toBeFalsy()
+    expect(reset).toBeTruthy()
+
+    // Check input values
+    await expect(inputAge).toHaveValue('')
+    await expect(inputFirstName).toHaveValue('')
+    await expect(inputSurname).toHaveValue('')
 })
 
 test('VvForm continuousValidation', async ({ mount }) => {

@@ -13,6 +13,9 @@ All notable changes to this project will be documented in this file.
 - `readonly` prop in `VvForm` component;
 - support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
 - `VvFormTemplate` default slot scope for vvChildren;
+- `reset()` method to `VvForm` component and `useForm()` to reset form values;
+- `clear()` method to `VvForm` component and `useForm()` to clear errors;
+- `VvFormWrapper` component `validateWrapper()` method for partial validation;
 
 ### Changed
 

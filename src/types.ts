@@ -1,5 +1,5 @@
 import type { Component, DeepReadonly, Ref, RendererElement, RendererNode, VNode, WatchStopHandle } from 'vue'
-import type { z } from 'zod'
+import type { TypeOf, z } from 'zod'
 import type { IgnoredUpdater } from '@vueuse/core'
 import type { FormFieldType, FormStatus } from './enums'
 
@@ -24,6 +24,7 @@ export type FormComponentOptions<Schema> = {
     onSubmit?: Schema extends FormSchema
         ? (data?: z.infer<Schema>) => void
         : never
+    onReset?: Schema extends FormSchema ? (data?: z.infer<Schema>) => void : never
     onInvalid?: Schema extends FormSchema
         ? (error?: z.inferFormattedError<Schema>) => void
         : never
@@ -45,10 +46,12 @@ export type FormPluginOptions = FormPluginOptionsSchema &
 export type InjectedFormData<Schema extends FormSchema> = {
     formData: Ref<Partial<z.infer<Schema>> | undefined>
     errors: Readonly<
-		Ref<DeepReadonly<z.inferFormattedError<Schema>> | undefined>
-	>
+        Ref<DeepReadonly<z.inferFormattedError<Schema>> | undefined>
+    >
     submit: () => Promise<boolean>
-    validate: () => Promise<boolean>
+    validate: (formData?: Partial<z.infer<Schema>>, fields?: Set<string>) => Promise<boolean>
+    clear: () => void
+    reset: () => void
     ignoreUpdates: IgnoredUpdater
     stopUpdatesWatch: WatchStopHandle
     status: Readonly<Ref<FormStatus | undefined>>
@@ -83,8 +86,8 @@ type IsTuple<T extends readonly any[]> = number extends T['length']
 type TupleKeys<T extends readonly any[]> = Exclude<keyof T, keyof any[]>
 
 export type PathConcat<
-	TKey extends string | number,
-	TValue,
+    TKey extends string | number,
+    TValue,
 > = TValue extends Primitive ? `${TKey}` : `${TKey}` | `${TKey}.${Path<TValue>}`
 
 export type Path<T> = T extends readonly (infer V)[]
@@ -125,8 +128,8 @@ export type AnyBoolean<Schema extends FormSchema> =
     | ((data?: InjectedFormData<Schema>) => boolean | Ref<boolean>)
 
 export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
-	string,
-	any
+    string,
+    any
 > & {
     vvIs?: string | Component
     vvName?: Path<z.infer<Schema>>
@@ -135,20 +138,20 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
         | Array<
             | SimpleFormTemplateItem<Schema>
             | ((
-				    data?: InjectedFormData<Schema>,
-				    scope?: Record<string, unknown>,
-				  ) => SimpleFormTemplateItem<Schema>)
-		  >
-		  | ((
-		    data?: InjectedFormData<Schema>,
-		    scope?: Record<string, unknown>,
-		  ) => Array<
-		      | SimpleFormTemplateItem<Schema>
-		      | ((
-				    data?: InjectedFormData<Schema>,
-				    scope?: Record<string, unknown>,
-				  ) => SimpleFormTemplateItem<Schema>)
-		  >)
+                data?: InjectedFormData<Schema>,
+                scope?: Record<string, unknown>,
+            ) => SimpleFormTemplateItem<Schema>)
+        >
+        | ((
+            data?: InjectedFormData<Schema>,
+            scope?: Record<string, unknown>,
+        ) => Array<
+            | SimpleFormTemplateItem<Schema>
+            | ((
+                data?: InjectedFormData<Schema>,
+                scope?: Record<string, unknown>,
+            ) => SimpleFormTemplateItem<Schema>)
+        >)
     vvIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
     vvElseIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
     vvType?: `${FormFieldType}`
@@ -160,15 +163,15 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
 export type FormTemplateItem<Schema extends FormSchema> =
     | SimpleFormTemplateItem<Schema>
     | ((
-	    data?: InjectedFormData<Schema>,
-	    scope?: Record<string, unknown>,
-	  ) => SimpleFormTemplateItem<Schema>)
+        data?: InjectedFormData<Schema>,
+        scope?: Record<string, unknown>,
+    ) => SimpleFormTemplateItem<Schema>)
 
 export type FormTemplate<Schema extends FormSchema> =
     | FormTemplateItem<Schema>[]
     | ((
-	    data?: InjectedFormData<Schema>,
-	    scope?: Record<string, unknown>,
-	  ) => FormTemplateItem<Schema>[])
+        data?: InjectedFormData<Schema>,
+        scope?: Record<string, unknown>,
+    ) => FormTemplateItem<Schema>[])
 
 export type RenderFunctionOutput = VNode<RendererNode, RendererElement, { [key: string]: any }>

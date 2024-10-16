@@ -105,7 +105,7 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                 formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
                 invalid: boolean
                 invalidLabel: string
-                modelValue: unknown
+                modelValue: any
                 onUpdate: (value: unknown) => void
                 readonly: boolean
                 submit?: InjectedFormData<Schema>['submit']

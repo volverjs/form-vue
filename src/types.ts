@@ -1,12 +1,18 @@
 import type { Component, DeepReadonly, Ref, RendererElement, RendererNode, VNode, WatchStopHandle } from 'vue'
-import type { TypeOf, z } from 'zod'
+import { z, type AnyZodObject, type ZodEffects, type ZodOptional, type ZodTypeAny } from 'zod'
 import type { IgnoredUpdater } from '@vueuse/core'
 import type { FormFieldType, FormStatus } from './enums'
 
-export type FormSchema =
-    | z.AnyZodObject
-    | z.ZodEffects<z.AnyZodObject>
-    | z.ZodEffects<z.ZodEffects<z.AnyZodObject>>
+type Depth = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] // Adjust the depth limit as needed
+
+type DecrementDepth<D extends Depth[number]> = Depth[D]
+
+export type EffectType<T extends ZodTypeAny, D extends Depth[number] = 10> =
+    D extends 0
+        ? T
+        : T | ZodOptional<T> | ZodEffects<EffectType<T, DecrementDepth<D>>>
+
+export type FormSchema = EffectType<AnyZodObject>
 
 export type FormFieldComponentOptions = {
     lazyLoad?: boolean

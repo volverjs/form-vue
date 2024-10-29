@@ -12,7 +12,7 @@ import {
     unref,
 } from 'vue'
 import type { FormSchema, InjectedFormData, FormTemplate, RenderFunctionOutput } from './types'
-import type { inferFormattedError, TypeOf, z } from 'zod'
+import type { inferFormattedError, TypeOf } from 'zod'
 import type { FormStatus } from './enums'
 
 export function defineFormTemplate<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>, VvFormField: Component) {

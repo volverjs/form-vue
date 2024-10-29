@@ -11,15 +11,11 @@ import {
     ZodRecord,
     ZodArray,
 } from 'zod'
-import type { FormSchema } from './types'
+import type { EffectType, FormSchema } from './types'
 
 export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema, original: Partial<z.infer<Schema>> & Record<string, unknown> = {}): Partial<z.infer<Schema>> {
     const getSchemaInnerType = <Type extends ZodTypeAny>(
-        schema:
-            | Type
-            | ZodEffects<Type>
-            | ZodEffects<ZodEffects<Type>>
-            | ZodOptional<Type>,
+        schema: EffectType<Type>,
     ) => {
         let toReturn = schema
         while (toReturn instanceof ZodEffects) {
@@ -48,9 +44,9 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
     }
     const innerType = getSchemaInnerType<AnyZodObject>(schema)
     const unknownKeys
-		= innerType instanceof ZodObject
-		    ? innerType._def.unknownKeys === 'passthrough'
-		    : false
+        = innerType instanceof ZodObject
+            ? innerType._def.unknownKeys === 'passthrough'
+            : false
     return {
         ...(unknownKeys ? original : {}),
         ...Object.fromEntries(
@@ -94,7 +90,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                                         (element && typeof element === 'object'
                                             ? element
                                             : undefined) as Partial<
-											typeof arrayType
+                                                typeof arrayType
                                         >,
                                     ),
                                 ),
@@ -105,7 +101,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                         const valueType = getSchemaInnerType(innerType._def.valueType)
                         if (valueType instanceof ZodObject) {
                             return [key, Object.keys(originalValue).reduce((acc: Record<string, unknown>, recordKey: string) => {
-                                acc[recordKey] = defaultObjectBySchema(valueType, originalValue[recordKey])
+                                acc[recordKey] = defaultObjectBySchema(valueType, (originalValue as Record<string, unknown>)[recordKey] as Partial<any> & Record<string, unknown>)
                                 return acc
                             }, {})]
                         }
@@ -117,7 +113,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                                 innerType,
                                 originalValue
                                 && typeof originalValue === 'object'
-                                    ? originalValue
+                                    ? (originalValue as Partial<z.infer<Schema>> & Record<string, unknown>)
                                     : defaultValue,
                             ),
                         ]

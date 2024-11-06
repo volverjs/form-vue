@@ -104,8 +104,8 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                 formData?: Partial<TypeOf<Schema>>
                 formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
                 invalid: boolean
-                invalidLabel: string
-                modelValue: unknown
+                invalidLabel?: string[]
+                modelValue: any
                 onUpdate: (value: unknown) => void
                 readonly: boolean
                 submit?: InjectedFormData<Schema>['submit']
@@ -113,6 +113,8 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
             }
         }>,
         setup(props, { slots, emit }) {
+            const { props: fieldProps, name: fieldName } = toRefs(props)
+
             // inject data from parent form wrapper
             const injectedWrapperData = inject(wrapperProvideKey, undefined)
             if (injectedWrapperData) {
@@ -121,21 +123,22 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
 
             // inject data from parent form
             const injectedFormData = inject(formProvideKey)
-            const { props: fieldProps, name: fieldName } = toRefs(props)
 
             // v-model
             const modelValue = computed({
                 get() {
-                    if (!injectedFormData?.formData)
+                    if (!injectedFormData?.formData) {
                         return
+                    }
                     return get(
                         new Object(injectedFormData.formData.value),
                         String(props.name),
                     )
                 },
                 set(value) {
-                    if (!injectedFormData?.formData)
+                    if (!injectedFormData?.formData) {
                         return
+                    }
                     set(
                         new Object(injectedFormData.formData.value),
                         String(props.name),
@@ -170,23 +173,20 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
             })
             const unwatchInvalid = watch(invalid, () => {
                 if (invalid.value) {
-                    emit('invalid', invalidLabel.value)
+                    emit('invalid', errors.value)
                     if (injectedWrapperData) {
                         injectedWrapperData.errors.value.set(
-                            props.name as string,
-                            {
-                                _errors: invalidLabel.value,
-                            } as z.inferFormattedError<Schema>,
+                            String(props.name),
+                            errors.value,
                         )
                     }
+                    return
                 }
-                else {
-                    emit('valid', modelValue.value)
-                    if (injectedWrapperData) {
-                        injectedWrapperData.errors.value.delete(
-                            props.name as string,
-                        )
-                    }
+                emit('valid', modelValue.value)
+                if (injectedWrapperData) {
+                    injectedWrapperData.errors.value.delete(
+                        props.name as string,
+                    )
                 }
             })
             const unwatchInjectedFormData = watch(
@@ -201,6 +201,9 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                 unwatchInjectedFormData()
             })
             const onUpdate = (value: unknown) => {
+                if (value instanceof InputEvent) {
+                    value = (value.target as HTMLInputElement).value
+                }
                 modelValue.value = value
             }
             const hasFieldProps = computed(() => {
@@ -259,7 +262,7 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
 
             // provide data to children
             provide(formFieldInjectionKey, {
-                name: readonly(fieldName as Ref<string>),
+                name: readonly(fieldName) as Readonly<Ref<Path<z.infer<Schema>>>>,
                 errors: readonly(errors),
             })
 
@@ -315,11 +318,9 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                     if (typeof component !== 'string') {
                         return component
                     }
-                    else {
-                        console.warn(
-                            `[form-vue warn]: ${component} not found, the component will be loaded asynchronously. To avoid this warning, please set "lazyLoad" option.`,
-                        )
-                    }
+                    console.warn(
+                        `[form-vue warn]: ${component} not found, the component will be loaded asynchronously. To avoid this warning, please set "lazyLoad" option.`,
+                    )
                 }
                 return defineAsyncComponent(async () => {
                     if (options?.sideEffects) {

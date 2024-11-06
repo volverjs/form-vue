@@ -281,7 +281,7 @@ It automatically bind the form data through the `name` attribute. For nested obj
                 @input="onUpdate"
             >
             <small v-if="invalid" id="last-name-alert" role="alert">
-                {{ invalidLabel.join(', ') }}
+                {{ invalidLabel }}
             </small>
         </VvFormField>
     </VvForm>
@@ -328,7 +328,7 @@ It automatically bind the form data through the `names` attribute. For nested ob
                         @input="onUpdateField('firstName', $event)"
                     >
                     <small v-if="invalids.firstName" id="first-name-alert" role="alert">
-                        {{ invalidLabels?.firstName.join(', ') }}
+                        {{ invalidLabels?.firstName }}
                     </small>
                 </p>
                 <p>
@@ -343,7 +343,7 @@ It automatically bind the form data through the `names` attribute. For nested ob
                         @input="onUpdateField('lastName', $event)"
                     >
                     <small v-if="invalids.lastName" id="last-name-alert" role="alert">
-                        {{ invalidLabels?.lastName.join(', ') }}
+                        {{ invalidLabels?.lastName }}
                     </small>
                 </p>
             </fieldset>

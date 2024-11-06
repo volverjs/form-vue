@@ -1,5 +1,5 @@
 import type { Component, DeepReadonly, Ref, RendererElement, RendererNode, VNode, WatchStopHandle } from 'vue'
-import { z, type AnyZodObject, type ZodEffects, type ZodOptional, type ZodTypeAny } from 'zod'
+import type { z, AnyZodObject, ZodEffects, ZodOptional, ZodTypeAny } from 'zod'
 import type { IgnoredUpdater } from '@vueuse/core'
 import type { FormFieldType, FormStatus } from './enums'
 
@@ -72,8 +72,13 @@ export type InjectedFormWrapperData<Schema extends FormSchema> = {
 }
 
 export type InjectedFormFieldData<Schema extends FormSchema> = {
-    name: Ref<string>
+    name: Readonly<Ref<Path<z.infer<Schema>>>>
     errors: Readonly<Ref<DeepReadonly<z.inferFormattedError<Schema>>>>
+}
+
+export type InjectedFormFieldsGroupData<Schema extends FormSchema> = {
+    names: DeepReadonly<Ref<Path<z.infer<Schema>>[]>>
+    errors: Readonly<Ref<DeepReadonly<Record<string, z.inferFormattedError<Schema>> | undefined>>>
 }
 
 export type Primitive =

@@ -32,6 +32,7 @@ test('VvForm events', async ({ mount }) => {
         on: {
             submit: () => (submitted = true),
             invalid: () => (invalid = true),
+            valid: () => (invalid = false),
             reset: () => (reset = true),
         },
     })

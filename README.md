@@ -181,14 +181,15 @@ import { useForm } from '@volverjs/form-vue'
 import { z } from 'zod'
 
 const schema = z.object({
-    name: z.string(),
-    surname: z.string()
+    firstName: z.string(),
+    lastName: z.string()
 })
 
 const {
     VvForm,
     VvFormWrapper,
     VvFormField,
+    VvFormFieldsGroup,
     VvFormTemplate,
     formData,
     status,
@@ -201,6 +202,7 @@ export default {
     VvForm,
     VvFormWrapper,
     VvFormField,
+    VvFormFieldsGroup,
     VvFormTemplate,
     formData,
     status,
@@ -277,7 +279,7 @@ It automatically bind the form data through the `name` attribute. For nested obj
                 @input="onUpdate"
             >
             <small v-if="invalid" id="last-name-alert" role="alert">
-                {{ invalidLabel }}
+                {{ invalidLabel.join(', ') }}
             </small>
         </VvFormField>
     </VvForm>
@@ -297,6 +299,141 @@ By default UI components must be installed globally, they can be lazy-loaded wit
 ```
 
 Check the [`VvFormField` documentation](./docs/VvFormField.md) to learn more about form fields.
+
+### VvFormFieldsGroup
+
+`VvFormFieldsGroup` allow you to render a group of form fields inside a form.
+
+It automatically bind the form data through the `names` attribute. For nested objects, use the `names` attribute with **dot notation**.
+
+```vue
+<template>
+    <VvForm>
+        <VvFormFieldsGroup
+            v-slot="{ modelValue, invalids, invalidLabels, onUpdateField }"
+            :name="['firstName', 'lastName']"
+        >
+            <fieldset>
+                <p>
+                    <label for="firstName">First Name</label>
+                    <input
+                        id="firstName"
+                        type="text"
+                        name="firstName"
+                        :value="modelValue.firstName"
+                        :aria-invalid="invalids.firstName"
+                        :aria-errormessage="invalids.firstName ? 'first-name-alert' : undefined"
+                        @input="onUpdateField('firstName', $event)"
+                    >
+                    <small v-if="invalids.firstName" id="first-name-alert" role="alert">
+                        {{ invalidLabels?.firstName.join(', ') }}
+                    </small>
+                </p>
+                <p>
+                    <label for="lastName">Last Name</label>
+                    <input
+                        id="lastName"
+                        type="text"
+                        name="lastName"
+                        :value="modelValue.lastName"
+                        :aria-invalid="invalids.lastName"
+                        :aria-errormessage="invalids.lastName ? 'last-name-alert' : undefined"
+                        @input="onUpdateField('lastName', $event)"
+                    >
+                    <small v-if="invalids.lastName" id="last-name-alert" role="alert">
+                        {{ invalidLabels?.lastName.join(', ') }}
+                    </small>
+                </p>
+            </fieldset>
+        </VvFormFieldsGroup>
+    </VvForm>
+</template>
+```
+
+Alternatively, you can create a custom component to render the group of form fields.
+
+```vue
+// MyFieldsGroup.vue
+<script lang="ts" setup>
+defineProps<{
+    invalids: Record<string, boolean>
+    invalidLabels?: Record<string, string[]>
+}>()
+// v-model:first-name
+const firstName = defineModel<string>('firstName', { default: '' })
+// v-model:last-name
+const lastName = defineModel<string>('lastName', { default: '' })
+</script>
+
+<template>
+    <fieldset>
+        <p>
+            <label for="firstName">First Name</label>
+            <input
+                id="firstName"
+                v-model="firstName"
+                type="text"
+                name="firstName"
+                :aria-invalid="invalids.firstName"
+                :aria-errormessage="invalids.firstName ? 'first-name-alert' : undefined"
+            >
+            <small v-if="invalids.firstName" id="first-name-alert" role="alert">
+                {{ invalidLabels?.firstName }}
+            </small>
+        </p>
+        <p>
+            <label for="lastName">Last Name</label>
+            <input
+                id="lastName"
+                v-model="lastName"
+                type="text"
+                name="lastName"
+                :aria-invalid="invalids.lastName"
+                :aria-errormessage="invalids.lastName ? 'last-name-alert' : undefined"
+            >
+            <small v-if="invalids.lastName" id="last-name-alert" role="alert">
+                {{ invalidLabels?.lastName }}
+            </small>
+        </p>
+    </fieldset>
+</template>
+```
+
+An than use it inside the `VvFormFieldsGroup` with the `:is` attribute.
+
+```vue
+<script>
+import MyFieldsGroup from './MyFieldsGroup.vue'
+</script>
+
+<template>
+    <VvForm>
+        <VvFormFieldsGroup
+            :is="MyFieldsGroup"
+            :names="['firstName', 'lastName']"
+        />
+    </VvForm>
+</template>
+```
+
+You can also map the form fields to the components v-models. The `:names` attribute can be an object with the component v-models as keys and the form fields names as values.
+
+```vue
+<script>
+import MyCustomComponent from './MyCustomComponent.vue'
+</script>
+
+<template>
+    <VvForm>
+        <VvFormFieldsGroup
+            :is="MyCustomComponent"
+            :names="{
+                myCustomComponentVModel: 'path.to.form.field',
+            }"
+        />
+    </VvForm>
+</template>
+```
 
 ## VvFormTemplate
 
@@ -503,15 +640,15 @@ import { z } from 'zod'
 import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z.object({
-    name: z.string().default('John'),
-    surname: z.string().default('Doe')
+    firstName: z.string().default('John'),
+    lastName: z.string().default('Doe')
 })
 
 const defaultObject = defaultObjectBySchema(schema)
-// defaultObject = { name: 'John', surname: 'Doe' }
+// defaultObject = { firstName: 'John', lastName: 'Doe' }
 
 const defaultObject = defaultObjectBySchema(schema, { name: 'Jane' })
-// defaultObject = { name: 'Jane', surname: 'Doe' }
+// defaultObject = { firstName: 'Jane', lastName: 'Doe' }
 ```
 
 `defaultObjectBySchema` can be used with nested objects.
@@ -521,8 +658,8 @@ import { z } from 'zod'
 import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z.object({
-    name: z.string().default('John'),
-    surname: z.string().default('Doe'),
+    firstName: z.string().default('John'),
+    lastName: z.string().default('Doe'),
     address: z.object({
         street: z.string().default('Main Street'),
         number: z.number().default(1)
@@ -530,7 +667,7 @@ const schema = z.object({
 })
 
 const defaultObject = defaultObjectBySchema(schema)
-// defaultObject = { name: 'John', surname: 'Doe', address: { street: 'Main Street', number: 1 } }
+// defaultObject = { firstName: 'John', lastName: 'Doe', address: { street: 'Main Street', number: 1 } }
 ```
 
 Other Zod methods are also supported: [`z.nullable()`](https://github.com/colinhacks/zod#nullable), [`z.coerce`](https://github.com/colinhacks/zod#coercion-for-primitives) and [`z.passthrough()`](https://github.com/colinhacks/zod#passthrough).
@@ -541,8 +678,8 @@ import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z
     .object({
-        name: z.string().default('John'),
-        surname: z.string().default('Doe'),
+        firstName: z.string().default('John'),
+        lastName: z.string().default('Doe'),
         address: z.object({
             street: z.string().default('Main Street'),
             number: z.number().default(1)
@@ -557,7 +694,7 @@ const defaultObject = defaultObjectBySchema(schema, {
     height: '1.9',
     email: 'john.doe@test.com'
 })
-// defaultObject = { name: 'John', surname: 'Doe', address: { street: 'Main Street', number: 1 }, age: null, height: 1.9, weight: 80, email: 'john.doe@test.com' }
+// defaultObject = { firstName: 'John', lastName: 'Doe', address: { street: 'Main Street', number: 1 }, age: null, height: 1.9, weight: 80, email: 'john.doe@test.com' }
 ```
 
 ## License

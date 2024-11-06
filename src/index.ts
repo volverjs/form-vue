@@ -6,14 +6,16 @@ import {
     type Plugin,
 } from 'vue'
 import type { AnyZodObject } from 'zod'
-import { defineFormField } from './VvFormField'
 import { defineForm } from './VvForm'
+import { defineFormField } from './VvFormField'
+import { defineFormFieldsGroup } from './VvFormFieldsGroup'
 import { defineFormWrapper } from './VvFormWrapper'
 import { defineFormTemplate } from './VvFormTemplate'
 import type {
     InjectedFormData,
     InjectedFormWrapperData,
     InjectedFormFieldData,
+    InjectedFormFieldsGroupData,
     FormComposableOptions,
     FormPluginOptions,
     FormTemplateItem,
@@ -23,7 +25,7 @@ import type {
     FormTemplate,
 } from './types'
 
-function _formFactory<Schema extends FormSchema>(schema: Schema,	options: FormComposableOptions<Schema> = {}) {
+function _formFactory<Schema extends FormSchema>(schema: Schema, options: FormComposableOptions<Schema> = {}) {
     // create injection keys
     const formInjectionKey = Symbol('formInjectionKey') as InjectionKey<InjectedFormData<Schema>>
     const formWrapperInjectionKey = Symbol('formWrapperInjectionKey') as InjectionKey<
@@ -31,6 +33,9 @@ function _formFactory<Schema extends FormSchema>(schema: Schema,	options: FormCo
     >
     const formFieldInjectionKey = Symbol('formFieldInjectionKey') as InjectionKey<
         InjectedFormFieldData<Schema>
+    >
+    const formFieldsGroupInjectionKey = Symbol('formFieldsGroupInjectionKey') as InjectionKey<
+        InjectedFormFieldsGroupData<Schema>
     >
 
     // create components
@@ -43,6 +48,11 @@ function _formFactory<Schema extends FormSchema>(schema: Schema,	options: FormCo
         formWrapperInjectionKey,
         formFieldInjectionKey,
         options,
+    )
+    const VvFormFieldsGroup = defineFormFieldsGroup(
+        formInjectionKey,
+        formWrapperInjectionKey,
+        formFieldsGroupInjectionKey,
     )
     const VvFormTemplate = defineFormTemplate(formInjectionKey, VvFormField)
     const {
@@ -77,6 +87,7 @@ function _formFactory<Schema extends FormSchema>(schema: Schema,	options: FormCo
         validate,
         VvForm,
         VvFormField,
+        VvFormFieldsGroup,
         VvFormTemplate,
         VvFormWrapper,
     }

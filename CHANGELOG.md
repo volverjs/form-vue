@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - `reset()` method to `VvForm` component and `useForm()` to reset form values;
 - `clear()` method to `VvForm` component and `useForm()` to clear errors;
 - `VvFormWrapper` component `validateWrapper()` method for partial validation;
+- `VvFormFieldsGroup` component for grouping fields.
 
 ### Changed
 

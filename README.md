@@ -239,14 +239,16 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
 ```vue
 <template>
     <VvForm>
+        <!-- main VvFormWrapper -->
         <VvFormWrapper v-slot="{ invalid }">
+            <!-- add VvFormFields to wrapper -->
             <div class="form-section">
                 <span v-if="invalid">There is a validation error</span>
-                <!-- form fields of section -->
+                <!-- nested VvFormWrapper -->
                 <VvFormWrapper v-slot="{ invalid: groupInvalid }">
                     <div class="form-section__group">
                         <span v-if="groupInvalid">There is a validation error</span>
-                        <!-- form fields of the group -->
+                        <!-- add VvFormFields to nested wrapper -->
                     </div>
                 </VvFormWrapper>
             </div>
@@ -311,7 +313,7 @@ It automatically bind the form data through the `names` attribute. For nested ob
     <VvForm>
         <VvFormFieldsGroup
             v-slot="{ modelValue, invalids, invalidLabels, onUpdateField }"
-            :name="['firstName', 'lastName']"
+            :names="['firstName', 'lastName']"
         >
             <fieldset>
                 <p>

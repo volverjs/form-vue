@@ -117,6 +117,9 @@ export function createForm(options: FormPluginOptions): Plugin & Partial<ReturnT
                 if (toReturn?.VvFormField) {
                     app.component('VvFormField', toReturn.VvFormField)
                 }
+                if (toReturn?.VvFormFieldsGroup) {
+                    app.component('VvFormFieldsGroup', toReturn.VvFormFieldsGroup)
+                }
                 if (toReturn?.VvFormTemplate) {
                     app.component('VvFormTemplate', toReturn.VvFormTemplate)
                 }
@@ -144,12 +147,14 @@ export { defaultObjectBySchema } from './utils'
 type FormComponent = ReturnType<typeof defineForm>
 type FormWrapperComponent = ReturnType<typeof defineFormWrapper>
 type FormFieldComponent = ReturnType<typeof defineFormField>
-type FormTemplateComponent = ReturnType<typeof defineFormTemplate>
+type FormFieldsGroupComponent = ReturnType<typeof defineFormFieldsGroup>
+type FormTemplateComponent = ReturnType<typeof defineFormFieldsGroup>
 
 export type {
     FormComponent,
     FormComposableOptions,
     FormFieldComponent,
+    FormFieldsGroupComponent,
     FormPluginOptions,
     FormSchema,
     FormTemplate,

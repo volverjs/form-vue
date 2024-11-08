@@ -36,7 +36,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema>(formProvideKey:
                 default: undefined,
             },
             names: {
-                type: [Array] as PropType<
+                type: [Array, Object] as PropType<
                     Path<z.infer<Schema>>[] | Record<string, Path<z.infer<Schema>>>
                 >,
                 required: true,

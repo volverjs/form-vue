@@ -1,4 +1,5 @@
 import {
+    type Component,
     type DeepReadonly,
     type InjectionKey,
     type Ref,
@@ -137,7 +138,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
                 }
             })
 
-            const componentInstance = getCurrentInstance
+            const componentInstance = getCurrentInstance()
             onMounted(() => {
                 if (!injectedFormData?.wrappers) {
                     return
@@ -149,7 +150,10 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
                     console.warn(`[@volverjs/form-vue]: wrapper name "${name.value}" is already used`)
                     return
                 }
-                injectedFormData?.wrappers.set(name.value, componentInstance)
+                if (!componentInstance) {
+                    return
+                }
+                injectedFormData?.wrappers.set(name.value, componentInstance as unknown as Component)
             })
             onBeforeUnmount(() => {
                 injectedFormData?.wrappers.delete(name.value)

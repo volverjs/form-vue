@@ -58,6 +58,8 @@ const form = createForm({
     // updateThrottle: number - default 500
     // continuousValidation: boolean - default false
     // sideEffects?: (data: any) => void
+    // scope?: string
+    // class?: new (data?: any) => Type
 })
 
 app.use(form)
@@ -161,6 +163,8 @@ const { VvForm, VvFormWrapper, VvFormField } = useForm(schema, {
     // updateThrottle: number - default 500
     // continuousValidation: boolean - default false
     // sideEffects?: (formData: any) => void
+    // scope?: string
+    // class?: new (data?: any) => Type
 })
 </script>
 
@@ -193,7 +197,8 @@ const {
     VvFormTemplate,
     formData,
     status,
-    errors
+    errors,
+    wrappers
 } = useForm(schema, {
     lazyLoad: true
 })
@@ -206,7 +211,8 @@ export default {
     VvFormTemplate,
     formData,
     status,
-    errors
+    errors,
+    wrappers
 }
 ```
 

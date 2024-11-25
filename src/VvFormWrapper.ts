@@ -138,25 +138,22 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
                 }
             })
 
-            const componentInstance = getCurrentInstance()
             onMounted(() => {
-                if (!injectedFormData?.wrappers) {
+                const instance = getCurrentInstance()
+                if (!instance || !injectedFormData?.wrappers || !name.value) {
+                    console.warn('[@volverjs/form-vue]: Invalid wrapper registration state')
                     return
                 }
-                if (!name.value) {
-                    return
-                }
-                if (injectedFormData?.wrappers.has(name.value)) {
+                if (injectedFormData.wrappers.has(name.value)) {
                     console.warn(`[@volverjs/form-vue]: wrapper name "${name.value}" is already used`)
                     return
                 }
-                if (!componentInstance) {
-                    return
-                }
-                injectedFormData?.wrappers.set(name.value, componentInstance as unknown as Component)
+                injectedFormData.wrappers.set(name.value, instance as unknown as Component)
             })
             onBeforeUnmount(() => {
-                injectedFormData?.wrappers.delete(name.value)
+                if (injectedFormData?.wrappers && name.value) {
+                    injectedFormData.wrappers.delete(name.value)
+                }
             })
 
             const validateWrapper = () => {

@@ -5,22 +5,25 @@ import {
     type SlotsType,
     computed,
     defineComponent,
+    getCurrentInstance,
     h,
     inject,
+    onBeforeUnmount,
+    onMounted,
     provide,
     readonly,
     ref,
     toRefs,
     watch,
 } from 'vue'
-import type { inferFormattedError, TypeOf, z } from 'zod'
+import type { inferFormattedError, z } from 'zod'
 import type {
     FormSchema,
     InjectedFormData,
     InjectedFormWrapperData,
 } from './types'
 
-export function defineFormWrapper<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>) {
+export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>) {
     return defineComponent({
         name: 'VvFormWrapper',
         props: {
@@ -50,21 +53,21 @@ export function defineFormWrapper<Schema extends FormSchema>(formProvideKey: Inj
         slots: Object as SlotsType<{
             default: {
                 errors?: DeepReadonly<z.inferFormattedError<Schema>>
-                formData?: Partial<TypeOf<Schema>>
+                formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
                 formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
                 invalid: boolean
-                submit?: InjectedFormData<Schema>['submit']
-                validate?: InjectedFormData<Schema>['validate']
+                submit?: InjectedFormData<Schema, Type>['submit']
+                validate?: InjectedFormData<Schema, Type>['validate']
                 validateWrapper?: () => Promise<boolean>
                 fieldsErrors: Map<string, inferFormattedError<Schema, string>>
-                clear?: InjectedFormData<Schema>['clear']
-                reset?: InjectedFormData<Schema>['reset']
+                clear?: InjectedFormData<Schema, Type>['clear']
+                reset?: InjectedFormData<Schema, Type>['reset']
             }
         }>,
         setup(props, { emit }) {
             const injectedFormData = inject(formProvideKey)
             const wrapperProvided = inject(wrapperProvideKey, undefined)
-            const fields = ref(new Set<string>())
+            const fields = ref(new Map<string, string>())
             const fieldsErrors: Ref<
                 Map<string, z.inferFormattedError<Schema>>
             > = ref(new Map())
@@ -80,19 +83,28 @@ export function defineFormWrapper<Schema extends FormSchema>(formProvideKey: Inj
             // add fields to parent wrapper
             watch(
                 fields,
-                (newValue) => {
+                (newValue, oldValue) => {
                     if (wrapperProvided?.fields) {
-                        newValue.forEach((field) => {
-                            wrapperProvided?.fields.value.add(field)
+                        oldValue.entries().forEach(([id]) => {
+                            if (!newValue.has(id)) {
+                                wrapperProvided?.fields.value.delete(id)
+                            }
+                        })
+                    }
+                    if (wrapperProvided?.fields) {
+                        newValue.entries().forEach(([id, field]) => {
+                            if (!wrapperProvided?.fields.value.has(id)) {
+                                wrapperProvided?.fields.value.set(id, field)
+                            }
                         })
                     }
                 },
                 { deep: true },
             )
 
-            // add fields to parent wrapper
+            // add fields errors to parent wrapper
             watch(
-                () => new Map(fieldsErrors.value),
+                fieldsErrors,
                 (newValue, oldValue) => {
                     if (wrapperProvided?.errors) {
                         Array.from(oldValue.keys()).forEach((key) => {
@@ -125,8 +137,26 @@ export function defineFormWrapper<Schema extends FormSchema>(formProvideKey: Inj
                 }
             })
 
+            const componentInstance = getCurrentInstance
+            onMounted(() => {
+                if (!injectedFormData?.wrappers) {
+                    return
+                }
+                if (!name.value) {
+                    return
+                }
+                if (injectedFormData?.wrappers.has(name.value)) {
+                    console.warn(`[@volverjs/form-vue]: wrapper name "${name.value}" is already used`)
+                    return
+                }
+                injectedFormData?.wrappers.set(name.value, componentInstance)
+            })
+            onBeforeUnmount(() => {
+                injectedFormData?.wrappers.delete(name.value)
+            })
+
             const validateWrapper = () => {
-                return injectedFormData?.validate(undefined, fields.value) ?? Promise.resolve(true)
+                return injectedFormData?.validate(undefined, new Set(fields.value.values())) ?? Promise.resolve(true)
             }
 
             return {

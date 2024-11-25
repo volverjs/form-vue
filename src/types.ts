@@ -19,43 +19,47 @@ export type FormFieldComponentOptions = {
     sideEffects?: (type: `${FormFieldType}`) => Promise<void> | void
 }
 
-export type FormComponentOptions<Schema> = {
+export type FormComponentOptions<Schema, Type> = {
     updateThrottle?: number
     continuousValidation?: boolean
     readonly?: boolean
-    template?: Schema extends FormSchema ? FormTemplate<Schema> : never
+    template?: Schema extends FormSchema ? FormTemplate<Schema, Type> : never
+    class?: Schema extends FormSchema ? new (data?: Partial<z.infer<Schema>>) => Type : never
     onUpdate?: Schema extends FormSchema
-        ? (data?: Partial<z.infer<Schema>>) => void
+        ? (data?: undefined extends Type ? Partial<z.infer<Schema>> : Type) => void
         : never
     onSubmit?: Schema extends FormSchema
-        ? (data?: z.infer<Schema>) => void
+        ? (data?: Type | z.infer<Schema>) => void
         : never
-    onReset?: Schema extends FormSchema ? (data?: z.infer<Schema>) => void : never
+    onReset?: Schema extends FormSchema ? (data?: Type | z.infer<Schema>) => void : never
     onInvalid?: Schema extends FormSchema
         ? (error?: z.inferFormattedError<Schema>) => void
         : never
     onValid?: Schema extends FormSchema
-        ? (data?: z.infer<Schema>) => void
+        ? (data?: Type | z.infer<Schema>) => void
         : never
 }
 
-export type FormComposableOptions<Schema> = FormFieldComponentOptions &
-    FormComponentOptions<Schema>
+export type FormComposableOptions<Schema, Type> = FormFieldComponentOptions &
+    FormComponentOptions<Schema, Type> & {
+        scope?: string
+    }
 
-type FormPluginOptionsSchema = {
+type FormPluginOptionsSchema<T = Partial<z.infer<FormSchema>>> = {
     schema?: FormSchema
+    factory?: (data?: Partial<z.infer<FormSchema>>) => T
 }
 
 export type FormPluginOptions = FormPluginOptionsSchema &
-    FormComposableOptions<FormPluginOptionsSchema['schema']>
+    FormComposableOptions<FormPluginOptionsSchema['schema'], FormPluginOptionsSchema['factory']>
 
-export type InjectedFormData<Schema extends FormSchema> = {
-    formData: Ref<Partial<z.infer<Schema>> | undefined>
+export type InjectedFormData<Schema extends FormSchema, Type> = {
+    formData: Ref<(undefined extends Type ? Partial<z.infer<Schema>> : Type) | undefined>
     errors: Readonly<
         Ref<DeepReadonly<z.inferFormattedError<Schema>> | undefined>
     >
     submit: () => Promise<boolean>
-    validate: (formData?: Partial<z.infer<Schema>>, fields?: Set<string>) => Promise<boolean>
+    validate: (formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type, fields?: Set<string>) => Promise<boolean>
     clear: () => void
     reset: () => void
     ignoreUpdates: IgnoredUpdater
@@ -63,11 +67,12 @@ export type InjectedFormData<Schema extends FormSchema> = {
     status: Readonly<Ref<FormStatus | undefined>>
     invalid: Readonly<Ref<boolean>>
     readonly: Ref<boolean>
+    wrappers: Map<string, Component>
 }
 
 export type InjectedFormWrapperData<Schema extends FormSchema> = {
     name: Ref<string>
-    fields: Ref<Set<string>>
+    fields: Ref<Map<string, string>>
     errors: Ref<Map<string, z.inferFormattedError<Schema>>>
 }
 
@@ -133,12 +138,12 @@ export type PathValue<T, TPath extends Path<T> | Path<T>[]> = T extends any
                 : never
     : never
 
-export type AnyBoolean<Schema extends FormSchema> =
+export type AnyBoolean<Schema extends FormSchema, Type> =
     | boolean
     | Ref<boolean>
-    | ((data?: InjectedFormData<Schema>) => boolean | Ref<boolean>)
+    | ((data?: InjectedFormData<Schema, Type>) => boolean | Ref<boolean>)
 
-export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
+export type SimpleFormTemplateItem<Schema extends FormSchema, Type> = Record<
     string,
     any
 > & {
@@ -147,42 +152,42 @@ export type SimpleFormTemplateItem<Schema extends FormSchema> = Record<
     vvSlots?: Record<string, any>
     vvChildren?:
         | Array<
-            | SimpleFormTemplateItem<Schema>
+            | SimpleFormTemplateItem<Schema, Type>
             | ((
-                data?: InjectedFormData<Schema>,
+                data?: InjectedFormData<Schema, Type>,
                 scope?: Record<string, unknown>,
-            ) => SimpleFormTemplateItem<Schema>)
+            ) => SimpleFormTemplateItem<Schema, Type>)
         >
         | ((
-            data?: InjectedFormData<Schema>,
+            data?: InjectedFormData<Schema, Type>,
             scope?: Record<string, unknown>,
         ) => Array<
-            | SimpleFormTemplateItem<Schema>
+            | SimpleFormTemplateItem<Schema, Type>
             | ((
-                data?: InjectedFormData<Schema>,
+                data?: InjectedFormData<Schema, Type>,
                 scope?: Record<string, unknown>,
-            ) => SimpleFormTemplateItem<Schema>)
+            ) => SimpleFormTemplateItem<Schema, Type>)
         >)
-    vvIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
-    vvElseIf?: AnyBoolean<Schema> | Path<z.infer<Schema>>
+    vvIf?: AnyBoolean<Schema, Type> | Path<z.infer<Schema>>
+    vvElseIf?: AnyBoolean<Schema, Type> | Path<z.infer<Schema>>
     vvType?: `${FormFieldType}`
     vvShowValid?: boolean
     vvContent?: string
     vvDefaultValue?: any
 }
 
-export type FormTemplateItem<Schema extends FormSchema> =
-    | SimpleFormTemplateItem<Schema>
+export type FormTemplateItem<Schema extends FormSchema, Type> =
+    | SimpleFormTemplateItem<Schema, Type>
     | ((
-        data?: InjectedFormData<Schema>,
+        data?: InjectedFormData<Schema, Type>,
         scope?: Record<string, unknown>,
-    ) => SimpleFormTemplateItem<Schema>)
+    ) => SimpleFormTemplateItem<Schema, Type>)
 
-export type FormTemplate<Schema extends FormSchema> =
-    | FormTemplateItem<Schema>[]
+export type FormTemplate<Schema extends FormSchema, Type> =
+    | FormTemplateItem<Schema, Type>[]
     | ((
-        data?: InjectedFormData<Schema>,
+        data?: InjectedFormData<Schema, Type>,
         scope?: Record<string, unknown>,
-    ) => FormTemplateItem<Schema>[])
+    ) => FormTemplateItem<Schema, Type>[])
 
 export type RenderFunctionOutput = VNode<RendererNode, RendererElement, { [key: string]: any }>

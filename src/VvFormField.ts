@@ -20,8 +20,9 @@ import {
     toRefs,
     unref,
     watch,
+    useId,
 } from 'vue'
-import type { inferFormattedError, TypeOf, z } from 'zod'
+import type { inferFormattedError, z } from 'zod'
 import { FormFieldType } from './enums'
 import type {
     FormFieldComponentOptions,
@@ -32,7 +33,7 @@ import type {
     Path,
 } from './types'
 
-export function defineFormField<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>, options?: FormFieldComponentOptions) {
+export function defineFormField<Schema extends FormSchema, Type>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>, options?: FormFieldComponentOptions) {
     return defineComponent({
         name: 'VvFormField',
         props: {
@@ -101,24 +102,25 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
             [key: string]: any
             default: {
                 errors: z.inferFormattedError<Schema>
-                formData?: Partial<TypeOf<Schema>>
+                formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
                 formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
                 invalid: boolean
                 invalidLabel?: string[]
                 modelValue: any
                 onUpdate: (value: unknown) => void
                 readonly: boolean
-                submit?: InjectedFormData<Schema>['submit']
-                validate?: InjectedFormData<Schema>['validate']
+                submit?: InjectedFormData<Schema, Type>['submit']
+                validate?: InjectedFormData<Schema, Type>['validate']
             }
         }>,
         setup(props, { slots, emit }) {
             const { props: fieldProps, name: fieldName } = toRefs(props)
+            const fieldId = useId()
 
             // inject data from parent form wrapper
             const injectedWrapperData = inject(wrapperProvideKey, undefined)
             if (injectedWrapperData) {
-                injectedWrapperData.fields.value.add(props.name as string)
+                injectedWrapperData.fields.value.set(fieldId, props.name as string)
             }
 
             // inject data from parent form
@@ -156,6 +158,11 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                     && props.defaultValue !== undefined
                 ) {
                     modelValue.value = props.defaultValue
+                }
+            })
+            onBeforeUnmount(() => {
+                if (injectedWrapperData) {
+                    injectedWrapperData.fields.value.delete(fieldId)
                 }
             })
 
@@ -319,7 +326,7 @@ export function defineFormField<Schema extends FormSchema>(formProvideKey: Injec
                         return component
                     }
                     console.warn(
-                        `[form-vue warn]: ${component} not found, the component will be loaded asynchronously. To avoid this warning, please set "lazyLoad" option.`,
+                        `[@volverjs/form-vue]: ${component} not found, the component will be loaded asynchronously. To avoid this warning, please set "lazyLoad" option.`,
                     )
                 }
                 return defineAsyncComponent(async () => {

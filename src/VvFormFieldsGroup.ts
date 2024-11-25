@@ -16,9 +16,10 @@ import {
     readonly,
     toRefs,
     unref,
+    useId,
     watch,
 } from 'vue'
-import type { inferFormattedError, TypeOf, z } from 'zod'
+import type { inferFormattedError, z } from 'zod'
 import type {
     FormSchema,
     InjectedFormData,
@@ -27,7 +28,7 @@ import type {
     Path,
 } from './types'
 
-export function defineFormFieldsGroup<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldsGroupInjectionKey: InjectionKey<InjectedFormFieldsGroupData<Schema>>) {
+export function defineFormFieldsGroup<Schema extends FormSchema, Type>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldsGroupInjectionKey: InjectionKey<InjectedFormFieldsGroupData<Schema>>) {
     return defineComponent({
         name: 'VvFormFieldsGroup',
         props: {
@@ -86,7 +87,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema>(formProvideKey:
             [key: string]: any
             default: {
                 errors?: Record<Path<z.infer<Schema>>, z.inferFormattedError<Schema>>
-                formData?: Partial<TypeOf<Schema>>
+                formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
                 formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
                 invalid: boolean
                 invalids: Record<string, boolean>
@@ -95,12 +96,13 @@ export function defineFormFieldsGroup<Schema extends FormSchema>(formProvideKey:
                 onUpdate: (value: Record<string, any>) => void
                 onUpdateField: (name: string, value: any) => void
                 readonly: boolean
-                submit?: InjectedFormData<Schema>['submit']
-                validate?: InjectedFormData<Schema>['validate']
+                submit?: InjectedFormData<Schema, Type>['submit']
+                validate?: InjectedFormData<Schema, Type>['validate']
             }
         }>,
         setup(props, { slots, emit }) {
             const { props: fieldProps, names: fieldsNames, defaultValues } = toRefs(props)
+            const fieldGroupId = useId()
             const names = computed<Path<z.infer<Schema>>[]>(() => {
                 if (Array.isArray(fieldsNames.value)) {
                     return fieldsNames.value
@@ -136,7 +138,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema>(formProvideKey:
             const injectedWrapperData = inject(wrapperProvideKey, undefined)
             if (injectedWrapperData) {
                 names.value.forEach((name) => {
-                    injectedWrapperData.fields.value.add(name as string)
+                    injectedWrapperData.fields.value.set(`${fieldGroupId}-${name}`, name as string)
                 })
             }
 
@@ -189,6 +191,15 @@ export function defineFormFieldsGroup<Schema extends FormSchema>(formProvideKey:
                             ...modelValue.value,
                             [name]: defaultValues.value?.[name],
                         }
+                    })
+                }
+            })
+            onBeforeUnmount(() => {
+                if (injectedWrapperData) {
+                    names.value.forEach((name) => {
+                        injectedWrapperData.fields.value.delete(
+                            `${fieldGroupId}-${name}`,
+                        )
                     })
                 }
             })

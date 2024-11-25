@@ -16,7 +16,10 @@ All notable changes to this project will be documented in this file.
 - `reset()` method to `VvForm` component and `useForm()` to reset form values;
 - `clear()` method to `VvForm` component and `useForm()` to clear errors;
 - `VvFormWrapper` component `validateWrapper()` method for partial validation;
-- `VvFormFieldsGroup` component for grouping fields.
+- `VvFormFieldsGroup` component for grouping fields;
+- Custom form object constructor with `class` option in `useForm()` and `createForm()`;
+- Expose `wrappers` Map in `useForm()` and `createForm()` to manage form wrappers;
+- Singleton form with `scope` option in `useForm()` and `createForm()`.
 
 ### Changed
 

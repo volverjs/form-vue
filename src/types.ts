@@ -67,13 +67,14 @@ export type InjectedFormData<Schema extends FormSchema, Type> = {
     status: Readonly<Ref<FormStatus | undefined>>
     invalid: Readonly<Ref<boolean>>
     readonly: Ref<boolean>
-    wrappers: Map<string, Component>
+    wrappers: Map<string, InjectedFormWrapperData<Schema>>
 }
 
 export type InjectedFormWrapperData<Schema extends FormSchema> = {
-    name: Ref<string>
-    fields: Ref<Map<string, string>>
+    name: Readonly<Ref<string>>
     errors: Ref<Map<string, z.inferFormattedError<Schema>>>
+    invalid: Readonly<Ref<boolean>>
+    fields: Ref<Map<string, string>>
 }
 
 export type InjectedFormFieldData<Schema extends FormSchema> = {

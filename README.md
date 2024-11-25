@@ -58,6 +58,10 @@ const form = createForm({
     // updateThrottle: number - default 500
     // continuousValidation: boolean - default false
     // sideEffects?: (data: any) => void
+    // scope?: string - Defines a unique scope for the form instance (singletons)
+    // class?: new (data?: any) => Type - Type constructor for form data
+    // Example:
+    // class: class User { constructor(data?: any) { Object.assign(this, data) } }
 })
 
 app.use(form)
@@ -161,6 +165,8 @@ const { VvForm, VvFormWrapper, VvFormField } = useForm(schema, {
     // updateThrottle: number - default 500
     // continuousValidation: boolean - default false
     // sideEffects?: (formData: any) => void
+    // scope?: string
+    // class?: new (data?: any) => Type
 })
 </script>
 
@@ -193,7 +199,8 @@ const {
     VvFormTemplate,
     formData,
     status,
-    errors
+    errors,
+    wrappers
 } = useForm(schema, {
     lazyLoad: true
 })
@@ -206,7 +213,8 @@ export default {
     VvFormTemplate,
     formData,
     status,
-    errors
+    errors,
+    wrappers
 }
 ```
 
@@ -218,13 +226,13 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
 ```vue
 <template>
     <VvForm>
-        <VvFormWrapper v-slot="{ invalid }">
+        <VvFormWrapper v-slot="{ invalid }" name="firstSection">
             <div class="form-section-1">
                 <span v-if="invalid">There is a validation error</span>
                 <!-- form fields of section 1 -->
             </div>
         </VvFormWrapper>
-        <VvFormWrapper v-slot="{ invalid }">
+        <VvFormWrapper v-slot="{ invalid }" name="secondSection">
             <div class="form-section-2">
                 <span v-if="invalid">There is a validation error</span>
                 <!-- form fields of the section 2 -->
@@ -240,7 +248,7 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
 <template>
     <VvForm>
         <!-- main VvFormWrapper -->
-        <VvFormWrapper v-slot="{ invalid }">
+        <VvFormWrapper v-slot="{ invalid }" name="firstSection">
             <!-- add VvFormFields to wrapper -->
             <div class="form-section">
                 <span v-if="invalid">There is a validation error</span>
@@ -255,6 +263,18 @@ The wrapper status is invalid if at least one of the fields inside it is invalid
         </VvFormWrapper>
     </VvForm>
 </template>
+```
+
+The  `wrappers` map provides access to form wrapper data.
+This allows for better control over form validation state and data management.
+
+```vue
+<script setup>
+const { wrappers } = useForm(schema)
+
+// Access wrapper data
+const isFirstSectionInvalid = computed(() => wrappers.get('firstSection').invalid)
+</script>
 ```
 
 ### VvFormField

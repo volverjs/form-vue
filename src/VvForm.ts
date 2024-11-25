@@ -25,11 +25,12 @@ import type {
     FormSchema,
     FormTemplate,
     InjectedFormData,
+    InjectedFormWrapperData,
 } from './types'
 import { FormStatus } from './enums'
 import { defaultObjectBySchema } from './utils'
 
-export function defineForm<Schema extends FormSchema, Type, FormTemplateComponent extends Component, FormWrapperComponent extends Component>(schema: Schema, provideKey: InjectionKey<InjectedFormData<Schema, Type>>, options: FormComponentOptions<Schema, Type>, VvFormTemplate: FormTemplateComponent, wrappers: Map<string, FormWrapperComponent>) {
+export function defineForm<Schema extends FormSchema, Type, FormTemplateComponent extends Component>(schema: Schema, provideKey: InjectionKey<InjectedFormData<Schema, Type>>, options: FormComponentOptions<Schema, Type>, VvFormTemplate: FormTemplateComponent, wrappers: Map<string, InjectedFormWrapperData<Schema>>) {
     const errors = ref<z.inferFormattedError<Schema> | undefined>()
     const status = ref<FormStatus | undefined>()
     const invalid = computed(() => status.value === FormStatus.invalid)

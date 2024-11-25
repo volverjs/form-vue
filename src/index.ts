@@ -55,7 +55,7 @@ function _formType<Schema extends FormSchema, Type>(schema: Schema, options: For
         formFieldsGroupInjectionKey,
     )
     const VvFormTemplate = defineFormTemplate(formInjectionKey, VvFormField)
-    const wrappers = new Map<string, typeof VvFormWrapper>()
+    const wrappers = new Map<string, InjectedFormWrapperData<Schema>>()
     const {
         clear,
         errors,

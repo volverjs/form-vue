@@ -1,12 +1,10 @@
 import {
-    type Component,
     type DeepReadonly,
     type InjectionKey,
     type Ref,
     type SlotsType,
     computed,
     defineComponent,
-    getCurrentInstance,
     h,
     inject,
     onBeforeUnmount,
@@ -74,12 +72,30 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
             > = ref(new Map())
             const { name } = toRefs(props)
 
+            // invalid
+            const invalid = computed(() => {
+                if (!injectedFormData?.invalid.value) {
+                    return false
+                }
+                return fieldsErrors.value.size > 0
+            })
+            watch(invalid, () => {
+                if (invalid.value) {
+                    emit('invalid')
+                }
+                else {
+                    emit('valid')
+                }
+            })
+
             // provide data to child fields
-            provide(wrapperProvideKey, {
+            const providedData = {
                 name: readonly(name),
                 errors: fieldsErrors,
+                invalid: readonly(invalid),
                 fields,
-            })
+            }
+            provide(wrapperProvideKey, providedData)
 
             // add fields to parent wrapper
             watch(
@@ -122,25 +138,8 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
                 { deep: true },
             )
 
-            const invalid = computed(() => {
-                if (!injectedFormData?.invalid.value) {
-                    return false
-                }
-                return fieldsErrors.value.size > 0
-            })
-
-            watch(invalid, () => {
-                if (invalid.value) {
-                    emit('invalid')
-                }
-                else {
-                    emit('valid')
-                }
-            })
-
             onMounted(() => {
-                const instance = getCurrentInstance()
-                if (!instance || !injectedFormData?.wrappers || !name.value) {
+                if (!injectedFormData?.wrappers || !name.value) {
                     console.warn('[@volverjs/form-vue]: Invalid wrapper registration state')
                     return
                 }
@@ -148,7 +147,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
                     console.warn(`[@volverjs/form-vue]: wrapper name "${name.value}" is already used`)
                     return
                 }
-                injectedFormData.wrappers.set(name.value, instance as unknown as Component)
+                injectedFormData.wrappers.set(name.value, providedData)
             })
             onBeforeUnmount(() => {
                 if (injectedFormData?.wrappers && name.value) {

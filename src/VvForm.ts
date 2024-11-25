@@ -29,13 +29,24 @@ import type {
 import { FormStatus } from './enums'
 import { defaultObjectBySchema } from './utils'
 
-export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey: InjectionKey<InjectedFormData<Schema>>, options?: FormComponentOptions<Schema>, VvFormTemplate?: Component) {
+export function defineForm<Schema extends FormSchema, Type, FormTemplateComponent extends Component, FormWrapperComponent extends Component>(schema: Schema, provideKey: InjectionKey<InjectedFormData<Schema, Type>>, options: FormComponentOptions<Schema, Type>, VvFormTemplate: FormTemplateComponent, wrappers: Map<string, FormWrapperComponent>) {
     const errors = ref<z.inferFormattedError<Schema> | undefined>()
     const status = ref<FormStatus | undefined>()
     const invalid = computed(() => status.value === FormStatus.invalid)
-    const formData = ref<Partial<z.infer<Schema> | undefined>>()
+    const formData = ref<undefined extends Type ? Partial<z.infer<Schema>> : Type>()
     const readonly = ref<boolean>(false)
     let validationFields: Set<string> | undefined
+
+    const formDataAdapter = (data?: z.infer<Schema>): undefined extends Type ? Partial<z.infer<Schema>> : Type => {
+        const toReturn = defaultObjectBySchema(schema, data)
+        if (options?.class) {
+            const ClassObject = options.class
+            // @ts-expect-error - this is a class
+            return new ClassObject(toReturn)
+        }
+        // @ts-expect-error - this is a plain object
+        return toReturn
+    }
 
     const validate = async (value = formData.value, fields?: Set<string>) => {
         validationFields = fields
@@ -46,8 +57,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
         if (!parseResult.success) {
             status.value = FormStatus.invalid
             if (!fields) {
-                errors.value
-				= parseResult.error.format() as z.inferFormattedError<Schema>
+                errors.value = parseResult.error.format() as z.inferFormattedError<Schema>
                 return false
             }
             const fieldsIssues = parseResult.error.issues.filter(item => fields.has(item.path.join('.')))
@@ -60,7 +70,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
         }
         errors.value = undefined
         status.value = FormStatus.valid
-        formData.value = parseResult.data
+        formData.value = formDataAdapter(parseResult.data)
         return true
     }
 
@@ -71,7 +81,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
     }
 
     const reset = () => {
-        formData.value = defaultObjectBySchema(schema)
+        formData.value = formDataAdapter()
         clear()
         status.value = FormStatus.reset
     }
@@ -121,7 +131,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
                 default: 'form',
             },
             template: {
-                type: [Array, Function] as PropType<FormTemplate<Schema>>,
+                type: [Array, Function] as PropType<FormTemplate<Schema, Type>>,
                 default: undefined,
             },
         },
@@ -159,13 +169,11 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
                 validate: typeof validate
                 clear: typeof clear
                 reset: typeof reset
+                wrappers: typeof wrappers
             }
         }>,
         setup(props, { emit }) {
-            formData.value = defaultObjectBySchema(
-                schema,
-                toRaw(props.modelValue),
-            )
+            formData.value = formDataAdapter(toRaw(props.modelValue))
 
             watch(
                 () => props.modelValue,
@@ -182,10 +190,9 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
                             return
                         }
 
-                        formData.value
-							= typeof original?.clone === 'function'
-                                ? original.clone()
-                                : JSON.parse(JSON.stringify(original))
+                        formData.value = typeof original?.clone === 'function'
+                            ? original.clone()
+                            : JSON.parse(JSON.stringify(original))
                     }
                 },
                 { deep: true },
@@ -272,6 +279,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
                 stopUpdatesWatch,
                 submit,
                 validate,
+                wrappers,
             })
 
             return {
@@ -286,6 +294,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
                 stopUpdatesWatch,
                 submit,
                 validate,
+                wrappers,
             }
         },
         render() {
@@ -302,6 +311,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
                     stopUpdatesWatch,
                     submit,
                     validate,
+                    wrappers,
                 }) ?? this.$slots.default
             return h(
                 this.tag,
@@ -336,6 +346,7 @@ export function defineForm<Schema extends FormSchema>(schema: Schema, provideKey
         readonly,
         reset,
         status,
+        wrappers,
         stopUpdatesWatch,
         submit,
         validate,

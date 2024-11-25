@@ -25,9 +25,9 @@ import type {
     FormTemplate,
 } from './types'
 
-function _formFactory<Schema extends FormSchema>(schema: Schema, options: FormComposableOptions<Schema> = {}) {
+function _formType<Schema extends FormSchema, Type>(schema: Schema, options: FormComposableOptions<Schema, Type> = {}) {
     // create injection keys
-    const formInjectionKey = Symbol('formInjectionKey') as InjectionKey<InjectedFormData<Schema>>
+    const formInjectionKey = Symbol('formInjectionKey') as InjectionKey<InjectedFormData<Schema, Type>>
     const formWrapperInjectionKey = Symbol('formWrapperInjectionKey') as InjectionKey<
         InjectedFormWrapperData<Schema>
     >
@@ -55,6 +55,7 @@ function _formFactory<Schema extends FormSchema>(schema: Schema, options: FormCo
         formFieldsGroupInjectionKey,
     )
     const VvFormTemplate = defineFormTemplate(formInjectionKey, VvFormField)
+    const wrappers = new Map<string, typeof VvFormWrapper>()
     const {
         clear,
         errors,
@@ -68,7 +69,7 @@ function _formFactory<Schema extends FormSchema>(schema: Schema, options: FormCo
         submit,
         validate,
         VvForm,
-    } = defineForm(schema, formInjectionKey, options, VvFormTemplate)
+    } = defineForm(schema, formInjectionKey, options, VvFormTemplate, wrappers)
 
     return {
         clear,
@@ -85,6 +86,7 @@ function _formFactory<Schema extends FormSchema>(schema: Schema, options: FormCo
         stopUpdatesWatch,
         submit,
         validate,
+        wrappers,
         VvForm,
         VvFormField,
         VvFormFieldsGroup,
@@ -98,7 +100,7 @@ export const pluginInjectionKey = Symbol('pluginInjectionKey') as InjectionKey<F
 export function createForm(options: FormPluginOptions): Plugin & Partial<ReturnType<typeof useForm>> {
     let toReturn: Partial<ReturnType<typeof useForm>> = {}
     if (options.schema) {
-        toReturn = _formFactory(options.schema as AnyZodObject, options)
+        toReturn = _formType(options.schema as AnyZodObject, options)
     }
     return {
         ...toReturn,
@@ -128,17 +130,29 @@ export function createForm(options: FormPluginOptions): Plugin & Partial<ReturnT
     }
 }
 
-export function useForm<Schema extends FormSchema>(schema: Schema,	options: FormComposableOptions<Schema> = {}) {
-    if (!getCurrentInstance()) {
-        return _formFactory(schema, options)
+const formInstances: Map<string, ReturnType<typeof _formType>> = new Map()
+export function useForm<Schema extends FormSchema, Type>(schema: Schema, options: FormComposableOptions<Schema, Type> = {}) {
+    if (options.scope && formInstances.has(options.scope)) {
+        return formInstances.get(options.scope) as ReturnType<typeof _formType<Schema, Type>>
     }
-    return _formFactory(
+    if (!getCurrentInstance()) {
+        const toReturn = _formType(schema, options)
+        if (options.scope) {
+            formInstances.set(options.scope, toReturn)
+        }
+        return toReturn
+    }
+    const toReturn = _formType(
         schema as AnyZodObject,
         {
             ...inject(pluginInjectionKey, {}),
             ...options,
-        } as FormComposableOptions<AnyZodObject>,
+        } as FormComposableOptions<AnyZodObject, Type>,
     )
+    if (options.scope) {
+        formInstances.set(options.scope, toReturn)
+    }
+    return toReturn
 }
 
 export { FormFieldType } from './enums'
@@ -171,6 +185,6 @@ export type {
 /**
  * @deprecated Use `useForm()` instead
  */
-export function formFactory<Schema extends FormSchema>(schema: Schema,	options: FormComposableOptions<Schema> = {}) {
-    return _formFactory(schema, options)
+export function formType<Schema extends FormSchema, Type>(schema: Schema, options: FormComposableOptions<Schema, Type> = {}) {
+    return _formType(schema, options)
 }

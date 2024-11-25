@@ -12,15 +12,15 @@ import {
     unref,
 } from 'vue'
 import type { FormSchema, InjectedFormData, FormTemplate, RenderFunctionOutput } from './types'
-import type { inferFormattedError, TypeOf } from 'zod'
+import type { z, inferFormattedError } from 'zod'
 import type { FormStatus } from './enums'
 
-export function defineFormTemplate<Schema extends FormSchema>(formProvideKey: InjectionKey<InjectedFormData<Schema>>, VvFormField: Component) {
+export function defineFormTemplate<Schema extends FormSchema, Type>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, VvFormField: Component) {
     const VvFormTemplate = defineComponent({
         name: 'VvFormTemplate',
         props: {
             schema: {
-                type: [Array, Function] as PropType<FormTemplate<Schema>>,
+                type: [Array, Function] as PropType<FormTemplate<Schema, Type>>,
                 required: true,
             },
             scope: {
@@ -31,13 +31,13 @@ export function defineFormTemplate<Schema extends FormSchema>(formProvideKey: In
         slots: Object as SlotsType<{
             default: {
                 errors?: DeepReadonly<inferFormattedError<Schema, string>>
-                formData?: Partial<TypeOf<Schema>>
+                formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
                 invalid: boolean
                 status?: FormStatus
-                submit?: InjectedFormData<Schema>['submit']
-                validate?: InjectedFormData<Schema>['validate']
-                clear?: InjectedFormData<Schema>['clear']
-                reset?: InjectedFormData<Schema>['reset']
+                submit?: InjectedFormData<Schema, Type>['submit']
+                validate?: InjectedFormData<Schema, Type>['validate']
+                clear?: InjectedFormData<Schema, Type>['clear']
+                reset?: InjectedFormData<Schema, Type>['reset']
             }
         }>,
         setup(templateProps, { slots: templateSlots }) {
@@ -45,21 +45,19 @@ export function defineFormTemplate<Schema extends FormSchema>(formProvideKey: In
             if (!injectedFormData?.formData)
                 return
             return () => {
-                const normalizedSchema
-					= typeof templateProps.schema === 'function'
-					    ? templateProps.schema(
-					        injectedFormData,
-					        templateProps.scope,
-					    )
-					    : templateProps.schema
+                const normalizedSchema = typeof templateProps.schema === 'function'
+                    ? templateProps.schema(
+                        injectedFormData,
+                        templateProps.scope,
+                    )
+                    : templateProps.schema
                 let lastIf: boolean | undefined
                 const toReturn = normalizedSchema.reduce<
                     (VNode | VNode[] | undefined)[]
                 >((acc, field) => {
-                            const normalizedField
-						= typeof field === 'function'
-						    ? field(injectedFormData, templateProps.scope)
-						    : field
+                            const normalizedField = typeof field === 'function'
+                                ? field(injectedFormData, templateProps.scope)
+                                : field
                             const {
                                 vvIs,
                                 vvName,

@@ -29,14 +29,14 @@ export type FormComponentOptions<Schema, Type> = {
         ? (data?: undefined extends Type ? Partial<z.infer<Schema>> : Type) => void
         : never
     onSubmit?: Schema extends FormSchema
-        ? (data?: Type | z.infer<Schema>) => void
+        ? (data?: undefined extends Type ? Partial<z.infer<Schema>> : Type) => void
         : never
-    onReset?: Schema extends FormSchema ? (data?: Type | z.infer<Schema>) => void : never
+    onReset?: Schema extends FormSchema ? (data?: undefined extends Type ? Partial<z.infer<Schema>> : Type) => void : never
     onInvalid?: Schema extends FormSchema
         ? (error?: z.inferFormattedError<Schema>) => void
         : never
     onValid?: Schema extends FormSchema
-        ? (data?: Type | z.infer<Schema>) => void
+        ? (data?: undefined extends Type ? Partial<z.infer<Schema>> : Type) => void
         : never
 }
 

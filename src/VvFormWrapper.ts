@@ -102,14 +102,14 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
                 fields,
                 (newValue, oldValue) => {
                     if (wrapperProvided?.fields) {
-                        oldValue.entries().forEach(([id]) => {
+                        oldValue.forEach((_field, id) => {
                             if (!newValue.has(id)) {
                                 wrapperProvided?.fields.value.delete(id)
                             }
                         })
                     }
                     if (wrapperProvided?.fields) {
-                        newValue.entries().forEach(([id, field]) => {
+                        newValue.forEach((field, id) => {
                             if (!wrapperProvided?.fields.value.has(id)) {
                                 wrapperProvided?.fields.value.set(id, field)
                             }

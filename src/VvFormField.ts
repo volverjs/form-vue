@@ -107,8 +107,8 @@ export function defineFormField<Schema extends FormSchema, Type>(formProvideKey:
                 invalid: boolean
                 invalidLabel?: string[]
                 modelValue: any
-                onUpdate: (value: unknown) => void
                 readonly: boolean
+                onUpdate: (value: unknown) => void
                 submit?: InjectedFormData<Schema, Type>['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
             }
@@ -286,8 +286,8 @@ export function defineFormField<Schema extends FormSchema, Type>(formProvideKey:
                                     invalid: invalid.value,
                                     invalidLabel: invalidLabel.value,
                                     modelValue: modelValue.value,
-                                    onUpdate,
                                     readonly: isReadonly.value,
+                                    onUpdate,
                                     submit: injectedFormData?.submit,
                                     validate: injectedFormData?.validate,
                                 }) ?? slots.default

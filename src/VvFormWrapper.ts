@@ -52,15 +52,15 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
         slots: Object as SlotsType<{
             default: {
                 errors?: DeepReadonly<z.inferFormattedError<Schema>>
+                fieldsErrors: Map<string, inferFormattedError<Schema, string>>
                 formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
                 formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
                 invalid: boolean
+                clear?: InjectedFormData<Schema, Type>['clear']
+                reset?: InjectedFormData<Schema, Type>['reset']
                 submit?: InjectedFormData<Schema, Type>['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
                 validateWrapper?: () => Promise<boolean>
-                fieldsErrors: Map<string, inferFormattedError<Schema, string>>
-                clear?: InjectedFormData<Schema, Type>['clear']
-                reset?: InjectedFormData<Schema, Type>['reset']
             }
         }>,
         setup(props, { emit }) {
@@ -160,12 +160,12 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
             }
 
             return {
-                clear: injectedFormData?.clear,
                 errors: injectedFormData?.errors,
                 fields,
                 fieldsErrors,
                 formData: injectedFormData?.formData,
                 invalid,
+                clear: injectedFormData?.clear,
                 reset: injectedFormData?.reset,
                 submit: injectedFormData?.submit,
                 validate: injectedFormData?.validate,
@@ -175,11 +175,11 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
         render() {
             const defaultSlot = () =>
                 this.$slots.default?.({
-                    clear: this.clear,
                     errors: this.errors,
                     fieldsErrors: this.fieldsErrors,
                     formData: this.formData,
                     invalid: this.invalid,
+                    clear: this.clear,
                     reset: this.reset,
                     submit: this.submit,
                     validate: this.validate,

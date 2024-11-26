@@ -39,22 +39,22 @@ function _formType<Schema extends FormSchema, Type>(schema: Schema, options: For
     >
 
     // create components
-    const VvFormWrapper = defineFormWrapper(
+    const VvFormWrapper = defineFormWrapper<Schema, Type>(
         formInjectionKey,
         formWrapperInjectionKey,
     )
-    const VvFormField = defineFormField(
+    const VvFormField = defineFormField<Schema, Type>(
         formInjectionKey,
         formWrapperInjectionKey,
         formFieldInjectionKey,
         options,
     )
-    const VvFormFieldsGroup = defineFormFieldsGroup(
+    const VvFormFieldsGroup = defineFormFieldsGroup<Schema, Type>(
         formInjectionKey,
         formWrapperInjectionKey,
         formFieldsGroupInjectionKey,
     )
-    const VvFormTemplate = defineFormTemplate(formInjectionKey, VvFormField)
+    const VvFormTemplate = defineFormTemplate<Schema, Type>(formInjectionKey, VvFormField)
     const wrappers = new Map<string, InjectedFormWrapperData<Schema>>()
     const {
         clear,

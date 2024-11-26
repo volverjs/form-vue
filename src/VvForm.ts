@@ -3,6 +3,7 @@ import {
     type InjectionKey,
     type PropType,
     type SlotsType,
+    type UnwrapRef,
     computed,
     defineComponent,
     h,
@@ -159,18 +160,18 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         ],
         slots: Object as SlotsType<{
             default: {
-                errors: typeof readonlyErrors
-                formData: typeof formData
+                errors: UnwrapRef<typeof readonlyErrors>
+                formData: UnwrapRef<typeof formData>
+                invalid: UnwrapRef<typeof invalid>
+                readonly: UnwrapRef<typeof readonly>
+                status: UnwrapRef<typeof readonlyStatus>
+                wrappers: typeof wrappers
+                clear: typeof clear
                 ignoreUpdates: typeof ignoreUpdates
-                invalid: typeof invalid
-                readonly: typeof readonly
-                status: typeof readonlyStatus
+                reset: typeof reset
                 stopUpdatesWatch: typeof stopUpdatesWatch
                 submit: typeof submit
                 validate: typeof validate
-                clear: typeof clear
-                reset: typeof reset
-                wrappers: typeof wrappers
             }
         }>,
         setup(props, { emit }) {
@@ -301,18 +302,18 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         render() {
             const defaultSlot = () =>
                 this.$slots?.default?.({
+                    errors: readonlyErrors.value,
+                    formData: formData.value,
+                    invalid: invalid.value,
+                    readonly: readonly.value,
+                    status: readonlyStatus.value,
+                    wrappers,
                     clear,
-                    errors: readonlyErrors,
-                    formData,
                     ignoreUpdates,
-                    invalid,
-                    readonly,
                     reset,
-                    status: readonlyStatus,
                     stopUpdatesWatch,
                     submit,
                     validate,
-                    wrappers,
                 }) ?? this.$slots.default
             return h(
                 this.tag,

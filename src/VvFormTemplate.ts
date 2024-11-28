@@ -15,7 +15,7 @@ import type { FormSchema, InjectedFormData, FormTemplate, RenderFunctionOutput }
 import type { z } from 'zod'
 import type { FormStatus } from './enums'
 
-export function defineFormTemplate<Schema extends FormSchema, Type>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, VvFormField: Component) {
+export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, VvFormField: Component) {
     const VvFormTemplate = defineComponent({
         name: 'VvFormTemplate',
         props: {

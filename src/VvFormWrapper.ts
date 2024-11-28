@@ -22,7 +22,7 @@ import type {
     InjectedFormWrapperData,
 } from './types'
 
-export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>) {
+export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>) {
     return defineComponent({
         name: 'VvFormWrapper',
         props: {

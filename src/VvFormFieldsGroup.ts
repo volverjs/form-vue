@@ -19,7 +19,7 @@ import {
     useId,
     watch,
 } from 'vue'
-import type { inferFormattedError, z } from 'zod'
+import type { z } from 'zod'
 import type {
     FormSchema,
     InjectedFormData,
@@ -88,7 +88,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type>(formProvi
             default: {
                 errors?: Record<Path<z.infer<Schema>>, z.inferFormattedError<Schema>>
                 formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
-                formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
+                formErrors?: DeepReadonly<z.inferFormattedError<Schema>>
                 invalid: boolean
                 invalids: Record<string, boolean>
                 invalidLabels?: Record<string, string[]>

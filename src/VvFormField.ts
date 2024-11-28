@@ -22,7 +22,7 @@ import {
     watch,
     useId,
 } from 'vue'
-import type { inferFormattedError, z } from 'zod'
+import type { z } from 'zod'
 import { FormFieldType } from './enums'
 import type {
     FormFieldComponentOptions,
@@ -101,9 +101,9 @@ export function defineFormField<Schema extends FormSchema, Type>(formProvideKey:
         slots: Object as SlotsType<{
             [key: string]: any
             default: {
-                errors: z.inferFormattedError<Schema>
+                errors: DeepReadonly<z.inferFormattedError<Schema>>
                 formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
-                formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
+                formErrors?: DeepReadonly<z.inferFormattedError<Schema, string>>
                 invalid: boolean
                 invalidLabel?: string[]
                 modelValue: any

@@ -12,7 +12,7 @@ import {
     unref,
 } from 'vue'
 import type { FormSchema, InjectedFormData, FormTemplate, RenderFunctionOutput } from './types'
-import type { z, inferFormattedError } from 'zod'
+import type { z } from 'zod'
 import type { FormStatus } from './enums'
 
 export function defineFormTemplate<Schema extends FormSchema, Type>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, VvFormField: Component) {
@@ -30,7 +30,7 @@ export function defineFormTemplate<Schema extends FormSchema, Type>(formProvideK
         },
         slots: Object as SlotsType<{
             default: {
-                errors?: DeepReadonly<inferFormattedError<Schema, string>>
+                errors?: DeepReadonly<z.inferFormattedError<Schema>>
                 formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
                 invalid: boolean
                 status?: FormStatus

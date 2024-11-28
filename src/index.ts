@@ -131,9 +131,9 @@ export function createForm(options: FormPluginOptions): Plugin & Partial<ReturnT
 }
 
 const formInstances: Map<string, ReturnType<typeof _formType>> = new Map()
-export function useForm<Schema extends FormSchema, Type>(schema: Schema, options: FormComposableOptions<Schema, Type> = {}) {
+export function useForm<Schema extends FormSchema, Type>(schema: Schema, options: FormComposableOptions<Schema, Type> = {}): ReturnType <typeof _formType<Schema, Type>> {
     if (options.scope && formInstances.has(options.scope)) {
-        return formInstances.get(options.scope) as ReturnType<typeof _formType<Schema, Type>>
+        return formInstances.get(options.scope)
     }
     if (!getCurrentInstance()) {
         const toReturn = _formType(schema, options)
@@ -143,11 +143,11 @@ export function useForm<Schema extends FormSchema, Type>(schema: Schema, options
         return toReturn
     }
     const toReturn = _formType(
-        schema as AnyZodObject,
+        schema,
         {
             ...inject(pluginInjectionKey, {}),
             ...options,
-        } as FormComposableOptions<AnyZodObject, Type>,
+        } as FormComposableOptions<Schema, Type>,
     )
     if (options.scope) {
         formInstances.set(options.scope, toReturn)

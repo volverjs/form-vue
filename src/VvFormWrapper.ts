@@ -15,7 +15,7 @@ import {
     toRefs,
     watch,
 } from 'vue'
-import type { inferFormattedError, z } from 'zod'
+import type { z } from 'zod'
 import type {
     FormSchema,
     InjectedFormData,
@@ -52,9 +52,9 @@ export function defineFormWrapper<Schema extends FormSchema, Type>(formProvideKe
         slots: Object as SlotsType<{
             default: {
                 errors?: DeepReadonly<z.inferFormattedError<Schema>>
-                fieldsErrors: Map<string, inferFormattedError<Schema, string>>
+                fieldsErrors: Map<string, z.inferFormattedError<Schema>>
                 formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
-                formErrors?: DeepReadonly<inferFormattedError<Schema, string>>
+                formErrors?: DeepReadonly<z.inferFormattedError<Schema>>
                 invalid: boolean
                 clear?: InjectedFormData<Schema, Type>['clear']
                 reset?: InjectedFormData<Schema, Type>['reset']

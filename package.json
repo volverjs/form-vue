@@ -83,7 +83,7 @@
         "copy": "^0.3.2",
         "eslint": "^9.15.0",
         "happy-dom": "^15.11.7",
-        "typescript": "5.4.2",
+        "typescript": "5.7.2",
         "vite": "^6.0.1",
         "vite-plugin-dts": "^4.3.0",
         "vite-plugin-externalize-deps": "^0.8.0",

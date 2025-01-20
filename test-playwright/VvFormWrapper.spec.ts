@@ -9,8 +9,8 @@ test('Invalid VvFormWrapper', async ({ mount }) => {
     // check form wrapper fields and invalid state
     const section1 = await component.locator('.form-section-1')
 
-    const invalidMessage = await section1.locator('small.text-danger')
-    await expect(invalidMessage).toHaveText('There is a validation error')
+    const invalidMessage = await section1.locator('#section-wrapper-hint')
+    await expect(invalidMessage).toHaveText('There is a validation error in this section')
 
     // check form field into wrapper invalid state
     const invalidLabels = await section1.locator('small[role=alert]')
@@ -45,9 +45,9 @@ test('VvFormWrapper partial validation', async ({ mount }) => {
     // Check form wrapper fields and invalid state
     const section1 = await component.locator('.form-section-1')
 
-    const invalidMessage = await section1.locator('small.text-danger')
+    const invalidMessage = await section1.locator('#section-wrapper-hint')
     const invalidLabels = await component.locator('small[role=alert]')
-    await expect(invalidMessage).toHaveText('There is a validation error')
+    await expect(invalidMessage).toHaveText('There is a validation error in this section')
     await expect(invalidLabels).toHaveCount(1)
 
     // Reset form
@@ -71,6 +71,6 @@ test('VvFormWrapper partial validation', async ({ mount }) => {
     await partialValidationButton.click()
 
     // check form wrapper fields and invalid state
-    await expect(invalidMessage).toHaveText('There is a validation error')
+    await expect(invalidMessage).toHaveText('There is a validation error in this section')
     await expect(invalidLabels).toHaveCount(5)
 })

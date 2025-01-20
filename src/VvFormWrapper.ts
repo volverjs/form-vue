@@ -64,9 +64,11 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             }
         }>,
         setup(props, { emit }) {
+            // inject data from parent form
             const injectedFormData = inject(formProvideKey)
-            const wrapperProvided = inject(wrapperProvideKey, undefined)
-            const fields = ref(new Map<string, string>())
+            // inject data from parent form wrapper
+            const injectedWrapperData = inject(wrapperProvideKey, undefined)
+            const fields: Ref<Map<string, string>> = ref(new Map())
             const fieldsErrors: Ref<
                 Map<string, z.inferFormattedError<Schema>>
             > = ref(new Map())
@@ -82,10 +84,9 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             watch(invalid, () => {
                 if (invalid.value) {
                     emit('invalid')
+                    return
                 }
-                else {
-                    emit('valid')
-                }
+                emit('valid')
             })
 
             // provide data to child fields
@@ -98,20 +99,19 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             provide(wrapperProvideKey, providedData)
 
             // add fields to parent wrapper
+            const computedFields = computed(() => new Map(fields.value))
             watch(
-                fields,
+                computedFields,
                 (newValue, oldValue) => {
-                    if (wrapperProvided?.fields) {
-                        oldValue.forEach((_field, id) => {
-                            if (!newValue.has(id)) {
-                                wrapperProvided?.fields.value.delete(id)
+                    if (injectedWrapperData?.fields) {
+                        oldValue.forEach((_field, key) => {
+                            if (!newValue.has(key)) {
+                                injectedWrapperData?.fields.value.delete(key)
                             }
                         })
-                    }
-                    if (wrapperProvided?.fields) {
-                        newValue.forEach((field, id) => {
-                            if (!wrapperProvided?.fields.value.has(id)) {
-                                wrapperProvided?.fields.value.set(id, field)
+                        newValue.forEach((field, key) => {
+                            if (!injectedWrapperData?.fields.value.has(key)) {
+                                injectedWrapperData?.fields.value.set(key, field)
                             }
                         })
                     }
@@ -122,15 +122,17 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             // add fields errors to parent wrapper
             watch(
                 fieldsErrors,
-                (newValue, oldValue) => {
-                    if (wrapperProvided?.errors) {
-                        Array.from(oldValue.keys()).forEach((key) => {
-                            wrapperProvided.errors.value.delete(key)
-                        })
-                        Array.from(newValue.keys()).forEach((key) => {
-                            const value = newValue.get(key)
-                            if (value) {
-                                wrapperProvided.errors.value.set(key, value)
+                (newValue) => {
+                    if (injectedWrapperData?.errors) {
+                        fields.value.forEach((field) => {
+                            if (!newValue.has(field)) {
+                                injectedWrapperData.errors.value.delete(field)
+                            }
+                            if (newValue.has(field)) {
+                                const value = newValue.get(field)
+                                if (value) {
+                                    injectedWrapperData.errors.value.set(field, value)
+                                }
                             }
                         })
                     }

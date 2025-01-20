@@ -41,40 +41,24 @@ onMounted(() => {
 
 <template>
     <VvForm ref="formEl" v-model="model">
-        <VvFormField
-            name="firstname"
-            type="text"
-            label="firstname"
-            show-valid
-        />
+        <VvFormField name="firstname" type="text" label="firstname" show-valid />
         <VvFormField name="surname" type="text" label="surname" />
         <VvFormWrapper v-slot="{ invalid, validateWrapper }" name="location">
             <div class="form-section-1">
-                <small v-if="invalid" class="text-danger">There is a validation error</small>
                 <VvFormField name="location.city" type="text" label="city" />
-                <VvFormField
-                    name="location.address"
-                    type="text"
-                    label="address"
-                />
-                <VvFormField
-                    name="location.civicNumber"
-                    type="number"
-                    label="civicNumber"
-                    min="0"
-                />
-                <VvFormField
-                    name="location.country"
-                    type="text"
-                    label="country"
-                />
-                <VvFormField
-                    name="location.region"
-                    type="text"
-                    label="region"
-                />
+                <VvFormWrapper v-slot="{ invalid: addressInvalid }" name="address">
+                    <VvFormField name="location.address" type="text" label="address" />
+                    <VvFormField name="location.civicNumber" type="number" label="civicNumber" min="0" />
+                    <small v-if="addressInvalid" id="address-wrapper-hint" class="text-danger">There is a validation error in the address</small>
+                </VvFormWrapper>
+                <VvFormField name="location.country" type="text" label="country" />
+                <VvFormField name="location.region" type="text" label="region" />
+                <small v-if="invalid" id="section-wrapper-hint" class="text-danger">There is a validation error in this section</small>
             </div>
-            <button id="validation-button" type="button" class="vv-button" title="Wrapper validation" @click="validateWrapper">
+            <button
+                id="validation-button" type="button" class="vv-button" title="Wrapper validation"
+                @click="validateWrapper"
+            >
                 Wrapper validation
             </button>
         </VvFormWrapper>

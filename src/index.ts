@@ -1,10 +1,10 @@
 import {
     getCurrentInstance,
-    type App,
+
     inject,
-    type InjectionKey,
-    type Plugin,
+
 } from 'vue'
+import type { App, InjectionKey, Plugin } from 'vue'
 import type { AnyZodObject } from 'zod'
 import { defineForm } from './VvForm'
 import { defineFormField } from './VvFormField'

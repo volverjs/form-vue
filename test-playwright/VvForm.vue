@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
-import { ref, type Ref } from 'vue'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { useForm } from '../src'
 
 defineProps({

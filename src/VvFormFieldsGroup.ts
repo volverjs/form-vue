@@ -1,11 +1,14 @@
+import type { Component, DeepReadonly, InjectionKey, PropType, Ref, SlotsType } from 'vue'
+import type { z } from 'zod'
+import type {
+    FormSchema,
+    InjectedFormData,
+    InjectedFormFieldsGroupData,
+    InjectedFormWrapperData,
+    Path,
+} from './types'
 import { get, set } from 'ts-dot-prop'
 import {
-    type Component,
-    type DeepReadonly,
-    type InjectionKey,
-    type PropType,
-    type Ref,
-    type SlotsType,
     computed,
     defineComponent,
     h,
@@ -19,14 +22,6 @@ import {
     useId,
     watch,
 } from 'vue'
-import type { z } from 'zod'
-import type {
-    FormSchema,
-    InjectedFormData,
-    InjectedFormFieldsGroupData,
-    InjectedFormWrapperData,
-    Path,
-} from './types'
 
 export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldsGroupInjectionKey: InjectionKey<InjectedFormFieldsGroupData<Schema>>) {
     return defineComponent({

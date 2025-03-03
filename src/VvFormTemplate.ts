@@ -1,19 +1,14 @@
+import type { Component, DeepReadonly, InjectionKey, PropType, SlotsType, VNode } from 'vue'
+import type { FormSchema, InjectedFormData, FormTemplate, RenderFunctionOutput } from './types'
+import type { z } from 'zod'
+import type { FormStatus } from './enums'
 import { get } from 'ts-dot-prop'
 import {
-    type Component,
-    type DeepReadonly,
-    type InjectionKey,
-    type PropType,
-    type SlotsType,
-    type VNode,
     defineComponent,
     h,
     inject,
     unref,
 } from 'vue'
-import type { FormSchema, InjectedFormData, FormTemplate, RenderFunctionOutput } from './types'
-import type { z } from 'zod'
-import type { FormStatus } from './enums'
 
 export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, VvFormField: Component) {
     const VvFormTemplate = defineComponent({
@@ -47,9 +42,9 @@ export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(
             return () => {
                 const normalizedSchema = typeof templateProps.schema === 'function'
                     ? templateProps.schema(
-                        injectedFormData,
-                        templateProps.scope,
-                    )
+                            injectedFormData,
+                            templateProps.scope,
+                        )
                     : templateProps.schema
                 let lastIf: boolean | undefined
                 const toReturn = normalizedSchema.reduce<

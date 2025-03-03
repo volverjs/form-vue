@@ -1,8 +1,11 @@
+import type { DeepReadonly, InjectionKey, Ref, SlotsType } from 'vue'
+import type { z } from 'zod'
+import type {
+    FormSchema,
+    InjectedFormData,
+    InjectedFormWrapperData,
+} from './types'
 import {
-    type DeepReadonly,
-    type InjectionKey,
-    type Ref,
-    type SlotsType,
     computed,
     defineComponent,
     h,
@@ -15,12 +18,6 @@ import {
     toRefs,
     watch,
 } from 'vue'
-import type { z } from 'zod'
-import type {
-    FormSchema,
-    InjectedFormData,
-    InjectedFormWrapperData,
-} from './types'
 
 export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>) {
     return defineComponent({
@@ -34,6 +31,10 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                 type: String,
                 default: undefined,
             },
+            readonly: {
+                type: Boolean,
+                default: false,
+            },
         },
         emits: ['invalid', 'valid'],
         expose: [
@@ -43,6 +44,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             'fieldsErrors',
             'formData',
             'invalid',
+            'readonly',
             'reset',
             'submit',
             'tag',
@@ -56,6 +58,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                 formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
                 formErrors?: DeepReadonly<z.inferFormattedError<Schema>>
                 invalid: boolean
+                readonly: boolean
                 clear?: InjectedFormData<Schema, Type>['clear']
                 reset?: InjectedFormData<Schema, Type>['reset']
                 submit?: InjectedFormData<Schema, Type>['submit']
@@ -75,25 +78,29 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             const { name } = toRefs(props)
 
             // invalid
-            const invalid = computed(() => {
+            const isInvalid = computed(() => {
                 if (!injectedFormData?.invalid.value) {
                     return false
                 }
                 return fieldsErrors.value.size > 0
             })
-            watch(invalid, () => {
-                if (invalid.value) {
+            watch(isInvalid, (newValue) => {
+                if (newValue) {
                     emit('invalid')
                     return
                 }
                 emit('valid')
             })
 
+            // readonly
+            const isReadonly = computed(() => injectedFormData?.readonly.value || props.readonly)
+
             // provide data to child fields
             const providedData = {
                 name: readonly(name),
                 errors: fieldsErrors,
-                invalid: readonly(invalid),
+                invalid: readonly(isInvalid),
+                readonly: readonly(isReadonly),
                 fields,
             }
             provide(wrapperProvideKey, providedData)
@@ -166,7 +173,8 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                 fields,
                 fieldsErrors,
                 formData: injectedFormData?.formData,
-                invalid,
+                invalid: isInvalid,
+                readonly: isReadonly,
                 clear: injectedFormData?.clear,
                 reset: injectedFormData?.reset,
                 submit: injectedFormData?.submit,
@@ -181,6 +189,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                     fieldsErrors: this.fieldsErrors,
                     formData: this.formData,
                     invalid: this.invalid,
+                    readonly: this.readonly,
                     clear: this.clear,
                     reset: this.reset,
                     submit: this.submit,

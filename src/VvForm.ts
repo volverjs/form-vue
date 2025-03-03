@@ -1,9 +1,13 @@
+import type { Component, InjectionKey, PropType, SlotsType, UnwrapRef } from 'vue'
+import type { z } from 'zod'
+import type {
+    FormComponentOptions,
+    FormSchema,
+    FormTemplate,
+    InjectedFormData,
+    InjectedFormWrapperData,
+} from './types'
 import {
-    type Component,
-    type InjectionKey,
-    type PropType,
-    type SlotsType,
-    type UnwrapRef,
     computed,
     defineComponent,
     h,
@@ -20,14 +24,7 @@ import {
     throttleFilter,
     watchIgnorable,
 } from '@vueuse/core'
-import { type z, ZodError } from 'zod'
-import type {
-    FormComponentOptions,
-    FormSchema,
-    FormTemplate,
-    InjectedFormData,
-    InjectedFormWrapperData,
-} from './types'
+import { ZodError } from 'zod'
 import { FormStatus } from './enums'
 import { defaultObjectBySchema } from './utils'
 

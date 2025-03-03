@@ -74,6 +74,7 @@ export type InjectedFormWrapperData<Schema extends FormSchema> = {
     name: Readonly<Ref<string>>
     errors: Ref<Map<string, z.inferFormattedError<Schema>>>
     invalid: Readonly<Ref<boolean>>
+    readonly: Readonly<Ref<boolean>>
     fields: Ref<Map<string, string>>
 }
 

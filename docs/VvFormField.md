@@ -65,7 +65,8 @@ Field templates can be rendered using custom components.
 ```vue
 <script setup lang="ts">
 /* MyInput.vue */
-import { defineProps, type PropType } from 'vue'
+import type { PropType } from 'vue'
+import { defineProps } from 'vue'
 
 defineProps({
     name: {

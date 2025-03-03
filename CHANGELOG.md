@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - `VvForm` component `tag` prop;
 - `invalid` ref is now exposed by `useForm()`;
 - `readonly` prop in `VvForm` component;
+- `readonly` prop in `VvFormWrapper` component;
 - support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
 - `VvFormTemplate` default slot scope for vvChildren;
 - `reset()` method to `VvForm` component and `useForm()` to reset form values;

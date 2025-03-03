@@ -1,12 +1,15 @@
+import type { Component, ConcreteComponent, DeepReadonly, InjectionKey, PropType, Ref, SlotsType } from 'vue'
+import type { z } from 'zod'
+import type {
+    FormFieldComponentOptions,
+    FormSchema,
+    InjectedFormData,
+    InjectedFormFieldData,
+    InjectedFormWrapperData,
+    Path,
+} from './types'
 import { get, set } from 'ts-dot-prop'
 import {
-    type Component,
-    type ConcreteComponent,
-    type DeepReadonly,
-    type InjectionKey,
-    type PropType,
-    type Ref,
-    type SlotsType,
     computed,
     defineAsyncComponent,
     defineComponent,
@@ -22,16 +25,7 @@ import {
     watch,
     useId,
 } from 'vue'
-import type { z } from 'zod'
 import { FormFieldType } from './enums'
-import type {
-    FormFieldComponentOptions,
-    FormSchema,
-    InjectedFormData,
-    InjectedFormFieldData,
-    InjectedFormWrapperData,
-    Path,
-} from './types'
 
 export function defineFormField<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>, options?: FormFieldComponentOptions) {
     return defineComponent({
@@ -175,11 +169,11 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
             const invalidLabel = computed(() => {
                 return errors.value?._errors
             })
-            const invalid = computed(() => {
+            const isInvalid = computed(() => {
                 return errors.value !== undefined
             })
-            const unwatchInvalid = watch(invalid, () => {
-                if (invalid.value) {
+            const unwatchInvalid = watch(isInvalid, (newValue) => {
+                if (newValue) {
                     emit('invalid', errors.value)
                     if (injectedWrapperData) {
                         injectedWrapperData.errors.value.set(
@@ -230,14 +224,17 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 if (injectedFormData?.readonly.value) {
                     return true
                 }
+                if (injectedWrapperData?.readonly.value) {
+                    return true
+                }
                 return (hasFieldProps.value.readonly ?? props.readonly) as boolean
             })
             const hasProps = computed(() => ({
                 ...hasFieldProps.value,
                 'name': hasFieldProps.value.name ?? props.name,
-                'invalid': invalid.value,
+                'invalid': isInvalid.value,
                 'valid': props.showValid
-                    ? Boolean(!invalid.value && modelValue.value)
+                    ? Boolean(!isInvalid.value && modelValue.value)
                     : undefined,
                 'type': ((type: FormFieldType) => {
                     if (
@@ -283,7 +280,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                                     errors: errors.value,
                                     formData: injectedFormData?.formData.value,
                                     formErrors: injectedFormData?.errors.value,
-                                    invalid: invalid.value,
+                                    invalid: isInvalid.value,
                                     invalidLabel: invalidLabel.value,
                                     modelValue: modelValue.value,
                                     readonly: isReadonly.value,
@@ -367,7 +364,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 })
             })
 
-            return { component, hasProps, invalid }
+            return { component, hasProps, invalid: isInvalid }
         },
         render() {
             if (this.is) {

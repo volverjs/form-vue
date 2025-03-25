@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] - 2023-09-27
+## [1.0.0] - 2024-03-25
 
 ### Added
 
@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - `invalid` ref is now exposed by `useForm()`;
 - `readonly` prop in `VvForm` component;
 - `readonly` prop in `VvFormWrapper` component;
-- support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
+- Support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
 - `VvFormTemplate` default slot scope for vvChildren;
 - `reset()` method to `VvForm` component and `useForm()` to reset form values;
 - `clear()` method to `VvForm` component and `useForm()` to clear errors;
@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- `VvForm` prop `updateThrottle` is not used anymore, use `updateThrottle` option of `useForm()` instead;
+- `VvForm` prop `updateThrottle` is not available anymore, use `updateThrottle` option of `useForm()` instead;
 - `submit()` and `validate()` methods of `VvForm` component now return a `Promise` of `boolean` instead of `boolean` directly;
 - `continuos-validation` option is now `continuous-validation`.
 

@@ -7,22 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@volverjs/ui-vue':
-        specifier: ^0.x
-        version: 0.0.9(@volverjs/style@0.1.17)(typescript@5.8.2)
-      '@vueuse/core':
-        specifier: ^13.x
-        version: 13.0.0(vue@3.5.13(typescript@5.8.2))
-      ts-dot-prop:
-        specifier: ^2.x
-        version: 2.1.4
-      vue:
-        specifier: ^3.x
-        version: 3.5.13(typescript@5.8.2)
-      zod:
-        specifier: ^3.x
-        version: 3.24.2
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^4.11.0
@@ -42,6 +26,9 @@ importers:
       '@volverjs/style':
         specifier: ^0.1.17
         version: 0.1.17
+      '@volverjs/ui-vue':
+        specifier: ^0.0.9
+        version: 0.0.9(@volverjs/style@0.1.17)(typescript@5.8.2)
       '@vue/compiler-sfc':
         specifier: ^3.5.13
         version: 3.5.13
@@ -51,6 +38,9 @@ importers:
       '@vue/test-utils':
         specifier: ^2.4.6
         version: 2.4.6
+      '@vueuse/core':
+        specifier: ^13.0.0
+        version: 13.0.0(vue@3.5.13(typescript@5.8.2))
       copy:
         specifier: ^0.3.2
         version: 0.3.2
@@ -60,6 +50,9 @@ importers:
       happy-dom:
         specifier: ^17.4.4
         version: 17.4.4
+      ts-dot-prop:
+        specifier: ^2.1.4
+        version: 2.1.4
       typescript:
         specifier: ^5.8.2
         version: 5.8.2
@@ -75,6 +68,12 @@ importers:
       vitest:
         specifier: ^3.0.9
         version: 3.0.9(@types/debug@4.1.12)(@types/node@22.13.8)(happy-dom@17.4.4)(jsdom@22.1.0)(yaml@2.7.0)
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.13(typescript@5.8.2)
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
 
 packages:
 

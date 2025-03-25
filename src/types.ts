@@ -178,14 +178,14 @@ export type SimpleFormTemplateItem<Schema extends FormSchema, Type> = Record<
     vvDefaultValue?: any
 }
 
-export type FormTemplateItem<Schema extends FormSchema, Type> =
+export type FormTemplateItem<Schema extends FormSchema, Type = undefined> =
     | SimpleFormTemplateItem<Schema, Type>
     | ((
         data?: InjectedFormData<Schema, Type>,
         scope?: Record<string, unknown>,
     ) => SimpleFormTemplateItem<Schema, Type>)
 
-export type FormTemplate<Schema extends FormSchema, Type> =
+export type FormTemplate<Schema extends FormSchema, Type = undefined> =
     | FormTemplateItem<Schema, Type>[]
     | ((
         data?: InjectedFormData<Schema, Type>,

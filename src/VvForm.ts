@@ -1,11 +1,12 @@
 import type { Component, InjectionKey, PropType, SlotsType, UnwrapRef } from 'vue'
-import type { z } from 'zod'
+import type { RefinementCtx, z } from 'zod'
 import type {
     FormComponentOptions,
     FormSchema,
     FormTemplate,
     InjectedFormData,
     InjectedFormWrapperData,
+    Path,
 } from './types'
 import {
     computed,
@@ -34,7 +35,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
     const invalid = computed(() => status.value === FormStatus.invalid)
     const formData = ref<undefined extends Type ? Partial<z.infer<Schema>> : Type>()
     const readonly = ref<boolean>(false)
-    let validationFields: Set<string> | undefined
+    let validateFields: Set<Path<z.infer<Schema>>> | undefined
 
     const formDataAdapter = (data?: z.infer<Schema>): undefined extends Type ? Partial<z.infer<Schema>> : Type => {
         const toReturn = defaultObjectBySchema(schema, data)
@@ -47,19 +48,26 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         return toReturn
     }
 
-    const validate = async (value = formData.value, fields?: Set<string>) => {
-        validationFields = fields
+    const validate = async (value = formData.value, options?: {
+        fields?: Set<Path<z.infer<Schema>>>
+        superRefine?: (arg: z.infer<Schema>, ctx: RefinementCtx) => void | Promise<void>
+    }) => {
+        validateFields = options?.fields
         if (readonly.value) {
             return true
         }
-        const parseResult = await schema.safeParseAsync(value)
+        const parseResult = options?.superRefine
+            ? await schema.superRefine(options.superRefine).safeParseAsync(value)
+            : await schema.safeParseAsync(value)
         if (!parseResult.success) {
             status.value = FormStatus.invalid
-            if (!fields) {
+            if (!validateFields?.size) {
                 errors.value = parseResult.error.format() as z.inferFormattedError<Schema>
                 return false
             }
-            const fieldsIssues = parseResult.error.issues.filter(item => fields.has(item.path.join('.')))
+            const fieldsIssues = parseResult.error.issues.filter(item =>
+                validateFields?.has(item.path.join('.') as Path<z.infer<Schema>>),
+            )
             if (!fieldsIssues.length) {
                 errors.value = undefined
                 return true
@@ -76,7 +84,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
     const clear = () => {
         errors.value = undefined
         status.value = undefined
-        validationFields = undefined
+        validateFields = undefined
     }
 
     const reset = () => {
@@ -85,11 +93,14 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         status.value = FormStatus.reset
     }
 
-    const submit = async () => {
+    const submit = async (options?: {
+        fields?: Set<Path<z.infer<Schema>>>
+        superRefine?: (arg: z.infer<Schema>, ctx: RefinementCtx) => void | Promise<void>
+    }) => {
         if (readonly.value) {
             return false
         }
-        if (!(await validate())) {
+        if (!(await validate(undefined, options))) {
             return false
         }
         status.value = FormStatus.submitting
@@ -131,6 +142,14 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
             },
             template: {
                 type: [Array, Function] as PropType<FormTemplate<Schema, Type>>,
+                default: undefined,
+            },
+            superRefine: {
+                type: Function as PropType<(arg: z.infer<Schema>, ctx: RefinementCtx) => void | Promise<void>>,
+                default: undefined,
+            },
+            validateFields: {
+                type: Array as PropType<Path<z.infer<Schema>>[]>,
                 default: undefined,
             },
         },
@@ -232,13 +251,15 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                         || options?.continuousValidation
                         || props.continuousValidation
                     ) {
-                        await validate(undefined, validationFields)
+                        await validate(undefined, {
+                            superRefine: props.superRefine,
+                            fields: validateFields ?? new Set(props.validateFields),
+                        })
                     }
                     if (
                         !formData.value
                         || !props.modelValue
-                        || JSON.stringify(formData.value)
-                        !== JSON.stringify(props.modelValue)
+                        || JSON.stringify(formData.value) !== JSON.stringify(props.modelValue)
                     ) {
                         const toReturn = toRaw(formData.value)
                         emit('update:modelValue', toReturn)
@@ -291,7 +312,10 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 reset,
                 status: readonlyStatus,
                 stopUpdatesWatch,
-                submit,
+                submit: () => submit({
+                    superRefine: props.superRefine,
+                    fields: new Set(props.validateFields),
+                }),
                 validate,
                 wrappers,
             }

@@ -1,5 +1,5 @@
 import type { Component, DeepReadonly, Ref, RendererElement, RendererNode, VNode, WatchStopHandle } from 'vue'
-import type { z, AnyZodObject, ZodEffects, ZodOptional, ZodTypeAny } from 'zod'
+import type { z, AnyZodObject, ZodEffects, ZodOptional, ZodTypeAny, RefinementCtx } from 'zod'
 import type { IgnoredUpdater } from '@vueuse/core'
 import type { FormFieldType, FormStatus } from './enums'
 
@@ -59,7 +59,7 @@ export type InjectedFormData<Schema extends FormSchema, Type> = {
         Ref<DeepReadonly<z.inferFormattedError<Schema>> | undefined>
     >
     submit: () => Promise<boolean>
-    validate: (formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type, fields?: Set<string>) => Promise<boolean>
+    validate: (formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type, options?: { fields?: Set<Path<z.infer<Schema>>>, superRefine?: (arg: z.infer<Schema>, ctx: RefinementCtx) => void | Promise<void> }) => Promise<boolean>
     clear: () => void
     reset: () => void
     ignoreUpdates: IgnoredUpdater

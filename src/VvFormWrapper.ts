@@ -4,6 +4,7 @@ import type {
     FormSchema,
     InjectedFormData,
     InjectedFormWrapperData,
+    Path,
 } from './types'
 import {
     computed,
@@ -71,7 +72,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             const injectedFormData = inject(formProvideKey)
             // inject data from parent form wrapper
             const injectedWrapperData = inject(wrapperProvideKey, undefined)
-            const fields: Ref<Map<string, string>> = ref(new Map())
+            const fields: Ref<Map<string, Path<z.infer<Schema>>>> = ref(new Map())
             const fieldsErrors: Ref<
                 Map<string, z.inferFormattedError<Schema>>
             > = ref(new Map())
@@ -165,7 +166,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             })
 
             const validateWrapper = () => {
-                return injectedFormData?.validate(undefined, new Set(fields.value.values())) ?? Promise.resolve(true)
+                return injectedFormData?.validate(undefined, { fields: new Set(fields.value.values()) }) ?? Promise.resolve(true)
             }
 
             return {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2024-07-21
+
+### Added
+
+- Support for Zod 4 from `zod@3.25.x` and `zod@4.x.x`.
+
 ## [1.0.0] - 2024-07-21
 
 ### Added

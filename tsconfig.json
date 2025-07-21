@@ -33,5 +33,5 @@
         "skipLibCheck": true,
         "noErrorTruncation": true
     },
-    "include": ["src/*", "test-vitest/*", "test-playwright/*"]
+    "include": ["src/*", "test-vitest/*", "test-playwright/*", "test-playwright/VvForm.v3.vue", "test-playwright/VvFormField.v3.vue", "test-playwright/VvFormFieldsGroup.v3.vue", "test-playwright/VvFormTemplate.v3.vue", "test-playwright/VvFormWrapper.v3.vue"]
 }

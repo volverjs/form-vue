@@ -1,11 +1,5 @@
-import {
-    getCurrentInstance,
-
-    inject,
-
-} from 'vue'
 import type { App, InjectionKey, Plugin } from 'vue'
-import type { AnyZodObject } from 'zod'
+import { getCurrentInstance, inject } from 'vue'
 import { defineForm } from './VvForm'
 import { defineFormField } from './VvFormField'
 import { defineFormFieldsGroup } from './VvFormFieldsGroup'
@@ -100,7 +94,8 @@ export const pluginInjectionKey = Symbol('pluginInjectionKey') as InjectionKey<F
 export function createForm(options: FormPluginOptions): Plugin & Partial<ReturnType<typeof useForm>> {
     let toReturn: Partial<ReturnType<typeof useForm>> = {}
     if (options.schema) {
-        toReturn = _formType(options.schema as AnyZodObject, options)
+        // @ts-expect-error - options.schema is always defined
+        toReturn = _formType(options.schema, options)
     }
     return {
         ...toReturn,

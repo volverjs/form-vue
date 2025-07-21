@@ -1,6 +1,12 @@
 import type { Component, DeepReadonly, InjectionKey, PropType, SlotsType, VNode } from 'vue'
-import type { FormSchema, InjectedFormData, FormTemplate, RenderFunctionOutput } from './types'
-import type { z } from 'zod'
+import type {
+    FormSchema,
+    InjectedFormData,
+    FormTemplate,
+    RenderFunctionOutput,
+    InferFormattedError,
+    InferSchema,
+} from './types'
 import type { FormStatus } from './enums'
 import { get } from 'ts-dot-prop'
 import {
@@ -25,8 +31,8 @@ export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(
         },
         slots: Object as SlotsType<{
             default: {
-                errors?: DeepReadonly<z.inferFormattedError<Schema>>
-                formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
+                errors?: DeepReadonly<InferFormattedError<Schema>>
+                formData?: undefined extends Type ? Partial<InferSchema<Schema>> : Type
                 invalid: boolean
                 status?: FormStatus
                 submit?: InjectedFormData<Schema, Type>['submit']

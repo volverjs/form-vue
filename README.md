@@ -652,7 +652,7 @@ const templateSchema = [
 ]
 ```
 
-## Default Object by Zod Object Schema
+## Default Object by Zod Schema
 
 `defaultObjectBySchema` creates an object by a [Zod Object Schema](https://zod.dev/?id=objects).
 It can be useful to create a **default object** for a **form**. The default object is created by the default values of the schema and can be merged with an other object passed as parameter.
@@ -717,6 +717,30 @@ const defaultObject = defaultObjectBySchema(schema, {
     email: 'john.doe@test.com'
 })
 // defaultObject = { firstName: 'John', lastName: 'Doe', address: { street: 'Main Street', number: 1 }, age: null, height: 1.9, weight: 80, email: 'john.doe@test.com' }
+```
+
+## Zod 4
+`@volverjs/form-vue` supports Zod 4 from `zod@3.25.x` and `zod@4.x.x`. All features and methods are compatible and the usage remains the same, the library automatically detects the Zod version and adapts accordingly.
+
+```typescript
+import * as z from 'zod/v4'
+import { createForm, useForm, defaultObjectBySchema } from '@volverjs/form-vue'
+
+const schema = z.object({
+    firstName: z.string(),
+    lastName: z.string()
+})
+
+// Plugin
+const form = createForm({
+    schema
+})
+
+// Composable
+const { VvForm, VvFormWrapper, VvFormField } = useForm(schema)
+
+// Default Object by Zod Schema
+const defaultObject = defaultObjectBySchema(schema, { firstName: 'Jane' })
 ```
 
 ## License

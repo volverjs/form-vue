@@ -20,6 +20,7 @@ import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
 import type { FormSchema, InferSchema, VvZodError, ZodIssue } from './types'
 
+// Helper function to get the inner type of a Zod v3 schema
 const getZod3SchemaInnerType = <Type extends z3.ZodTypeAny>(
     schema:
         | Type
@@ -37,6 +38,7 @@ const getZod3SchemaInnerType = <Type extends z3.ZodTypeAny>(
     return toReturn
 }
 
+// Helper function to check if a Zod v3 schema is optional
 const isZod3SchemaOptional = <Type extends z3.ZodTypeAny>(
     schema:
         | Type
@@ -58,9 +60,20 @@ const isZod3SchemaOptional = <Type extends z3.ZodTypeAny>(
     return false
 }
 
+// Helper function to determine the type of a value
+function getValueType(value: unknown) {
+    if (Array.isArray(value)) {
+        return 'array'
+    }
+    if (value === null) {
+        return 'null'
+    }
+    return typeof value
+}
+
 // Helper function to check if a value matches a schema type
 function isValueCompatibleWithSchema(value: unknown, subSchema: z4.JSONSchema.JSONSchema): boolean {
-    const valueType = Array.isArray(value) ? 'array' : value === null ? 'null' : typeof value
+    const valueType = getValueType(value)
 
     if (subSchema.type) {
         return subSchema.type === valueType
@@ -226,7 +239,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                         const valueType = getZod3SchemaInnerType(innerType._def.valueType)
                         if (valueType instanceof ZodObject) {
                             return [key, Object.keys(originalValue).reduce((acc: Record<string, unknown>, recordKey: string) => {
-                                acc[recordKey] = defaultObjectBySchema(valueType, (originalValue as Record<string, unknown>)[recordKey] as Partial<any> & Record<string, unknown>)
+                                acc[recordKey] = defaultObjectBySchema(valueType, originalValue[recordKey])
                                 return acc
                             }, {})]
                         }
@@ -238,7 +251,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                                 innerType,
                                 originalValue
                                 && typeof originalValue === 'object'
-                                    ? (originalValue as Partial<InferSchema<Schema>> & Record<string, unknown>)
+                                    ? originalValue
                                     : defaultValue,
                             ),
                         ]

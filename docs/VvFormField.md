@@ -9,7 +9,7 @@ By default, `VvFormField` renders templates passed through the default slot.
 ```vue
 <script setup lang="ts">
 import { useForm } from '@volverjs/form-vue'
-import { z } from 'zod'
+import { z } from 'zod/v3'
 
 const schema = z.object({
     username: z.string().min(3)
@@ -116,7 +116,7 @@ Using the `is` prop.
 ```vue
 <script setup lang="ts">
 import { useForm } from '@volverjs/form-vue'
-import { z } from 'zod'
+import { z } from 'zod/v3'
 import MyInput from './MyInput.vue'
 
 const schema = z.object({
@@ -205,7 +205,7 @@ The `combobox` type is rendered as [`VvCombobox`](https://volverjs.github.io/ui-
 ```vue
 <script setup lang="ts">
 import { useForm } from '@volverjs/form-vue'
-import { z } from 'zod'
+import { z } from 'zod/v3'
 
 const schema = z.object({
     shoppingList: z

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/experimental-ct-vue'
-import VvFormWrapper from './VvFormWrapper.vue'
+import VvFormWrapper from './VvFormWrapper.v3.vue'
 
 test.use({ viewport: { width: 1000, height: 1000 } })
 

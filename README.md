@@ -44,7 +44,7 @@ npm install @volverjs/form-vue --save
 ```typescript
 import { createApp } from 'vue'
 import { createForm } from '@volverjs/form-vue'
-import { z } from 'zod'
+import { z } from 'zod/v3'
 
 const schema = z.object({
     firstName: z.string(),
@@ -153,7 +153,7 @@ The **default settings** are **inherited** from the plugin (if it's installed).
 ```vue
 <script lang="ts" setup>
 import { useForm } from '@volverjs/form-vue'
-import { z } from 'zod'
+import { z } from 'zod/v3'
 
 const schema = z.object({
     firstName: z.string(),
@@ -184,7 +184,7 @@ const { VvForm, VvFormWrapper, VvFormField } = useForm(schema, {
 
 ```ts
 import { useForm } from '@volverjs/form-vue'
-import { z } from 'zod'
+import { z } from 'zod/v3'
 
 const schema = z.object({
     firstName: z.string(),
@@ -464,7 +464,7 @@ Forms can also be created using a template. A template is an **array of objects*
 ```vue
 <script lang="ts" setup>
 import { useForm } from '@volverjs/form-vue'
-import { z } from 'zod'
+import { z } from 'zod/v3'
 
 const schema = z.object({
     firstName: z.string(),
@@ -542,7 +542,7 @@ Conditional rendering can be achieved using the `vvIf` and `vvElseIf` properties
 ```vue
 <script lang="ts" setup>
 import { useForm } from '@volverjs/form-vue'
-import { z } from 'zod'
+import { z } from 'zod/v3'
 
 const schema = z.object({
     firstName: z.string(),
@@ -658,7 +658,7 @@ const templateSchema = [
 It can be useful to create a **default object** for a **form**. The default object is created by the default values of the schema and can be merged with an other object passed as parameter.
 
 ```ts
-import { z } from 'zod'
+import { z } from 'zod/v3'
 import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z.object({
@@ -676,7 +676,7 @@ const defaultObject = defaultObjectBySchema(schema, { name: 'Jane' })
 `defaultObjectBySchema` can be used with nested objects.
 
 ```ts
-import { z } from 'zod'
+import { z } from 'zod/v3'
 import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z.object({
@@ -695,7 +695,7 @@ const defaultObject = defaultObjectBySchema(schema)
 Other Zod methods are also supported: [`z.nullable()`](https://github.com/colinhacks/zod#nullable), [`z.coerce`](https://github.com/colinhacks/zod#coercion-for-primitives) and [`z.passthrough()`](https://github.com/colinhacks/zod#passthrough).
 
 ```ts
-import { z } from 'zod'
+import { z } from 'zod/v3'
 import { defaultObjectBySchema } from '@volverjs/form-vue'
 
 const schema = z

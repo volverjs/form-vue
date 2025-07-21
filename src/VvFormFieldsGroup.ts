@@ -1,11 +1,12 @@
 import type { Component, DeepReadonly, InjectionKey, PropType, Ref, SlotsType } from 'vue'
-import type { z } from 'zod'
 import type {
     FormSchema,
     InjectedFormData,
     InjectedFormFieldsGroupData,
     InjectedFormWrapperData,
     Path,
+    InferSchema,
+    InferFormattedError,
 } from './types'
 import { get, set } from 'ts-dot-prop'
 import {
@@ -33,18 +34,18 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
             },
             names: {
                 type: [Array, Object] as PropType<
-                    Path<z.infer<Schema>>[] | Record<string, Path<z.infer<Schema>>>
+                    Path<InferSchema<Schema>>[] | Record<string, Path<InferSchema<Schema>>>
                 >,
                 required: true,
             },
             props: {
                 type: [Object, Function] as PropType<
                     Partial<
-                        | z.infer<Schema>
+                        | InferSchema<Schema>
                         | undefined
                         | ((
                             formData?: Ref<ObjectConstructor>,
-                        ) => Partial<z.infer<Schema>> | undefined)
+                        ) => Partial<InferSchema<Schema>> | undefined)
                     >
                 >,
                 default: () => ({}),
@@ -55,7 +56,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
             },
             defaultValues: {
                 type: [Object] as PropType<
-                    Record<Path<z.infer<Schema>>, any>
+                    Record<Path<InferSchema<Schema>>, any>
                 >,
                 default: undefined,
             },
@@ -81,9 +82,9 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
         slots: Object as SlotsType<{
             [key: string]: any
             default: {
-                errors?: Record<Path<z.infer<Schema>>, z.inferFormattedError<Schema>>
-                formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
-                formErrors?: DeepReadonly<z.inferFormattedError<Schema>>
+                errors?: Record<Path<InferSchema<Schema>>, InferFormattedError<Schema>>
+                formData?: undefined extends Type ? Partial<InferSchema<Schema>> : Type
+                formErrors?: DeepReadonly<InferFormattedError<Schema>>
                 invalid: boolean
                 invalids: Record<string, boolean>
                 invalidLabels?: Record<string, string[]>
@@ -98,7 +99,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
         setup(props, { slots, emit }) {
             const { props: fieldProps, names: fieldsNames, defaultValues } = toRefs(props)
             const fieldGroupId = useId()
-            const names = computed<Path<z.infer<Schema>>[]>(() => {
+            const names = computed<Path<InferSchema<Schema>>[]>(() => {
                 if (Array.isArray(fieldsNames.value)) {
                     return fieldsNames.value
                 }
@@ -112,7 +113,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
             })
             const namesMap = computed(() => {
                 if (Array.isArray(fieldsNames.value)) {
-                    return fieldsNames.value.reduce<Record<string, Path<z.infer<Schema>>>>((
+                    return fieldsNames.value.reduce<Record<string, Path<InferSchema<Schema>>>>((
                         acc,
                         name,
                     ) => {
@@ -203,7 +204,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                 if (!injectedFormData?.errors.value) {
                     return undefined
                 }
-                const toReturn = names.value.reduce<Record<string, z.inferFormattedError<Schema>>>((acc, name) => {
+                const toReturn = names.value.reduce<Record<string, InferFormattedError<Schema>>>((acc, name) => {
                     if (!injectedFormData.errors.value) {
                         return acc
                     }
@@ -343,7 +344,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
 
             // provide data to children
             provide(formFieldsGroupInjectionKey, {
-                names: readonly(fieldsNames) as DeepReadonly<Ref<Path<z.infer<Schema>>[]>>,
+                names: readonly(fieldsNames) as DeepReadonly<Ref<Path<InferSchema<Schema>>[]>>,
                 errors: readonly(errors),
             })
 

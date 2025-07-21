@@ -1,5 +1,4 @@
 import type { Component, InjectionKey, PropType, SlotsType, UnwrapRef } from 'vue'
-import type { RefinementCtx, z } from 'zod'
 import type {
     FormComponentOptions,
     FormSchema,
@@ -7,6 +6,9 @@ import type {
     InjectedFormData,
     InjectedFormWrapperData,
     Path,
+    InferSchema,
+    InferFormattedError,
+    RefinementCtx,
 } from './types'
 import {
     computed,
@@ -25,19 +27,18 @@ import {
     throttleFilter,
     watchIgnorable,
 } from '@vueuse/core'
-import { ZodError } from 'zod'
 import { FormStatus } from './enums'
-import { defaultObjectBySchema } from './utils'
+import { safeParseAsync, defaultObjectBySchema, formatError, formatIssues } from './utils'
 
 export function defineForm<Schema extends FormSchema, Type, FormTemplateComponent extends Component>(schema: Schema, provideKey: InjectionKey<InjectedFormData<Schema, Type>>, options: FormComponentOptions<Schema, Type>, VvFormTemplate: FormTemplateComponent, wrappers: Map<string, InjectedFormWrapperData<Schema>>) {
-    const errors = ref<z.inferFormattedError<Schema> | undefined>()
+    const errors = ref<InferFormattedError<Schema> | undefined>()
     const status = ref<FormStatus | undefined>()
     const invalid = computed(() => status.value === FormStatus.invalid)
-    const formData = ref<undefined extends Type ? Partial<z.infer<Schema>> : Type>()
+    const formData = ref<undefined extends Type ? Partial<InferSchema<Schema>> : Type>()
     const readonly = ref<boolean>(false)
-    let validateFields: Set<Path<z.infer<Schema>>> | undefined
+    let validateFields: Set<Path<InferSchema<Schema>>> | undefined
 
-    const formDataAdapter = (data?: z.infer<Schema>): undefined extends Type ? Partial<z.infer<Schema>> : Type => {
+    const formDataAdapter = (data?: InferSchema<Schema>): undefined extends Type ? Partial<InferSchema<Schema>> : Type => {
         const toReturn = defaultObjectBySchema(schema, data)
         if (options?.class) {
             const ClassObject = options.class
@@ -49,30 +50,28 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
     }
 
     const validate = async (value = formData.value, options?: {
-        fields?: Set<Path<z.infer<Schema>>>
-        superRefine?: (arg: z.infer<Schema>, ctx: RefinementCtx) => void | Promise<void>
+        fields?: Set<Path<InferSchema<Schema>>>
+        superRefine?: (arg: InferSchema<Schema>, ctx: RefinementCtx<Schema>) => void | Promise<void>
     }) => {
         validateFields = options?.fields
         if (readonly.value) {
             return true
         }
-        const parseResult = options?.superRefine
-            ? await schema.superRefine(options.superRefine).safeParseAsync(value)
-            : await schema.safeParseAsync(value)
+        const parseResult = await safeParseAsync(schema, value)
         if (!parseResult.success) {
             status.value = FormStatus.invalid
             if (!validateFields?.size) {
-                errors.value = parseResult.error.format() as z.inferFormattedError<Schema>
+                errors.value = formatError(schema, parseResult.error) as InferFormattedError<Schema>
                 return false
             }
             const fieldsIssues = parseResult.error.issues.filter(item =>
-                validateFields?.has(item.path.join('.') as Path<z.infer<Schema>>),
+                validateFields?.has(item.path.join('.') as Path<InferSchema<Schema>>),
             )
             if (!fieldsIssues.length) {
                 errors.value = undefined
                 return true
             }
-            errors.value = new ZodError(fieldsIssues).format() as z.inferFormattedError<Schema>
+            errors.value = formatIssues(schema, fieldsIssues) as InferFormattedError<Schema>
             return false
         }
         errors.value = undefined
@@ -94,8 +93,8 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
     }
 
     const submit = async (options?: {
-        fields?: Set<Path<z.infer<Schema>>>
-        superRefine?: (arg: z.infer<Schema>, ctx: RefinementCtx) => void | Promise<void>
+        fields?: Set<Path<InferSchema<Schema>>>
+        superRefine?: (arg: InferSchema<Schema>, ctx: RefinementCtx<Schema>) => void | Promise<void>
     }) => {
         if (readonly.value) {
             return false
@@ -134,7 +133,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
             },
             readonly: {
                 type: Boolean,
-                default: options?.readonly ?? false,
+                default: options?.readonly,
             },
             tag: {
                 type: String,
@@ -145,11 +144,11 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 default: undefined,
             },
             superRefine: {
-                type: Function as PropType<(arg: z.infer<Schema>, ctx: RefinementCtx) => void | Promise<void>>,
+                type: Function as PropType<(arg: InferSchema<Schema>, ctx: RefinementCtx<Schema>) => void | Promise<void>>,
                 default: undefined,
             },
             validateFields: {
-                type: Array as PropType<Path<z.infer<Schema>>[]>,
+                type: Array as PropType<Path<InferSchema<Schema>>[]>,
                 default: undefined,
             },
         },
@@ -191,7 +190,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
             }
         }>,
         setup(props, { emit }) {
-            formData.value = formDataAdapter(toRaw(props.modelValue))
+            formData.value = formDataAdapter(toRaw(props.modelValue) as InferSchema<Schema> | undefined)
 
             watch(
                 () => props.modelValue,
@@ -221,7 +220,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                     const toReturn = toRaw(errors.value)
                     emit('invalid', toReturn)
                     options?.onInvalid?.(
-                        toReturn as z.inferFormattedError<Schema> | undefined,
+                        toReturn,
                     )
                     return
                 }
@@ -273,7 +272,9 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
 
             // readonly
             onMounted(() => {
-                readonly.value = props.readonly
+                if (props.readonly !== undefined) {
+                    readonly.value = props.readonly
+                }
             })
             watch(
                 () => props.readonly,

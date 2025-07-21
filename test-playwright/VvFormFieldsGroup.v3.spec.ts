@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/experimental-ct-vue'
-import VvFormFieldsGroup from './VvFormFieldsGroup.vue'
+import VvFormFieldsGroup from './VvFormFieldsGroup.v3.vue'
 
 test.use({ viewport: { width: 1000, height: 1000 } })
 

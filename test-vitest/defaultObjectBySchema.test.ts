@@ -1,219 +1,374 @@
-import { z } from 'zod'
+import { z as z3 } from 'zod/v3'
+import * as z4 from 'zod/v4'
 import { it, expect } from 'vitest'
-// @ts-ignore
-import { defaultObjectBySchema } from '../dist/index.es'
+import { defaultObjectBySchema } from '../src/utils'
 
 it('simple object', async () => {
-    const schema = z.object({
-        name: z.string(),
-        surname: z.string(),
+    const schema3 = z3.object({
+        name: z3.string(),
+        surname: z3.string(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema)
-
-    expect(defaultObject).toStrictEqual({ name: undefined, surname: undefined })
+    const schema4 = z4.object({
+        name: z4.string(),
+        surname: z4.string(),
+    })
+    const expectedResult = { name: undefined, surname: undefined }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3)
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4)
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('object with defaults', async () => {
-    const schema = z.object({
-        name: z.string().default(''),
-        surname: z.string(),
-        age: z.number().default(0),
+    const schema3 = z3.object({
+        name: z3.string().default(''),
+        surname: z3.string(),
+        age: z3.number().default(0),
     })
-
-    const defaultObject = defaultObjectBySchema(schema)
-
-    expect(defaultObject).toStrictEqual({
+    const schema4 = z4.object({
+        name: z4.string().default(''),
+        surname: z4.string(),
+        age: z4.number().default(0),
+    })
+    const expectedResult = {
         name: '',
         surname: undefined,
         age: 0,
-    })
+    }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3)
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4)
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('nested object', async () => {
-    const schema = z.object({
-        name: z.string().default(''),
-        surname: z.string(),
-        address: z.object({
-            city: z.string(),
-            country: z.string(),
+    const schema3 = z3.object({
+        name: z3.string().default(''),
+        surname: z3.string(),
+        address: z3.object({
+            city: z3.string(),
+            country: z3.string(),
         }),
     })
-
-    const defaultObject = defaultObjectBySchema(schema)
-
-    expect(defaultObject).toStrictEqual({
+    const schema4 = z4.object({
+        name: z4.string().default(''),
+        surname: z4.string(),
+        address: z4.object({
+            city: z4.string(),
+            country: z4.string(),
+        }),
+    })
+    const expectedResult = {
         name: '',
         surname: undefined,
         address: {
             city: undefined,
             country: undefined,
         },
-    })
+    }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3)
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4)
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('nested object with defaults', async () => {
-    const schema = z.object({
-        name: z.string().default(''),
-        surname: z.string(),
-        address: z.object({
-            city: z.string().default(''),
-            country: z.string(),
+    const schema3 = z3.object({
+        name: z3.string().default(''),
+        surname: z3.string(),
+        address: z3.object({
+            city: z3.string().default(''),
+            country: z3.string(),
         }),
     })
-
-    const defaultObject = defaultObjectBySchema(schema)
-
-    expect(defaultObject).toStrictEqual({
+    const schema4 = z4.object({
+        name: z4.string().default(''),
+        surname: z4.string(),
+        address: z4.object({
+            city: z4.string().default(''),
+            country: z4.string(),
+        }),
+    })
+    const expectedResult = {
         name: '',
         surname: undefined,
         address: {
             city: '',
             country: undefined,
         },
-    })
+    }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3)
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4)
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('keep original value', async () => {
-    const schema = z.object({
-        name: z.string(),
+    const schema3 = z3.object({
+        name: z3.string(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { name: 'John' })
-
-    expect(defaultObject).toStrictEqual({ name: 'John' })
+    const schema4 = z4.object({
+        name: z4.string(),
+    })
+    const expectedResult = { name: 'John' }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3, { name: 'John' })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4, { name: 'John' })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('wrong original type to undefined', async () => {
-    const schema = z.object({
-        name: z.string(),
+    const schema3 = z3.object({
+        name: z3.string(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { name: 1 })
-
-    expect(defaultObject).toStrictEqual({ name: undefined })
+    const schema4 = z4.object({
+        name: z4.string(),
+    })
+    const expectedResult = { name: undefined }
+    // Test with zod v3
+    // @ts-expect-error for testing purposes
+    const defaultObject3 = defaultObjectBySchema(schema3, { name: 1 })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    // @ts-expect-error for testing purposes
+    const defaultObject4 = defaultObjectBySchema(schema4, { name: 1 })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('not nullable', async () => {
-    const schema = z.object({
-        name: z.string(),
+    const schema3 = z3.object({
+        name: z3.string(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { name: null })
-
-    expect(defaultObject).toStrictEqual({ name: undefined })
+    const schema4 = z4.object({
+        name: z4.string(),
+    })
+    const expectedResult = { name: undefined }
+    // Test with zod v3
+    // @ts-expect-error for testing purposes
+    const defaultObject3 = defaultObjectBySchema(schema3, { name: null })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    // @ts-expect-error for testing purposes
+    const defaultObject4 = defaultObjectBySchema(schema4, { name: null })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('nullable', async () => {
-    const schema = z.object({
-        name: z.string().nullable(),
+    const schema3 = z3.object({
+        name: z3.string().nullable(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { name: null })
-
-    expect(defaultObject).toStrictEqual({ name: null })
+    const schema4 = z4.object({
+        name: z4.string().nullable(),
+    })
+    const expectedResult = { name: null }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3, { name: null })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4, { name: null })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('coerce to type string', async () => {
-    const schema = z.object({
-        name: z.coerce.string(),
+    const schema3 = z3.object({
+        name: z3.coerce.string(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { name: 1138 })
-
-    expect(defaultObject).toStrictEqual({ name: '1138' })
+    const schema4 = z4.object({
+        name: z4.coerce.string(),
+    })
+    const expectedResult = { name: '1138' }
+    // Test with zod v3
+    // @ts-expect-error for testing purposes
+    const defaultObject3 = defaultObjectBySchema(schema3, { name: 1138 })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    // @ts-expect-error for testing purposes
+    const defaultObject4 = defaultObjectBySchema(schema4, { name: 1138 })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('coerce to type number', async () => {
-    const schema = z.object({
-        age: z.coerce.number(),
+    const schema3 = z3.object({
+        age: z3.coerce.number(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { age: '22' })
-
-    expect(defaultObject).toStrictEqual({ age: 22 })
+    const schema4 = z4.object({
+        age: z4.coerce.number(),
+    })
+    const expectedResult = { age: 22 }
+    // Test with zod v3
+    // @ts-expect-error for testing purposes
+    const defaultObject3 = defaultObjectBySchema(schema3, { age: '22' })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    // @ts-expect-error for testing purposes
+    const defaultObject4 = defaultObjectBySchema(schema4, { age: '22' })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('coerce to type number without default', async () => {
-    const schema = z.object({
-        age: z.coerce.number(),
+    const schema3 = z3.object({
+        age: z3.coerce.number(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { age: 'John' })
-
-    expect(defaultObject).toStrictEqual({ age: undefined })
+    const schema4 = z4.object({
+        age: z4.coerce.number(),
+    })
+    const expectedResult = { age: undefined }
+    // Test with zod v3
+    // @ts-expect-error for testing purposes
+    const defaultObject3 = defaultObjectBySchema(schema3, { age: 'John' })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    // @ts-expect-error for testing purposes
+    const defaultObject4 = defaultObjectBySchema(schema4, { age: 'John' })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('coerce to type number with default', async () => {
-    const schema = z.object({
-        age: z.coerce.number().default(0),
+    const schema3 = z3.object({
+        age: z3.coerce.number().default(0),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { age: 'John' })
-
-    expect(defaultObject).toStrictEqual({ age: 0 })
+    const schema4 = z4.object({
+        age: z4.coerce.number().default(0),
+    })
+    const expectedResult = { age: 0 }
+    // Test with zod v3
+    // @ts-expect-error for testing purposes
+    const defaultObject3 = defaultObjectBySchema(schema3, { age: 'John' })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    // @ts-expect-error for testing purposes
+    const defaultObject4 = defaultObjectBySchema(schema4, { age: 'John' })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('strip', async () => {
-    const schema = z.object({
-        name: z.string(),
-        surname: z.string(),
+    const schema3 = z3.object({
+        name: z3.string(),
+        surname: z3.string(),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, { age: 21 })
-    expect(defaultObject).toStrictEqual({
+    const schema4 = z4.object({
+        name: z4.string(),
+        surname: z4.string(),
+    })
+    const expectedResult = {
         name: undefined,
         surname: undefined,
-    })
+    }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3, { age: 21 })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4, { age: 21 })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('passthrough', async () => {
-    const schema = z
+    const schema3 = z3
         .object({
-            name: z.string(),
-            surname: z.string(),
+            name: z3.string(),
+            surname: z3.string(),
         })
         .passthrough()
-
-    const defaultObject = defaultObjectBySchema(schema, { age: 21 })
-
-    expect(defaultObject).toStrictEqual({
+    const schema4 = z4
+        .looseObject({
+            name: z4.string(),
+            surname: z4.string(),
+        })
+    const expectedResult = {
         name: undefined,
         surname: undefined,
         age: 21,
-    })
+    }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3, { age: 21 })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4, { age: 21 })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })
 
 it('optional', async () => {
-    const schema = z.object({
-        name: z.string(),
-        surname: z.string(),
-        location: z.object({
-            city: z.string().optional(),
-            address: z.object({
-                street: z
+    const schema3 = z3.object({
+        name: z3.string(),
+        surname: z3.string(),
+        location: z3.object({
+            city: z3.string().optional(),
+            address: z3.object({
+                street: z3
                     .object({
-                        name: z.string().optional(),
-                        number: z.number().optional(),
+                        name: z3.string().optional(),
+                        number: z3.number().optional(),
                     })
                     .optional(),
             }),
         }),
     })
-
-    const defaultObject = defaultObjectBySchema(schema, {
-        name: 'John',
-        location: {
-            city: 'Verona',
-            address: { street: { name: null, number: 1 } },
-        },
+    const schema4 = z4.object({
+        name: z4.string(),
+        surname: z4.string(),
+        location: z4.object({
+            city: z4.string().optional(),
+            address: z4.object({
+                street: z4
+                    .object({
+                        name: z4.string().optional(),
+                        number: z4.number().optional(),
+                    })
+                    .optional(),
+            }),
+        }),
     })
-    expect(defaultObject).toStrictEqual({
+    const expectedResult = {
         name: 'John',
         surname: undefined,
         location: {
             city: 'Verona',
             address: { street: { name: undefined, number: 1 } },
         },
+    }
+    // Test with zod v3
+    const defaultObject3 = defaultObjectBySchema(schema3, {
+        name: 'John',
+        location: {
+            city: 'Verona',
+            // @ts-expect-error for testing purposes
+            address: { street: { name: null, number: 1 } },
+        },
     })
+    expect(defaultObject3).toStrictEqual(expectedResult)
+    
+    // Test with zod v4
+    const defaultObject4 = defaultObjectBySchema(schema4, {
+        name: 'John',
+        location: {
+            city: 'Verona',
+            // @ts-expect-error for testing purposes
+            address: { street: { name: null, number: 1 } },
+        },
+    })
+    expect(defaultObject4).toStrictEqual(expectedResult)
 })

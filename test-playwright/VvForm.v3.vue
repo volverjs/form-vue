@@ -1,0 +1,48 @@
+<script setup lang="ts">
+import { z } from 'zod/v3'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
+import { useForm } from '../src'
+
+defineProps({
+    continuousValidation: Boolean,
+})
+defineEmits(['submit', 'invalid', 'valid', 'reset'])
+
+const zodSchema = z.object({
+    firstname: z.string(),
+    surname: z.string(),
+    age: z.number().min(18),
+})
+
+const { VvForm, VvFormField } = useForm(zodSchema, {
+    lazyLoad: true,
+})
+
+const model: Ref<z.infer<typeof zodSchema>> = ref({
+    firstname: 'Massimo',
+    surname: 'Rossi',
+    age: 18,
+})
+</script>
+
+<template>
+    <VvForm
+        v-bind="{ continuousValidation }"
+        v-model="model"
+        @submit="$emit('submit')"
+        @invalid="$emit('invalid')"
+        @valid="$emit('valid')"
+        @reset="$emit('reset')"
+    >
+        <VvFormField name="firstname" type="text" label="firstname" />
+        <VvFormField name="surname" type="text" label="surname" />
+        <VvFormField name="age" type="number" label="age" />
+        <button type="submit" class="vv-button" title="Submit">
+            Submit
+        </button>
+        <button type="reset" class="vv-button" title="Reset">
+            Reset
+        </button>
+    </VvForm>
+</template>

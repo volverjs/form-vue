@@ -49,7 +49,7 @@ export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(
                 let lastIf: boolean | undefined
                 const toReturn = normalizedSchema.reduce<
                     (VNode | VNode[] | undefined)[]
-                >((acc, field) => {
+                        >((acc, field) => {
                             const normalizedField = typeof field === 'function'
                                 ? field(injectedFormData, templateProps.scope)
                                 : field

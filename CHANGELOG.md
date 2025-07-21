@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2024-07-21
+
+### Added
+
+- `submit()` and `validate()` methods are now exposed directly by `useForm()`;
+- `ignoreUpdates()` and `stopUpdatesWatch()` methods are now exposed by `useForm()` and in `VvForm` component default slot scope;
+- `VvForm` component `tag` prop;
+- `invalid` ref is now exposed by `useForm()`;
+- `readonly` prop in `VvForm` component;
+- `readonly` prop in `VvFormWrapper` component;
+- Support for zod async refines with [`safeParseAsync()`](https://zod.dev/?id=safeparseasync).
+- `VvFormTemplate` default slot scope for vvChildren;
+- `reset()` method to `VvForm` component and `useForm()` to reset form values;
+- `clear()` method to `VvForm` component and `useForm()` to clear errors;
+- `VvFormWrapper` component `validateWrapper()` method for partial validation;
+- `VvFormFieldsGroup` component for grouping fields;
+- Custom form object constructor with `class` option in `useForm()` and `createForm()`;
+- Expose `wrappers` Map in `useForm()` and `createForm()` to manage form wrappers;
+- Singleton form with `scope` option in `useForm()` and `createForm()`.
+
+### Changed
+
+- `VvForm` prop `updateThrottle` is not available anymore, use `updateThrottle` option of `useForm()` instead;
+- `submit()` and `validate()` methods of `VvForm` component now return a `Promise` of `boolean` instead of `boolean` directly;
+- `continuos-validation` option is now `continuous-validation`.
+
 ## [0.0.14] - 2023-08-03
 
 ### Added
@@ -83,7 +109,7 @@ All notable changes to this project will be documented in this file.
 
 Update docs with:
 
-- `continuosValidation` prop/option;
+- `continuousValidation` prop/option;
 - Nested `VvFormField`.
 
 ## [0.0.3] - 2023-03-15
@@ -94,7 +120,7 @@ Update docs with:
 
 ### Added
 
-- Continuos validation feature available with `continuosValidation` option.
+- Continuous validation feature available with `continuousValidation` option.
 
 ## [0.0.2] - 2023-03-10
 
@@ -115,6 +141,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.0.0]: https://github.com/volverjs/form-vue/compare/v0.0.14...v1.0.0
 [0.0.14]: https://github.com/volverjs/form-vue/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/volverjs/form-vue/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/volverjs/form-vue/compare/v0.0.11...v0.0.12

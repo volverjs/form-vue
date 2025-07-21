@@ -1,37 +1,37 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "dist",
-    "types": ["vitest/globals", "vite/client"],
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "useDefineForClassFields": true,
-    "jsx": "preserve",
-    // `"noImplicitThis": true` is part of `strict`
-    // Added again here in case some users decide to disable `strict`.
-    // This enables stricter inference for data properties on `this`.
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "alwaysStrict": true,
-    // `"verbatimModuleSyntax": true` replaces isolatedModules, preserveValueImports and importsNotUsedAsValues
-    "verbatimModuleSyntax": true,
-    "target": "ESNext",
-    // Recommended
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "declaration": true,
-    "noErrorTruncation": true
-  },
-  "include": ["src/*", "test-vitest/*", "test-playwright/*"]
+    "compilerOptions": {
+        "target": "ESNext",
+        "jsx": "preserve",
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "useDefineForClassFields": true,
+        "baseUrl": ".",
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "resolveJsonModule": true,
+        "types": ["vitest/globals", "vite/client"],
+        "strict": true,
+        "strictBindCallApply": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        "alwaysStrict": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        // `"noImplicitThis": true` is part of `strict`
+        // Added again here in case some users decide to disable `strict`.
+        // This enables stricter inference for data properties on `this`.
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false,
+        "declaration": true,
+        "outDir": "dist",
+        // Recommended
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        // `"verbatimModuleSyntax": true` replaces isolatedModules, preserveValueImports and importsNotUsedAsValues
+        "verbatimModuleSyntax": true,
+        "skipLibCheck": true,
+        "noErrorTruncation": true
+    },
+    "include": ["src/*", "test-vitest/*", "test-playwright/*"]
 }

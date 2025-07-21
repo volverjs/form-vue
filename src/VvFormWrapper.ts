@@ -1,171 +1,208 @@
-import {
-	type InjectionKey,
-	type Ref,
-	computed,
-	defineComponent,
-	inject,
-	provide,
-	readonly,
-	ref,
-	toRefs,
-	watch,
-	h,
-	type DeepReadonly,
-} from 'vue'
-import type { TypeOf, z } from 'zod'
+import type { DeepReadonly, InjectionKey, Ref, SlotsType } from 'vue'
+import type { z } from 'zod'
 import type {
-	FormSchema,
-	InjectedFormData,
-	InjectedFormWrapperData,
+    FormSchema,
+    InjectedFormData,
+    InjectedFormWrapperData,
+    Path,
 } from './types'
+import {
+    computed,
+    defineComponent,
+    h,
+    inject,
+    onBeforeUnmount,
+    onMounted,
+    provide,
+    readonly,
+    ref,
+    toRefs,
+    watch,
+} from 'vue'
 
-export const defineFormWrapper = <Schema extends FormSchema>(
-	formProvideKey: InjectionKey<InjectedFormData<Schema>>,
-	wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>,
-) => {
-	const VvFormWrapper = defineComponent({
-		name: 'WrapperComponent',
-		props: {
-			name: {
-				type: String,
-				required: true,
-			},
-			tag: {
-				type: String,
-				default: undefined,
-			},
-		},
-		emits: ['invalid', 'valid'],
-		expose: ['fields', 'invalid'],
-		setup(props, { emit }) {
-			const injectedFormData = inject(formProvideKey)
-			const wrapperProvided = inject(wrapperProvideKey, undefined)
-			const fields = ref(new Set<string>())
-			const fieldsErrors: Ref<
-				Map<string, z.inferFormattedError<Schema>>
-			> = ref(new Map())
-			const { name } = toRefs(props)
+export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>) {
+    return defineComponent({
+        name: 'VvFormWrapper',
+        props: {
+            name: {
+                type: String,
+                required: true,
+            },
+            tag: {
+                type: String,
+                default: undefined,
+            },
+            readonly: {
+                type: Boolean,
+                default: false,
+            },
+        },
+        emits: ['invalid', 'valid'],
+        expose: [
+            'clear',
+            'errors',
+            'fields',
+            'fieldsErrors',
+            'formData',
+            'invalid',
+            'readonly',
+            'reset',
+            'submit',
+            'tag',
+            'validate',
+            'validateWrapper',
+        ],
+        slots: Object as SlotsType<{
+            default: {
+                errors?: DeepReadonly<z.inferFormattedError<Schema>>
+                fieldsErrors: Map<string, z.inferFormattedError<Schema>>
+                formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
+                formErrors?: DeepReadonly<z.inferFormattedError<Schema>>
+                invalid: boolean
+                readonly: boolean
+                clear?: InjectedFormData<Schema, Type>['clear']
+                reset?: InjectedFormData<Schema, Type>['reset']
+                submit?: InjectedFormData<Schema, Type>['submit']
+                validate?: InjectedFormData<Schema, Type>['validate']
+                validateWrapper?: () => Promise<boolean>
+            }
+        }>,
+        setup(props, { emit }) {
+            // inject data from parent form
+            const injectedFormData = inject(formProvideKey)
+            // inject data from parent form wrapper
+            const injectedWrapperData = inject(wrapperProvideKey, undefined)
+            const fields: Ref<Map<string, Path<z.infer<Schema>>>> = ref(new Map())
+            const fieldsErrors: Ref<
+                Map<string, z.inferFormattedError<Schema>>
+            > = ref(new Map())
+            const { name } = toRefs(props)
 
-			// provide data to child fields
-			provide(wrapperProvideKey, {
-				name: readonly(name),
-				errors: fieldsErrors,
-				fields,
-			})
+            // invalid
+            const isInvalid = computed(() => {
+                if (!injectedFormData?.invalid.value) {
+                    return false
+                }
+                return fieldsErrors.value.size > 0
+            })
+            watch(isInvalid, (newValue) => {
+                if (newValue) {
+                    emit('invalid')
+                    return
+                }
+                emit('valid')
+            })
 
-			// add fields to parent wrapper
-			watch(
-				fields,
-				(newValue) => {
-					if (wrapperProvided?.fields) {
-						newValue.forEach((field) => {
-							wrapperProvided?.fields.value.add(field)
-						})
-					}
-				},
-				{ deep: true },
-			)
+            // readonly
+            const isReadonly = computed(() => injectedFormData?.readonly.value || props.readonly)
 
-			// add fields to parent wrapper
-			watch(
-				() => new Map(fieldsErrors.value),
-				(newValue, oldValue) => {
-					if (wrapperProvided?.errors) {
-						Array.from(oldValue.keys()).forEach((key) => {
-							wrapperProvided.errors.value.delete(key)
-						})
-						Array.from(newValue.keys()).forEach((key) => {
-							const value = newValue.get(key)
-							if (value) {
-								wrapperProvided.errors.value.set(key, value)
-							}
-						})
-					}
-				},
-				{ deep: true },
-			)
+            // provide data to child fields
+            const providedData = {
+                name: readonly(name),
+                errors: fieldsErrors,
+                invalid: readonly(isInvalid),
+                readonly: readonly(isReadonly),
+                fields,
+            }
+            provide(wrapperProvideKey, providedData)
 
-			const invalid = computed(() => {
-				if (!injectedFormData?.invalid.value) {
-					return false
-				}
-				return fieldsErrors.value.size > 0
-			})
+            // add fields to parent wrapper
+            const computedFields = computed(() => new Map(fields.value))
+            watch(
+                computedFields,
+                (newValue, oldValue) => {
+                    if (injectedWrapperData?.fields) {
+                        oldValue.forEach((_field, key) => {
+                            if (!newValue.has(key)) {
+                                injectedWrapperData?.fields.value.delete(key)
+                            }
+                        })
+                        newValue.forEach((field, key) => {
+                            if (!injectedWrapperData?.fields.value.has(key)) {
+                                injectedWrapperData?.fields.value.set(key, field)
+                            }
+                        })
+                    }
+                },
+                { deep: true },
+            )
 
-			watch(invalid, () => {
-				if (invalid.value) {
-					emit('invalid')
-				} else {
-					emit('valid')
-				}
-			})
+            // add fields errors to parent wrapper
+            watch(
+                fieldsErrors,
+                (newValue) => {
+                    if (injectedWrapperData?.errors) {
+                        fields.value.forEach((field) => {
+                            if (!newValue.has(field)) {
+                                injectedWrapperData.errors.value.delete(field)
+                            }
+                            if (newValue.has(field)) {
+                                const value = newValue.get(field)
+                                if (value) {
+                                    injectedWrapperData.errors.value.set(field, value)
+                                }
+                            }
+                        })
+                    }
+                },
+                { deep: true },
+            )
 
-			return {
-				formData: injectedFormData?.formData,
-				errors: injectedFormData?.errors,
-				submit: injectedFormData?.submit,
-				validate: injectedFormData?.validate,
-				invalid,
-				fields,
-				fieldsErrors,
-			}
-		},
-		render() {
-			if (this.tag) {
-				return h(this.tag, null, {
-					default: () =>
-						this.$slots.default?.({
-							invalid: this.invalid,
-							formData: this.formData,
-							submit: this.submit,
-							validate: this.validate,
-							errors: this.errors,
-							fieldsErrors: this.fieldsErrors,
-						}) ?? this.$slots.defalut,
-				})
-			}
-			return (
-				this.$slots.default?.({
-					invalid: this.invalid,
-					formData: this.formData,
-					submit: this.submit,
-					validate: this.validate,
-					errors: this.errors,
-					fieldsErrors: this.fieldsErrors,
-				}) ?? this.$slots.defalut
-			)
-		},
-	})
-	/**
-	 * An hack to add types to the default slot
-	 */
-	return VvFormWrapper as typeof VvFormWrapper & {
-		new (): {
-			$slots: {
-				default: (_: {
-					invalid: boolean
-					formData: unknown extends
-						| Partial<TypeOf<Schema>>
-						| undefined
-						? undefined
-						: Partial<TypeOf<Schema>> | undefined
-					submit: () => boolean
-					validate: () => boolean
-					errors: Readonly<
-						Ref<DeepReadonly<z.inferFormattedError<Schema>>>
-					>
-					fieldsErrors: Map<
-						string,
-						Record<
-							string,
-							{
-								_errors: string[]
-							}
-						>
-					>
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				}) => any
-			}
-		}
-	}
+            onMounted(() => {
+                if (!injectedFormData?.wrappers || !name.value) {
+                    console.warn('[@volverjs/form-vue]: Invalid wrapper registration state')
+                    return
+                }
+                if (injectedFormData.wrappers.has(name.value)) {
+                    console.warn(`[@volverjs/form-vue]: wrapper name "${name.value}" is already used`)
+                    return
+                }
+                injectedFormData.wrappers.set(name.value, providedData)
+            })
+            onBeforeUnmount(() => {
+                if (injectedFormData?.wrappers && name.value) {
+                    injectedFormData.wrappers.delete(name.value)
+                }
+            })
+
+            const validateWrapper = () => {
+                return injectedFormData?.validate(undefined, { fields: new Set(fields.value.values()) }) ?? Promise.resolve(true)
+            }
+
+            return {
+                errors: injectedFormData?.errors,
+                fields,
+                fieldsErrors,
+                formData: injectedFormData?.formData,
+                invalid: isInvalid,
+                readonly: isReadonly,
+                clear: injectedFormData?.clear,
+                reset: injectedFormData?.reset,
+                submit: injectedFormData?.submit,
+                validate: injectedFormData?.validate,
+                validateWrapper,
+            }
+        },
+        render() {
+            const defaultSlot = () =>
+                this.$slots.default?.({
+                    errors: this.errors,
+                    fieldsErrors: this.fieldsErrors,
+                    formData: this.formData,
+                    invalid: this.invalid,
+                    readonly: this.readonly,
+                    clear: this.clear,
+                    reset: this.reset,
+                    submit: this.submit,
+                    validate: this.validate,
+                    validateWrapper: this.validateWrapper,
+                })
+            if (this.tag) {
+                return h(this.tag, null, {
+                    default: defaultSlot,
+                })
+            }
+            return defaultSlot()
+        },
+    })
 }

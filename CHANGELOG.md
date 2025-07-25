@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2024-07-25
+
+### Fixed
+
+- `VvFormFieldGroup` initial value;
+- Dependencies update.
+
 ## [1.0.0] - 2024-07-21
 
 ### Added
@@ -141,6 +148,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.0.1]: https://github.com/volverjs/form-vue/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/volverjs/form-vue/compare/v0.0.14...v1.0.0
 [0.0.14]: https://github.com/volverjs/form-vue/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/volverjs/form-vue/compare/v0.0.12...v0.0.13

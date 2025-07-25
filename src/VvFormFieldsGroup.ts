@@ -331,6 +331,8 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
             const hasProps = computed(() => ({
                 ...onUpdateEvents.value,
                 ...hasFieldProps.value,
+                ...modelValue.value,
+                modelValue: modelValue.value,
                 names: hasFieldProps.value.name ?? names.value,
                 invalid: invalid.value,
                 invalids: invalids.value,
@@ -338,7 +340,6 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                     ? Boolean(!invalid.value && modelValue.value)
                     : undefined,
                 invalidLabels: invalidLabels.value,
-                modelValue: modelValue.value,
                 readonly: isReadonly.value,
             }))
 

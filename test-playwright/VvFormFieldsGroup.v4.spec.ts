@@ -5,14 +5,22 @@ test.use({ viewport: { width: 1000, height: 1000 } })
 
 test('VvFormFieldsGroup events', async ({ mount }) => {
     let submitted = false
+    let mounted = false
     let invalid = false
     let data: unknown
 
     const component = await mount(VvFormFieldsGroup, {
+        props: {
+            initialData: { firstname: 'John', lastname: 'Doe' },
+        },
         on: {
             submit: (submittedData: unknown) => {
                 submitted = true
                 data = submittedData
+            },
+            mounted: (initialData: unknown) => {
+                mounted = true
+                data = initialData
             },
             invalid: () => (invalid = true),
             valid: () => (invalid = false),
@@ -22,7 +30,11 @@ test('VvFormFieldsGroup events', async ({ mount }) => {
     const inputName = await component.locator('[name=name]')
     const inputSurname = await component.locator('[name=surname]')
 
-    await inputName.fill('John')
+    // inital values
+    expect(mounted).toBeTruthy()
+    expect(data).toEqual({ firstname: 'John', lastname: 'Doe' })
+
+    await inputName.fill('Jane')
     await inputSurname.fill('Doe')
 
     // Trigger submit event
@@ -31,7 +43,7 @@ test('VvFormFieldsGroup events', async ({ mount }) => {
     // Check valid and submitted events
     expect(submitted).toBeTruthy()
     expect(invalid).toBeFalsy()
-    expect(data).toEqual({ firstname: 'John', lastname: 'Doe' })
+    expect(data).toEqual({ firstname: 'Jane', lastname: 'Doe' })
 
     // Reset events
     submitted = false

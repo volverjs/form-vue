@@ -1,12 +1,4 @@
 import {
-    ZodDefault,
-    ZodObject,
-    ZodEffects,
-    ZodSchema,
-    ZodNullable,
-    ZodOptional,
-    ZodRecord,
-    ZodArray,
     ZodError,
 } from 'zod/v3'
 import {
@@ -20,19 +12,47 @@ import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
 import type { FormSchema, InferSchema, VvZodError, ZodIssue } from './types'
 
+export const isZod3Object = (value: z3.ZodTypeAny): value is z3.ZodObject<any> => {
+    return value._def.typeName === 'ZodObject'
+}
+
+export const isZod3Default = (value: z3.ZodTypeAny): value is z3.ZodDefault<any> => {
+    return value._def.typeName === 'ZodDefault'
+}
+
+export const isZod3Nullable = (value: z3.ZodTypeAny): value is z3.ZodNullable<any> => {
+    return value._def.typeName === 'ZodNullable'
+}
+
+export const isZod3Record = (value: z3.ZodTypeAny): value is z3.ZodRecord<any, any> => {
+    return value._def.typeName === 'ZodRecord'
+}
+
+export const isZod3Array = (value: z3.ZodTypeAny): value is z3.ZodArray<any> => {
+    return value._def.typeName === 'ZodArray'
+}
+
+export const isZod3Effects = (value: z3.ZodTypeAny): value is z3.ZodEffects<any> => {
+    return value._def.typeName === 'ZodEffects'
+}
+
+export const isZod3Optional = (value: z3.ZodTypeAny): value is z3.ZodOptional<any> => {
+    return value._def.typeName === 'ZodOptional'
+}
+
 // Helper function to get the inner type of a Zod v3 schema
 const getZod3SchemaInnerType = <Type extends z3.ZodTypeAny>(
     schema:
         | Type
         | z3.ZodEffects<Type>
-        | z3.ZodEffects<ZodEffects<Type>>
+        | z3.ZodEffects<z3.ZodEffects<Type>>
         | z3.ZodOptional<Type>,
 ) => {
     let toReturn = schema
-    while (toReturn instanceof ZodEffects) {
+    while (isZod3Effects(toReturn)) {
         toReturn = toReturn.innerType()
     }
-    if (toReturn instanceof ZodOptional) {
+    if (isZod3Optional(toReturn)) {
         toReturn = toReturn._def.innerType
     }
     return toReturn
@@ -43,18 +63,14 @@ const isZod3SchemaOptional = <Type extends z3.ZodTypeAny>(
     schema:
         | Type
         | z3.ZodEffects<Type>
-        | z3.ZodEffects<ZodEffects<Type>>
-        | z3.ZodOptional<Type>
-        | z3.ZodNullable<Type>,
+        | z3.ZodEffects<z3.ZodEffects<Type>>
+        | z3.ZodOptional<Type>,
 ) => {
     let toReturn = schema
-    while (toReturn instanceof ZodEffects) {
+    while (isZod3Effects(toReturn)) {
         toReturn = toReturn.innerType()
     }
-    if (toReturn instanceof ZodOptional) {
-        return true
-    }
-    if (toReturn instanceof ZodNullable) {
+    if (isZod3Optional(toReturn)) {
         return true
     }
     return false
@@ -178,13 +194,10 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
     // zod v3
     const innerType = getZod3SchemaInnerType(schema)
 
-    if (!(innerType instanceof ZodObject)) {
+    if (!isZod3Object(innerType)) {
         return original
     }
-    const unknownKeys
-        = innerType instanceof ZodObject
-            ? innerType._def.unknownKeys === 'passthrough'
-            : false
+    const unknownKeys = innerType._def.unknownKeys === 'passthrough'
     return {
         ...(unknownKeys ? original : {}),
         ...Object.fromEntries(
@@ -194,32 +207,32 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                     const isOptional = isZod3SchemaOptional(subSchema)
                     let innerType = getZod3SchemaInnerType(subSchema)
                     let defaultValue: Partial<InferSchema<Schema>> | undefined
-                    if (innerType instanceof ZodDefault) {
+                    if (isZod3Default(innerType)) {
                         defaultValue = innerType._def.defaultValue()
                         innerType = innerType._def.innerType
                     }
                     if (
                         originalValue === null
-                        && innerType instanceof ZodNullable
+                        && isZod3Nullable(innerType)
                     ) {
                         return [key, originalValue]
                     }
                     if ((originalValue === undefined || originalValue === null) && isOptional) {
                         return [key, defaultValue]
                     }
-                    if (innerType instanceof ZodSchema) {
+                    if (innerType) {
                         const parse = subSchema.safeParse(originalValue)
                         if (parse.success) {
                             return [key, parse.data ?? defaultValue]
                         }
                     }
                     if (
-                        innerType instanceof ZodArray
+                        isZod3Array(innerType)
                         && Array.isArray(originalValue)
                         && originalValue.length
                     ) {
                         const arrayType = getZod3SchemaInnerType(innerType._def.type)
-                        if (arrayType instanceof ZodObject) {
+                        if (isZod3Object(arrayType)) {
                             return [
                                 key,
                                 originalValue.map((element: unknown) =>
@@ -235,16 +248,16 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                             ]
                         }
                     }
-                    if (innerType instanceof ZodRecord && originalValue) {
+                    if (isZod3Record(innerType) && originalValue) {
                         const valueType = getZod3SchemaInnerType(innerType._def.valueType)
-                        if (valueType instanceof ZodObject) {
+                        if (isZod3Object(valueType)) {
                             return [key, Object.keys(originalValue).reduce((acc: Record<string, unknown>, recordKey: string) => {
                                 acc[recordKey] = defaultObjectBySchema(valueType, originalValue[recordKey])
                                 return acc
                             }, {})]
                         }
                     }
-                    if (innerType instanceof ZodObject) {
+                    if (isZod3Object(innerType)) {
                         return [
                             key,
                             defaultObjectBySchema(

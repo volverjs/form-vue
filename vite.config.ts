@@ -22,6 +22,10 @@ export default () => {
                 external: [
                     'vue',
                     'zod',
+                    'zod/v3',
+                    'zod/v4',
+                    'zod/v4/core',
+                    'ts-dot-prop',
                     '@vueuse/core',
                     /^@volverjs(?:\/.+)?$/,
                 ],
@@ -30,6 +34,10 @@ export default () => {
                     globals: {
                         'vue': 'Vue',
                         'zod': 'zod',
+                        'zod/v3': 'zodV3',
+                        'zod/v4': 'zodV4',
+                        'zod/v4/core': 'zodV4Core',
+                        'ts-dot-prop': 'tsDotProp',
                         '@vueuse/core': 'VueUseCore',
                     },
                 },

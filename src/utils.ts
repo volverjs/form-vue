@@ -87,13 +87,41 @@ export const isZod4Optional = (value: z4.$ZodType): value is z4.$ZodOptional<any
     return value._zod.def.type === 'optional'
 }
 
-// replace of effercts
+// zod 4 replacements for ZodEffects
 export const isZod4Pipe = (value: z4.$ZodType): value is z4.$ZodPipe<any> => {
     return value._zod.def.type === 'pipe'
 }
 
 export const isZod4Transform = (value: z4.$ZodType): value is z4.$ZodTransform<any> => {
     return value._zod.def.type === 'transform'
+}
+
+function _loopOnZod3Effects<Type extends z3.ZodTypeAny>(
+    schema: Type | z3.ZodEffects<Type> | z3.ZodEffects<z3.ZodEffects<Type>>,
+) {
+    let toReturn = schema
+    while (isZod3Effects(toReturn)) {
+        toReturn = toReturn.innerType()
+    }
+    return toReturn
+}
+
+function _loopOnZod4Pipe<Type extends z4.$ZodType>(
+    schema:
+        | Type
+        | z4.$ZodPipe<Type>
+        | z4.$ZodPipe<any, Type>,
+) {
+    let toReturn = schema
+    while (isZod4Pipe(toReturn)) {
+        if (isZod4Transform(toReturn._zod.def.out)) {
+            toReturn = toReturn._zod.def.in
+        }
+        else {
+            toReturn = toReturn._zod.def.out as Type
+        }
+    }
+    return toReturn
 }
 
 // Helper function to get the inner type of a Zod schema
@@ -104,10 +132,7 @@ export const getZod3SchemaInnerType = <Type extends z3.ZodTypeAny>(
         | z3.ZodEffects<z3.ZodEffects<Type>>
         | z3.ZodOptional<Type>,
 ) => {
-    let toReturn = schema
-    while (isZod3Effects(toReturn)) {
-        toReturn = toReturn.innerType()
-    }
+    let toReturn = _loopOnZod3Effects(schema)
     if (isZod3Optional(toReturn)) {
         toReturn = toReturn._def.innerType
     }
@@ -121,15 +146,7 @@ export const getZod4SchemaInnerType = <Type extends z4.$ZodType>(
         | z4.$ZodPipe<any, Type>
         | z4.$ZodOptional<Type>,
 ) => {
-    let toReturn = schema
-    while (isZod4Pipe(toReturn)) {
-        if (isZod4Transform(toReturn._zod.def.out)) {
-            toReturn = toReturn._zod.def.in
-        }
-        else {
-            toReturn = toReturn._zod.def.out as Type
-        }
-    }
+    let toReturn = _loopOnZod4Pipe(schema)
     if (isZod4Optional(toReturn)) {
         toReturn = toReturn._zod.def.innerType
     }
@@ -144,10 +161,7 @@ export const isZod3SchemaOptional = <Type extends z3.ZodTypeAny>(
         | z3.ZodEffects<z3.ZodEffects<Type>>
         | z3.ZodOptional<Type>,
 ) => {
-    let toReturn = schema
-    while (isZod3Effects(toReturn)) {
-        toReturn = toReturn.innerType()
-    }
+    const toReturn = _loopOnZod3Effects(schema)
     if (isZod3Optional(toReturn)) {
         return true
     }
@@ -161,15 +175,7 @@ export const isZod4SchemaOptional = <Type extends z4.$ZodType>(
         | z4.$ZodPipe<any, Type>
         | z4.$ZodOptional<Type>,
 ) => {
-    let toReturn = schema
-    while (isZod4Pipe(toReturn)) {
-        if (isZod4Transform(toReturn._zod.def.out)) {
-            toReturn = toReturn._zod.def.in
-        }
-        else {
-            toReturn = toReturn._zod.def.out as Type
-        }
-    }
+    const toReturn = _loopOnZod4Pipe(schema)
     if (isZod4Optional(toReturn)) {
         return true
     }
@@ -263,7 +269,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
         if (!isZod4Object(innerType)) {
             return original
         }
-        const unknownKeys = !(!innerType._zod.def.catchall || innerType._zod.def.catchall?._zod.def.type === 'never')
+        const unknownKeys = innerType._zod.def.catchall && innerType._zod.def.catchall._zod.def.type !== 'never'
 
         return {
             ...(unknownKeys ? original : {}),

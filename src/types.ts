@@ -104,7 +104,7 @@ export type InjectedFormData<Schema extends FormSchema, Type> = {
 
 export type InjectedFormWrapperData<Schema extends FormSchema> = {
     name: Readonly<Ref<string>>
-    errors: Ref<Map<string, InferFormattedError<Schema>>>
+    errors: Ref<Map<string, InferFormattedError<Schema> | undefined>>
     invalid: Readonly<Ref<boolean>>
     readonly: Readonly<Ref<boolean>>
     fields: Ref<Map<string, string>>
@@ -112,7 +112,7 @@ export type InjectedFormWrapperData<Schema extends FormSchema> = {
 
 export type InjectedFormFieldData<Schema extends FormSchema> = {
     name: Readonly<Ref<Path<InferSchema<Schema>>>>
-    errors: Readonly<Ref<DeepReadonly<InferFormattedError<Schema>>>>
+    errors: Readonly<Ref<DeepReadonly<InferFormattedError<Schema> | undefined>>>
 }
 
 export type InjectedFormFieldsGroupData<Schema extends FormSchema> = {

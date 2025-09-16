@@ -8,7 +8,7 @@ import type {
     InferSchema,
     InferFormattedError,
 } from './types'
-import { get, set } from 'ts-dot-prop'
+import { getProperty, setProperty } from 'dot-prop'
 import {
     computed,
     defineComponent,
@@ -148,7 +148,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                         return {}
                     }
                     return namesKeys.value.reduce<Record<string, any>>((acc, nameKey) => {
-                        acc[nameKey] = get(
+                        acc[nameKey] = getProperty(
                             new Object(injectedFormData.formData.value),
                             namesMap.value[nameKey],
                         )
@@ -160,7 +160,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                         return
                     }
                     namesKeys.value.forEach((nameKey) => {
-                        set(
+                        setProperty(
                             new Object(injectedFormData.formData.value),
                             namesMap.value[nameKey],
                             value?.[nameKey],
@@ -208,7 +208,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                     if (!injectedFormData.errors.value) {
                         return acc
                     }
-                    const error = get(injectedFormData.errors.value, String(name))
+                    const error = getProperty(injectedFormData.errors.value, String(name))
                     if (error === undefined) {
                         return acc
                     }

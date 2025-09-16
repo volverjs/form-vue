@@ -8,7 +8,7 @@ import type {
     InferSchema,
 } from './types'
 import type { FormStatus } from './enums'
-import { get } from 'ts-dot-prop'
+import { getProperty } from 'dot-prop'
 import {
     defineComponent,
     h,
@@ -77,7 +77,7 @@ export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(
                     if (vvIf !== undefined) {
                         if (typeof vvIf === 'string') {
                             lastIf = Boolean(
-                                get(
+                                getProperty(
                                     new Object(injectedFormData.formData.value),
                                     vvIf,
                                 ),
@@ -99,7 +99,7 @@ export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(
                         }
                         if (typeof vvElseIf === 'string') {
                             lastIf = Boolean(
-                                get(
+                                getProperty(
                                     new Object(injectedFormData.formData.value),
                                     vvElseIf,
                                 ),

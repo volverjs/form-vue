@@ -1,18 +1,18 @@
 import { test, expect } from '@playwright/experimental-ct-vue'
-import VvFormTemplate from './VvFormTemplate.vue'
+import VvFormField from './VvFormField.v3.vue'
 
 test.use({ viewport: { width: 1000, height: 1000 } })
 
-test('Valid VvFormTemplate', async ({ mount }) => {
-    const component = await mount(VvFormTemplate)
+test('Valid VvFormField', async ({ mount }) => {
+    const component = await mount(VvFormField)
 
     // check firstname is valid
     const inputTextFirstName = await component.locator('.vv-input-text--valid')
     await expect(inputTextFirstName).toHaveText('firstname')
 })
 
-test('Label and Value VvFormTemplate', async ({ mount }) => {
-    const component = await mount(VvFormTemplate)
+test('Label and Value VvFormField', async ({ mount }) => {
+    const component = await mount(VvFormField)
 
     // check input labels
     const labelFirstName = await component.locator('label', {
@@ -21,12 +21,8 @@ test('Label and Value VvFormTemplate', async ({ mount }) => {
     const labelSurname = await component.locator('label', {
         hasText: 'surname',
     })
-    const labelCity = await component.locator('label', {
-        hasText: 'city',
-    })
     await expect(labelFirstName).toHaveText('firstname')
     await expect(labelSurname).toHaveText('surname')
-    await expect(labelCity).toHaveText('city')
 
     // check input values
     const inputFirstName = await component.locator('input[name=firstname]')

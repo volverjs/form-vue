@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { z } from 'zod'
+import * as z from 'zod/v4'
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
 import { useForm } from '../src'
@@ -10,7 +10,7 @@ const zodSchema = z.object({
     location: z.object({
         city: z.string(),
         address: z.string(),
-        civicNumber: z.number({ required_error: 'Required error' }).min(1),
+        civicNumber: z.number('Required error').min(1),
         country: z.string(),
         region: z.string(),
     }),

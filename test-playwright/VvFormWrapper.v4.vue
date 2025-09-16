@@ -1,0 +1,70 @@
+<script setup lang="ts">
+import * as z from 'zod/v4'
+import { ref, onMounted } from 'vue'
+import type { Ref } from 'vue'
+import { useForm } from '../src'
+
+const zodSchema = z.object({
+    firstname: z.string().min(3),
+    surname: z.string().min(3),
+    location: z.object({
+        city: z.string(),
+        address: z.string(),
+        civicNumber: z.number('Required error').min(1),
+        country: z.string(),
+        region: z.string(),
+    }),
+})
+
+const { VvForm, VvFormField, VvFormWrapper } = useForm(zodSchema, {
+    lazyLoad: true,
+})
+
+const model: Ref<z.infer<typeof zodSchema>> = ref({
+    firstname: 'Massimo',
+    surname: 'Rossi',
+    location: {
+        city: 'Verona',
+        address: '',
+        civicNumber: 0,
+        country: '',
+        region: '',
+    },
+})
+
+const formEl = ref<InstanceType<typeof VvForm>>()
+onMounted(() => {
+    if (formEl.value) {
+        formEl.value.submit()
+    }
+})
+</script>
+
+<template>
+    <VvForm ref="formEl" v-model="model">
+        <VvFormField name="firstname" type="text" label="firstname" show-valid />
+        <VvFormField name="surname" type="text" label="surname" />
+        <VvFormWrapper v-slot="{ invalid, validateWrapper }" name="location">
+            <div class="form-section-1">
+                <VvFormField name="location.city" type="text" label="city" />
+                <VvFormWrapper v-slot="{ invalid: addressInvalid }" name="address">
+                    <VvFormField name="location.address" type="text" label="address" />
+                    <VvFormField name="location.civicNumber" type="number" label="civicNumber" min="0" />
+                    <small v-if="addressInvalid" id="address-wrapper-hint" class="text-danger">There is a validation error in the address</small>
+                </VvFormWrapper>
+                <VvFormField name="location.country" type="text" label="country" />
+                <VvFormField name="location.region" type="text" label="region" />
+                <small v-if="invalid" id="section-wrapper-hint" class="text-danger">There is a validation error in this section</small>
+            </div>
+            <button
+                id="validation-button" type="button" class="vv-button" title="Wrapper validation"
+                @click="validateWrapper"
+            >
+                Wrapper validation
+            </button>
+        </VvFormWrapper>
+        <button type="reset" class="vv-button" title="Reset">
+            Reset
+        </button>
+    </VvForm>
+</template>

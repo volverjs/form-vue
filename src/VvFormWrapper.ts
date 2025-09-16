@@ -1,10 +1,11 @@
 import type { DeepReadonly, InjectionKey, Ref, SlotsType } from 'vue'
-import type { z } from 'zod'
 import type {
     FormSchema,
     InjectedFormData,
     InjectedFormWrapperData,
     Path,
+    InferFormattedError,
+    InferSchema,
 } from './types'
 import {
     computed,
@@ -54,10 +55,10 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
         ],
         slots: Object as SlotsType<{
             default: {
-                errors?: DeepReadonly<z.inferFormattedError<Schema>>
-                fieldsErrors: Map<string, z.inferFormattedError<Schema>>
-                formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
-                formErrors?: DeepReadonly<z.inferFormattedError<Schema>>
+                errors?: DeepReadonly<InferFormattedError<Schema>>
+                fieldsErrors: Map<string, InferFormattedError<Schema>>
+                formData?: undefined extends Type ? Partial<InferSchema<Schema>> : Type
+                formErrors?: DeepReadonly<InferFormattedError<Schema>>
                 invalid: boolean
                 readonly: boolean
                 clear?: InjectedFormData<Schema, Type>['clear']
@@ -72,9 +73,9 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             const injectedFormData = inject(formProvideKey)
             // inject data from parent form wrapper
             const injectedWrapperData = inject(wrapperProvideKey, undefined)
-            const fields: Ref<Map<string, Path<z.infer<Schema>>>> = ref(new Map())
+            const fields: Ref<Map<string, Path<InferSchema<Schema>>>> = ref(new Map())
             const fieldsErrors: Ref<
-                Map<string, z.inferFormattedError<Schema>>
+                Map<string, InferFormattedError<Schema>>
             > = ref(new Map())
             const { name } = toRefs(props)
 

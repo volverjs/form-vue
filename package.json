@@ -66,7 +66,7 @@
     "peerDependencies": {
         "@volverjs/ui-vue": "^0.0.9",
         "@vueuse/core": "^13.0.0",
-        "ts-dot-prop": "^2.1.0",
+        "dot-prop": "^10.0.0",
         "vue": "^3.5.0",
         "zod": "^3.25.0 || ^4.0.0"
     },
@@ -83,9 +83,9 @@
         "@vue/test-utils": "^2.4.6",
         "@vueuse/core": "^13.9.0",
         "copy": "^0.3.2",
+        "dot-prop": "^10.0.0",
         "eslint": "^9.35.0",
         "happy-dom": "^18.0.1",
-        "ts-dot-prop": "^2.1.4",
         "typescript": "^5.9.2",
         "vite": "^7.1.5",
         "vite-plugin-dts": "^4.5.4",

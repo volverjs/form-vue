@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2024-09-16
+
+### Fixed
+
+- `ts-dot-prop` is no longer maintained, replaced with `dot-props`.
+
 ## [1.1.0] - 2024-09-16
 
 ### Added
@@ -151,6 +157,8 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.1.1]: https://github.com/volverjs/form-vue/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/volverjs/form-vue/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/volverjs/form-vue/compare/v0.0.14...v1.0.0
 [0.0.14]: https://github.com/volverjs/form-vue/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/volverjs/form-vue/compare/v0.0.12...v0.0.13

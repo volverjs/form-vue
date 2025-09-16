@@ -136,7 +136,7 @@ https://github.com/colinhacks/zod
 ### License
 MIT License
 
-Copyright (c) 2020 Colin McDonnell
+Copyright (c) 2025 Colin McDonnell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

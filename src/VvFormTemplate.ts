@@ -55,128 +55,128 @@ export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(
                 let lastIf: boolean | undefined
                 const toReturn = normalizedSchema.reduce<
                     (VNode | VNode[] | undefined)[]
-                        >((acc, field) => {
-                            const normalizedField = typeof field === 'function'
-                                ? field(injectedFormData, templateProps.scope)
-                                : field
-                            const {
-                                vvIs,
-                                vvName,
-                                vvSlots,
-                                vvChildren,
-                                vvIf,
-                                vvElseIf,
-                                vvType,
-                                vvDefaultValue,
-                                vvShowValid,
-                                vvContent,
-                                ...props
-                            } = normalizedField
+                >((acc, field) => {
+                    const normalizedField = typeof field === 'function'
+                        ? field(injectedFormData, templateProps.scope)
+                        : field
+                    const {
+                        vvIs,
+                        vvName,
+                        vvSlots,
+                        vvChildren,
+                        vvIf,
+                        vvElseIf,
+                        vvType,
+                        vvDefaultValue,
+                        vvShowValid,
+                        vvContent,
+                        ...props
+                    } = normalizedField
 
-                            // conditions
-                            if (vvIf !== undefined) {
-                                if (typeof vvIf === 'string') {
-                                    lastIf = Boolean(
-                                        get(
-                                            new Object(injectedFormData.formData.value),
-                                            vvIf,
-                                        ),
-                                    )
-                                }
-                                else if (typeof vvIf === 'function') {
-                                    lastIf = unref(vvIf(injectedFormData))
-                                }
-                                else {
-                                    lastIf = unref(vvIf)
-                                }
-                                if (!lastIf) {
-                                    return acc
-                                }
-                            }
-                            else if (vvElseIf !== undefined && lastIf !== undefined) {
-                                if (lastIf) {
-                                    return acc
-                                }
-                                if (typeof vvElseIf === 'string') {
-                                    lastIf = Boolean(
-                                        get(
-                                            new Object(injectedFormData.formData.value),
-                                            vvElseIf,
-                                        ),
-                                    )
-                                }
-                                else if (typeof vvElseIf === 'function') {
-                                    lastIf = unref(vvElseIf(injectedFormData))
-                                }
-                                else {
-                                    lastIf = unref(vvElseIf)
-                                }
-                                if (!lastIf) {
-                                    return acc
-                                }
-                            }
-                            else {
-                                lastIf = undefined
-                            }
-
-                            // children
-                            let hChildren: RenderFunctionOutput | { default: (scope: Record<string, unknown>) => RenderFunctionOutput } | undefined
-                            if (vvChildren) {
-                                if (typeof vvIs === 'string') {
-                                    hChildren = h(VvFormTemplate, {
-                                        schema: vvChildren,
-                                    })
-                                }
-                                else {
-                                    hChildren = {
-                                        default: (scope: Record<string, unknown>) =>
-                                            h(VvFormTemplate, {
-                                                schema: vvChildren,
-                                                scope,
-                                            }),
-                                    }
-                                }
-                            }
-
-                            // render
-                            if (vvName) {
-                                acc.push(
-                                    h(
-                                        VvFormField,
-                                        {
-                                            name: vvName,
-                                            is: vvIs,
-                                            type: vvType,
-                                            defaultValue: vvDefaultValue,
-                                            showValid: vvShowValid,
-                                            props,
-                                        },
-                                        vvSlots ?? hChildren ?? vvContent,
-                                    ),
-                                )
-                                return acc
-                            }
-                            if (vvIs) {
-                                acc.push(
-                                    h(
-                                        vvIs as Component,
-                                        props,
-                                        vvSlots ?? hChildren ?? vvContent,
-                                    ),
-                                )
-                                return acc
-                            }
-                            if (hChildren) {
-                                if ('default' in hChildren) {
-                                    acc.push(hChildren.default(templateProps.scope))
-                                }
-                                else {
-                                    acc.push(hChildren)
-                                }
-                                return acc
-                            }
+                    // conditions
+                    if (vvIf !== undefined) {
+                        if (typeof vvIf === 'string') {
+                            lastIf = Boolean(
+                                get(
+                                    new Object(injectedFormData.formData.value),
+                                    vvIf,
+                                ),
+                            )
+                        }
+                        else if (typeof vvIf === 'function') {
+                            lastIf = unref(vvIf(injectedFormData))
+                        }
+                        else {
+                            lastIf = unref(vvIf)
+                        }
+                        if (!lastIf) {
                             return acc
-                        }, [])
+                        }
+                    }
+                    else if (vvElseIf !== undefined && lastIf !== undefined) {
+                        if (lastIf) {
+                            return acc
+                        }
+                        if (typeof vvElseIf === 'string') {
+                            lastIf = Boolean(
+                                get(
+                                    new Object(injectedFormData.formData.value),
+                                    vvElseIf,
+                                ),
+                            )
+                        }
+                        else if (typeof vvElseIf === 'function') {
+                            lastIf = unref(vvElseIf(injectedFormData))
+                        }
+                        else {
+                            lastIf = unref(vvElseIf)
+                        }
+                        if (!lastIf) {
+                            return acc
+                        }
+                    }
+                    else {
+                        lastIf = undefined
+                    }
+
+                    // children
+                    let hChildren: RenderFunctionOutput | { default: (scope: Record<string, unknown>) => RenderFunctionOutput } | undefined
+                    if (vvChildren) {
+                        if (typeof vvIs === 'string') {
+                            hChildren = h(VvFormTemplate, {
+                                schema: vvChildren,
+                            })
+                        }
+                        else {
+                            hChildren = {
+                                default: (scope: Record<string, unknown>) =>
+                                    h(VvFormTemplate, {
+                                        schema: vvChildren,
+                                        scope,
+                                    }),
+                            }
+                        }
+                    }
+
+                    // render
+                    if (vvName) {
+                        acc.push(
+                            h(
+                                VvFormField,
+                                {
+                                    name: vvName,
+                                    is: vvIs,
+                                    type: vvType,
+                                    defaultValue: vvDefaultValue,
+                                    showValid: vvShowValid,
+                                    props,
+                                },
+                                vvSlots ?? hChildren ?? vvContent,
+                            ),
+                        )
+                        return acc
+                    }
+                    if (vvIs) {
+                        acc.push(
+                            h(
+                                vvIs as Component,
+                                props,
+                                vvSlots ?? hChildren ?? vvContent,
+                            ),
+                        )
+                        return acc
+                    }
+                    if (hChildren) {
+                        if ('default' in hChildren) {
+                            acc.push(hChildren.default(templateProps.scope))
+                        }
+                        else {
+                            acc.push(hChildren)
+                        }
+                        return acc
+                    }
+                    return acc
+                }, [])
                 toReturn.push(
                     templateSlots?.default?.({
                         errors: injectedFormData?.errors.value,

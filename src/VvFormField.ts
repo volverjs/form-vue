@@ -334,31 +334,31 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                     switch (props.type) {
                         case FormFieldType.textarea:
                             return import(
-                                '@volverjs/ui-vue/vv-textarea'
+                                '@volverjs/ui-vue/vv-textarea',
                             ) as Component
                         case FormFieldType.radio:
                             return import(
-                                '@volverjs/ui-vue/vv-radio'
+                                '@volverjs/ui-vue/vv-radio',
                             ) as Component
                         case FormFieldType.radioGroup:
                             return import(
-                                '@volverjs/ui-vue/vv-radio-group'
+                                '@volverjs/ui-vue/vv-radio-group',
                             ) as Component
                         case FormFieldType.checkbox:
                             return import(
-                                '@volverjs/ui-vue/vv-checkbox'
+                                '@volverjs/ui-vue/vv-checkbox',
                             ) as Component
                         case FormFieldType.checkboxGroup:
                             return import(
-                                '@volverjs/ui-vue/vv-checkbox-group'
+                                '@volverjs/ui-vue/vv-checkbox-group',
                             ) as Component
                         case FormFieldType.select:
                             return import(
-                                '@volverjs/ui-vue/vv-select'
+                                '@volverjs/ui-vue/vv-select',
                             ) as Component
                         case FormFieldType.combobox:
                             return import(
-                                '@volverjs/ui-vue/vv-combobox'
+                                '@volverjs/ui-vue/vv-combobox',
                             ) as Component
                     }
                     return import('@volverjs/ui-vue/vv-input-text') as Component

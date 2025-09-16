@@ -8,7 +8,7 @@ import type {
     InjectedFormWrapperData,
     Path,
 } from './types'
-import { get, set } from 'ts-dot-prop'
+import { getProperty, setProperty } from 'dot-prop'
 import {
     computed,
     defineAsyncComponent,
@@ -95,9 +95,9 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
         slots: Object as SlotsType<{
             [key: string]: any
             default: {
-                errors: DeepReadonly<z.inferFormattedError<Schema>>
+                errors: DeepReadonly<z.inferFormattedError<Schema> | undefined>
                 formData?: undefined extends Type ? Partial<z.infer<Schema>> : Type
-                formErrors?: DeepReadonly<z.inferFormattedError<Schema, string>>
+                formErrors?: DeepReadonly<z.inferFormattedError<Schema, string> | undefined>
                 invalid: boolean
                 invalidLabel?: string[]
                 modelValue: any
@@ -126,7 +126,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                     if (!injectedFormData?.formData) {
                         return
                     }
-                    return get(
+                    return getProperty(
                         new Object(injectedFormData.formData.value),
                         String(props.name),
                     )
@@ -135,7 +135,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                     if (!injectedFormData?.formData) {
                         return
                     }
-                    set(
+                    setProperty(
                         new Object(injectedFormData.formData.value),
                         String(props.name),
                         value,
@@ -164,7 +164,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 if (!injectedFormData?.errors.value) {
                     return undefined
                 }
-                return get(injectedFormData.errors.value, String(props.name))
+                return getProperty(injectedFormData.errors.value, String(props.name)) as z.inferFormattedError<Schema> | undefined
             })
             const invalidLabel = computed(() => {
                 return errors.value?._errors
@@ -277,7 +277,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                         render() {
                             return (
                                 slots.default?.({
-                                    errors: errors.value,
+                                    errors: readonly(errors).value,
                                     formData: injectedFormData?.formData.value,
                                     formErrors: injectedFormData?.errors.value,
                                     invalid: isInvalid.value,
@@ -333,31 +333,31 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                     switch (props.type) {
                         case FormFieldType.textarea:
                             return import(
-                                '@volverjs/ui-vue/vv-textarea'
+                                '@volverjs/ui-vue/vv-textarea',
                             ) as Component
                         case FormFieldType.radio:
                             return import(
-                                '@volverjs/ui-vue/vv-radio'
+                                '@volverjs/ui-vue/vv-radio',
                             ) as Component
                         case FormFieldType.radioGroup:
                             return import(
-                                '@volverjs/ui-vue/vv-radio-group'
+                                '@volverjs/ui-vue/vv-radio-group',
                             ) as Component
                         case FormFieldType.checkbox:
                             return import(
-                                '@volverjs/ui-vue/vv-checkbox'
+                                '@volverjs/ui-vue/vv-checkbox',
                             ) as Component
                         case FormFieldType.checkboxGroup:
                             return import(
-                                '@volverjs/ui-vue/vv-checkbox-group'
+                                '@volverjs/ui-vue/vv-checkbox-group',
                             ) as Component
                         case FormFieldType.select:
                             return import(
-                                '@volverjs/ui-vue/vv-select'
+                                '@volverjs/ui-vue/vv-select',
                             ) as Component
                         case FormFieldType.combobox:
                             return import(
-                                '@volverjs/ui-vue/vv-combobox'
+                                '@volverjs/ui-vue/vv-combobox',
                             ) as Component
                     }
                     return import('@volverjs/ui-vue/vv-input-text') as Component

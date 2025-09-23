@@ -2,7 +2,7 @@
     "name": "@volverjs/form-vue",
     "type": "module",
     "version": "0.0.0",
-    "packageManager": "pnpm@10.16.1",
+    "packageManager": "pnpm@10.17.1",
     "description": "Vue 3 Forms with @volverjs/ui-vue",
     "author": "8 Wave S.r.l.",
     "license": "MIT",
@@ -64,35 +64,35 @@
         "credits": "npx @opengovsg/credits-generator"
     },
     "peerDependencies": {
-        "@volverjs/ui-vue": "^0.0.9",
+        "@volverjs/ui-vue": "^0.0.10",
         "@vueuse/core": "^13.0.0",
         "dot-prop": "^10.0.0",
         "vue": "^3.5.0",
         "zod": "^3.25.0 || ^4.0.0"
     },
     "devDependencies": {
-        "@antfu/eslint-config": "^5.3.0",
+        "@antfu/eslint-config": "^5.4.1",
         "@nabla/vite-plugin-eslint": "^2.0.6",
-        "@playwright/experimental-ct-vue": "^1.55.0",
+        "@playwright/experimental-ct-vue": "^1.55.1",
         "@testing-library/vue": "^8.1.0",
         "@vitejs/plugin-vue": "^6.0.1",
         "@volverjs/style": "^0.1.22",
-        "@volverjs/ui-vue": "^0.0.9",
+        "@volverjs/ui-vue": "^0.0.10",
         "@vue/compiler-sfc": "^3.5.21",
         "@vue/runtime-core": "^3.5.21",
         "@vue/test-utils": "^2.4.6",
         "@vueuse/core": "^13.9.0",
         "copy": "^0.3.2",
         "dot-prop": "^10.0.0",
-        "eslint": "^9.35.0",
+        "eslint": "^9.36.0",
         "happy-dom": "^18.0.1",
         "typescript": "^5.9.2",
-        "vite": "^7.1.5",
+        "vite": "^7.1.7",
         "vite-plugin-dts": "^4.5.4",
         "vite-plugin-externalize-deps": "^0.9.0",
         "vitest": "^3.2.4",
         "vue": "^3.5.21",
-        "zod": "^4.1.8"
+        "zod": "^4.1.11"
     },
     "pnpm": {
         "onlyBuiltDependencies": [

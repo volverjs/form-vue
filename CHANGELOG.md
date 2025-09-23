@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.1] - 2024-09-16
+## [1.1.1] - 2024-09-23
 
 ### Fixed
 
 - `ts-dot-prop` is no longer maintained, replaced with `dot-props`.
+- `@volverjs/ui-vue` peer dependency updated to `^0.0.10`.
 
 ## [1.1.0] - 2024-09-16
 

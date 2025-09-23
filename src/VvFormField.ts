@@ -9,7 +9,7 @@ import type {
     InferSchema,
     InferFormattedError,
 } from './types'
-import { get, set } from 'ts-dot-prop'
+import { getProperty, setProperty } from 'dot-prop'
 import {
     computed,
     defineAsyncComponent,
@@ -96,7 +96,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
         slots: Object as SlotsType<{
             [key: string]: any
             default: {
-                errors: DeepReadonly<InferFormattedError<Schema>>
+                errors: DeepReadonly<InferFormattedError<Schema> | undefined>
                 formData?: undefined extends Type ? Partial<InferSchema<Schema>> : Type
                 formErrors?: DeepReadonly<InferFormattedError<Schema>>
                 invalid: boolean
@@ -127,7 +127,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                     if (!injectedFormData?.formData) {
                         return
                     }
-                    return get(
+                    return getProperty(
                         new Object(injectedFormData.formData.value),
                         String(props.name),
                     )
@@ -136,7 +136,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                     if (!injectedFormData?.formData) {
                         return
                     }
-                    set(
+                    setProperty(
                         new Object(injectedFormData.formData.value),
                         String(props.name),
                         value,
@@ -165,7 +165,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 if (!injectedFormData?.errors.value) {
                     return undefined
                 }
-                return get(injectedFormData.errors.value, String(props.name))
+                return getProperty(injectedFormData.errors.value, String(props.name)) as InferFormattedError<Schema> | undefined
             })
             const invalidLabel = computed(() => {
                 return errors.value?._errors
@@ -278,7 +278,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                         render() {
                             return (
                                 slots.default?.({
-                                    errors: errors.value,
+                                    errors: readonly(errors).value,
                                     formData: injectedFormData?.formData.value,
                                     formErrors: injectedFormData?.errors.value,
                                     invalid: isInvalid.value,

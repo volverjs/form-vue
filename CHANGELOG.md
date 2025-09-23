@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.0.3] - 2024-09-23
+
+### Fixed
+- `@volverjs/ui-vue` peer dependency updated to `^0.0.10`.
+
 # [1.0.2] - 2024-09-16
 
 ### Fixed
@@ -153,6 +158,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.0.3]: https://github.com/volverjs/form-vue/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/volverjs/form-vue/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/volverjs/form-vue/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/volverjs/form-vue/compare/v0.0.14...v1.0.0

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2024-10-03
+
+### Fixed
+
+- Dependencies update.
+
 ## [1.1.1] - 2024-09-23
 
 ### Fixed

@@ -2,7 +2,7 @@
     "name": "@volverjs/form-vue",
     "type": "module",
     "version": "0.0.0",
-    "packageManager": "pnpm@10.18.0",
+    "packageManager": "pnpm@10.18.1",
     "description": "Vue 3 Forms with @volverjs/ui-vue",
     "author": "8 Wave S.r.l.",
     "license": "MIT",
@@ -73,7 +73,7 @@
     "devDependencies": {
         "@antfu/eslint-config": "^5.4.1",
         "@nabla/vite-plugin-eslint": "^2.0.6",
-        "@playwright/experimental-ct-vue": "^1.55.1",
+        "@playwright/experimental-ct-vue": "^1.56.0",
         "@testing-library/vue": "^8.1.0",
         "@vitejs/plugin-vue": "^6.0.1",
         "@volverjs/style": "^0.1.22",
@@ -83,8 +83,8 @@
         "@vue/test-utils": "^2.4.6",
         "@vueuse/core": "^13.9.0",
         "copy": "^0.3.2",
-        "dot-prop": "^10.0.0",
-        "eslint": "^9.36.0",
+        "dot-prop": "^10.1.0",
+        "eslint": "^9.37.0",
         "happy-dom": "^19.0.2",
         "typescript": "^5.9.3",
         "vite": "^7.1.9",
@@ -92,7 +92,7 @@
         "vite-plugin-externalize-deps": "^0.10.0",
         "vitest": "^3.2.4",
         "vue": "^3.5.22",
-        "zod": "^4.1.11"
+        "zod": "^4.1.12"
     },
     "pnpm": {
         "onlyBuiltDependencies": [

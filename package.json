@@ -81,7 +81,7 @@
         "@vue/compiler-sfc": "^3.5.22",
         "@vue/runtime-core": "^3.5.22",
         "@vue/test-utils": "^2.4.6",
-        "@vueuse/core": "^13.9.0",
+        "@vueuse/core": "^14.0.0",
         "copy": "^0.3.2",
         "dot-prop": "^10.1.0",
         "eslint": "^9.37.0",
@@ -90,7 +90,7 @@
         "vite": "^7.1.9",
         "vite-plugin-dts": "^4.5.4",
         "vite-plugin-externalize-deps": "^0.10.0",
-        "vitest": "^3.2.4",
+        "vitest": "^4.0.1",
         "vue": "^3.5.22",
         "zod": "^4.1.12"
     },

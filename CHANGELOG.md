@@ -2,20 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.2] - 2024-10-03
+## [1.1.2] - 2025-12-22
 
 ### Fixed
 
 - Dependencies update.
 
-## [1.1.1] - 2024-09-23
+## [1.1.1] - 2025-09-23
 
 ### Fixed
 
 - `ts-dot-prop` is no longer maintained, replaced with `dot-props`.
 - `@volverjs/ui-vue` peer dependency updated to `^0.0.10`.
 
-## [1.1.0] - 2024-09-16
+## [1.1.0] - 2025-09-16
 
 ### Added
 
@@ -25,7 +25,7 @@ All notable changes to this project will be documented in this file.
 
 - `VvFormFieldGroup` initial value;
 
-## [1.0.0] - 2024-07-21
+## [1.0.0] - 2025-07-21
 
 ### Added
 

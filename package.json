@@ -71,7 +71,7 @@
         "zod": "^3.25.0 || ^4.0.0"
     },
     "devDependencies": {
-        "@antfu/eslint-config": "^6.7.3",
+        "@antfu/eslint-config": "^7.0.0",
         "@nabla/vite-plugin-eslint": "^2.0.6",
         "@playwright/experimental-ct-vue": "^1.57.0",
         "@testing-library/vue": "^8.1.0",

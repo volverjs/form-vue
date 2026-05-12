@@ -4,34 +4,25 @@
         "jsx": "preserve",
         "lib": ["ESNext", "DOM", "DOM.Iterable"],
         "useDefineForClassFields": true,
-        "baseUrl": ".",
         "module": "ESNext",
-        "moduleResolution": "Node",
+        "moduleResolution": "bundler",
+        "paths": {
+            "@vue/shared": [
+                "./node_modules/@vue/shared"
+            ]
+        },
         "resolveJsonModule": true,
         "types": ["vitest/globals", "vite/client"],
         "strict": true,
-        "strictBindCallApply": true,
-        "strictFunctionTypes": true,
-        "strictNullChecks": true,
-        "strictPropertyInitialization": true,
-        "alwaysStrict": true,
-        "noImplicitAny": true,
         "noImplicitReturns": true,
-        // `"noImplicitThis": true` is part of `strict`
-        // Added again here in case some users decide to disable `strict`.
-        // This enables stricter inference for data properties on `this`.
-        "noImplicitThis": true,
         "noUnusedLocals": true,
         "noUnusedParameters": false,
         "declaration": true,
         "outDir": "dist",
-        // Recommended
-        "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
-        // `"verbatimModuleSyntax": true` replaces isolatedModules, preserveValueImports and importsNotUsedAsValues
         "verbatimModuleSyntax": true,
         "skipLibCheck": true,
         "noErrorTruncation": true
     },
-    "include": ["src/*", "test-vitest/*", "test-playwright/*", "test-playwright/VvForm.v3.vue", "test-playwright/VvFormField.v3.vue", "test-playwright/VvFormFieldsGroup.v3.vue", "test-playwright/VvFormTemplate.v3.vue", "test-playwright/VvFormWrapper.v3.vue"]
+    "include": ["./src/**/*", "./test-vitest/**/*", "./test-playwright/**/*"]
 }

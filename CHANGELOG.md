@@ -4,8 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1.2] - 2025-12-22
 
+### Added
+
+- `defaultObjectByJSONSchema()` support for `oneOf`, `allOf`, `const`;
+- `defaultObjectByJSONSchema()` support for `type` as array (e.g. `["string", "null"]`);
+- `defaultObjectByJSONSchema()` guard for empty `anyOf`/`oneOf` arrays;
+
 ### Fixed
 
+- `defaultObjectByJSONSchema()` array without `items` now preserves `original` value instead of falling back to `schema.default`;
+- `defaultObjectBySchema()` array with empty `[]` value now correctly preserved instead of being replaced with `defaultValue`;
+- `defaultObjectBySchema()` array element type non-object now preserved correctly;
+- `defaultObjectBySchema()` record with non-object `valueType` now preserves `originalValue` instead of being discarded;
+- `defaultObjectBySchema()` `safeParse` no longer called when `originalValue` is `undefined`, avoiding unintended coercion;
+- `VvFormFieldsGroup` `invalids` computed now correctly references `namesMap` instead of `namesKeysMap`;
 - Dependencies update.
 
 ## [1.1.1] - 2025-09-23

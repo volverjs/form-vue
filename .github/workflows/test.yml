@@ -14,13 +14,10 @@ jobs:
               with:
                   node-version: 20
 
-            - uses: pnpm/action-setup@v4
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+              name: Install pnpm
               with:
-                  node-version: ${{ matrix.node-version }}
-                  cache: 'pnpm'
+                cache: true
 
             - name: Install dependencies
               run: pnpm install --no-frozen-lockfile
@@ -51,13 +48,10 @@ jobs:
               with:
                   node-version: 20
 
-            - uses: pnpm/action-setup@v4
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+              name: Install pnpm
               with:
-                  node-version: ${{ matrix.node-version }}
-                  cache: 'pnpm'
+                cache: true
 
             - name: Install dependencies
               run: pnpm install --no-frozen-lockfile

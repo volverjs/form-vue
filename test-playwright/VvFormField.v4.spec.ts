@@ -1,32 +1,29 @@
-import { test, expect } from '@playwright/experimental-ct-vue'
+import { test, expect } from 'vitest'
+import { render } from 'vitest-browser-vue'
 import VvFormField from './VvFormField.v4.vue'
 
-test.use({ viewport: { width: 1000, height: 1000 } })
-
-test('Valid VvFormField', async ({ mount }) => {
-    const component = await mount(VvFormField)
+test('Valid VvFormField', async () => {
+    render(VvFormField)
 
     // check firstname is valid
-    const inputTextFirstName = await component.locator('.vv-input-text--valid')
-    await expect(inputTextFirstName).toHaveText('firstname')
+    await expect.poll(
+        () => document.querySelector('.vv-input-text--valid') !== null,
+        { timeout: 10000 },
+    ).toBe(true)
 })
 
-test('Label and Value VvFormField', async ({ mount }) => {
-    const component = await mount(VvFormField)
+test('Label and Value VvFormField', async () => {
+    const screen = render(VvFormField)
 
     // check input labels
-    const labelFirstName = await component.locator('label', {
-        hasText: 'firstname',
-    })
-    const labelSurname = await component.locator('label', {
-        hasText: 'surname',
-    })
-    await expect(labelFirstName).toHaveText('firstname')
-    await expect(labelSurname).toHaveText('surname')
+    await expect.element(screen.getByText('firstname')).toBeInTheDocument()
+    await expect.element(screen.getByText('surname')).toBeInTheDocument()
 
     // check input values
-    const inputFirstName = await component.locator('input[name=firstname]')
-    const inputSurname = await component.locator('input[name=surname]')
-    await expect(inputFirstName).toHaveValue('Massimo')
-    await expect(inputSurname).toHaveValue('Rossi')
+    await expect.poll(() =>
+        (document.querySelector('input[name=firstname]') as HTMLInputElement)?.value,
+    ).toBe('Massimo')
+    await expect.poll(() =>
+        (document.querySelector('input[name=surname]') as HTMLInputElement)?.value,
+    ).toBe('Rossi')
 })

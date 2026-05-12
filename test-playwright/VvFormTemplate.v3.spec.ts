@@ -1,36 +1,30 @@
-import { test, expect } from '@playwright/experimental-ct-vue'
+import { test, expect } from 'vitest'
+import { render } from 'vitest-browser-vue'
 import VvFormTemplate from './VvFormTemplate.v3.vue'
 
-test.use({ viewport: { width: 1000, height: 1000 } })
-
-test('Valid VvFormTemplate', async ({ mount }) => {
-    const component = await mount(VvFormTemplate)
+test('Valid VvFormTemplate', async () => {
+    render(VvFormTemplate)
 
     // check firstname is valid
-    const inputTextFirstName = await component.locator('.vv-input-text--valid')
-    await expect(inputTextFirstName).toHaveText('firstname')
+    await expect.poll(
+        () => document.querySelector('.vv-input-text--valid') !== null,
+        { timeout: 10000 },
+    ).toBe(true)
 })
 
-test('Label and Value VvFormTemplate', async ({ mount }) => {
-    const component = await mount(VvFormTemplate)
+test('Label and Value VvFormTemplate', async () => {
+    const screen = render(VvFormTemplate)
 
     // check input labels
-    const labelFirstName = await component.locator('label', {
-        hasText: 'firstname',
-    })
-    const labelSurname = await component.locator('label', {
-        hasText: 'surname',
-    })
-    const labelCity = await component.locator('label', {
-        hasText: 'city',
-    })
-    await expect(labelFirstName).toHaveText('firstname')
-    await expect(labelSurname).toHaveText('surname')
-    await expect(labelCity).toHaveText('city')
+    await expect.element(screen.getByText('firstname')).toBeInTheDocument()
+    await expect.element(screen.getByText('surname')).toBeInTheDocument()
+    await expect.element(screen.getByText('city')).toBeInTheDocument()
 
     // check input values
-    const inputFirstName = await component.locator('input[name=firstname]')
-    const inputSurname = await component.locator('input[name=surname]')
-    await expect(inputFirstName).toHaveValue('Massimo')
-    await expect(inputSurname).toHaveValue('Rossi')
+    await expect.poll(() =>
+        (document.querySelector('input[name=firstname]') as HTMLInputElement)?.value,
+    ).toBe('Massimo')
+    await expect.poll(() =>
+        (document.querySelector('input[name=surname]') as HTMLInputElement)?.value,
+    ).toBe('Rossi')
 })

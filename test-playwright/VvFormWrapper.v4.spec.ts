@@ -1,76 +1,98 @@
-import { test, expect } from '@playwright/experimental-ct-vue'
+import { test, expect } from 'vitest'
+import { render } from 'vitest-browser-vue'
+import { page } from 'vitest/browser'
 import VvFormWrapper from './VvFormWrapper.v4.vue'
 
-test.use({ viewport: { width: 1000, height: 1000 } })
-
-test('Invalid VvFormWrapper', async ({ mount }) => {
-    const component = await mount(VvFormWrapper)
+test('Invalid VvFormWrapper', async () => {
+    render(VvFormWrapper)
 
     // check form wrapper fields and invalid state
-    const section1 = await component.locator('.form-section-1')
+    await expect.poll(() =>
+        document.querySelector('#section-wrapper-hint')?.textContent,
+    ).toBe('There is a validation error in this section')
 
-    const invalidMessage = await section1.locator('#section-wrapper-hint')
-    await expect(invalidMessage).toHaveText('There is a validation error in this section')
-
-    // check form field into wrapper invalid state
-    const invalidLabels = await section1.locator('small[role=alert]')
-    await expect(invalidLabels).toHaveCount(1)
+    // check form field into wrapper invalid state - wait for lazy components
+    await expect.poll(
+        () => document.querySelectorAll('input').length,
+        { timeout: 10000 },
+    ).toBeGreaterThan(0)
+    // Now check for validation errors
+    await expect.poll(
+        () => document.querySelectorAll('small[role=alert]').length,
+        { timeout: 10000 },
+    ).toBe(1)
 })
 
-test('Label and Value VvFormField into VvFormWrapper', async ({ mount }) => {
-    const component = await mount(VvFormWrapper)
+test('Label and Value VvFormField into VvFormWrapper', async () => {
+    const screen = render(VvFormWrapper)
 
     // check input labels
-    const labelFirstName = await component.locator('label', {
-        hasText: 'firstname',
-    })
-    const labelSurname = await component.locator('label', {
-        hasText: 'surname',
-    })
-    await expect(labelFirstName).toHaveText('firstname')
-    await expect(labelSurname).toHaveText('surname')
+    await expect.element(screen.getByText('firstname')).toBeInTheDocument()
+    await expect.element(screen.getByText('surname')).toBeInTheDocument()
 
     // check input values
-    const inputFirstName = await component.locator('input[name=firstname]')
-    const inputSurname = await component.locator('input[name=surname]')
-    const inputCity = await component.locator('input[name=location\\.city]')
-    await expect(inputFirstName).toHaveValue('Massimo')
-    await expect(inputSurname).toHaveValue('Rossi')
-    await expect(inputCity).toHaveValue('Verona')
+    await expect.poll(() =>
+        (document.querySelector('input[name=firstname]') as HTMLInputElement)?.value,
+    ).toBe('Massimo')
+    await expect.poll(() =>
+        (document.querySelector('input[name=surname]') as HTMLInputElement)?.value,
+    ).toBe('Rossi')
+    await expect.poll(() =>
+        (document.querySelector('input[name="location.city"]') as HTMLInputElement)?.value,
+    ).toBe('Verona')
 })
 
-test('VvFormWrapper partial validation', async ({ mount }) => {
-    const component = await mount(VvFormWrapper)
+test('VvFormWrapper partial validation', async () => {
+    render(VvFormWrapper)
+
+    // Wait for lazy components to load
+    await expect.poll(
+        () => document.querySelectorAll('input').length,
+        { timeout: 10000 },
+    ).toBeGreaterThan(0)
 
     // Check form wrapper fields and invalid state
-    const section1 = await component.locator('.form-section-1')
-
-    const invalidMessage = await section1.locator('#section-wrapper-hint')
-    const invalidLabels = await component.locator('small[role=alert]')
-    await expect(invalidMessage).toHaveText('There is a validation error in this section')
-    await expect(invalidLabels).toHaveCount(1)
+    await expect.poll(() =>
+        document.querySelector('#section-wrapper-hint')?.textContent,
+    ).toBe('There is a validation error in this section')
+    await expect.poll(
+        () => document.querySelectorAll('small[role=alert]').length,
+        { timeout: 10000 },
+    ).toBe(1)
 
     // Reset form
-    const buttonReset = await component.locator('button[type=reset]')
+    const buttonReset = page.elementLocator(document.querySelector('button[type=reset]') as HTMLElement)
     await buttonReset.click()
 
     // check input values
-    const inputFirstName = await component.locator('input[name=firstname]')
-    const inputSurname = await component.locator('input[name=surname]')
-    const inputCity = await component.locator('input[name=location\\.city]')
-    await expect(inputFirstName).toHaveValue('')
-    await expect(inputSurname).toHaveValue('')
-    await expect(inputCity).toHaveValue('')
+    await expect.poll(() =>
+        (document.querySelector('input[name=firstname]') as HTMLInputElement)?.value,
+    ).toBe('')
+    await expect.poll(() =>
+        (document.querySelector('input[name=surname]') as HTMLInputElement)?.value,
+    ).toBe('')
+    await expect.poll(() =>
+        (document.querySelector('input[name="location.city"]') as HTMLInputElement)?.value,
+    ).toBe('')
 
     // check input labels
-    await expect(invalidMessage).toHaveCount(0)
-    await expect(invalidLabels).toHaveCount(0)
+    await expect.poll(() =>
+        document.querySelector('#section-wrapper-hint'),
+    ).toBeNull()
+    await expect.poll(() =>
+        document.querySelectorAll('small[role=alert]').length,
+    ).toBe(0)
 
     // Partial validation
-    const partialValidationButton = await component.locator('#validation-button')
+    const partialValidationButton = page.elementLocator(document.querySelector('#validation-button') as HTMLElement)
     await partialValidationButton.click()
 
     // check form wrapper fields and invalid state
-    await expect(invalidMessage).toHaveText('There is a validation error in this section')
-    await expect(invalidLabels).toHaveCount(5)
+    await expect.poll(() =>
+        document.querySelector('#section-wrapper-hint')?.textContent,
+    ).toBe('There is a validation error in this section')
+    await expect.poll(
+        () => document.querySelectorAll('small[role=alert]').length,
+        { timeout: 10000 },
+    ).toBe(5)
 })

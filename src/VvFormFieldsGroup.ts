@@ -241,7 +241,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
             })
             const invalids = computed(() => {
                 return namesKeys.value.reduce<Record<string, boolean>>((acc, name) => {
-                    acc[name] = Boolean(errors.value?.[namesKeysMap.value[name]])
+                    acc[name] = Boolean(errors.value?.[namesMap.value[name]])
                     return acc
                 }, {})
             })

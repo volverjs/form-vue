@@ -1,38 +1,47 @@
-import { test, expect } from '@playwright/experimental-ct-vue'
+import { it, expect } from 'vitest'
+import { render } from 'vitest-browser-vue'
+import { page } from 'vitest/browser'
 import VvFormFieldsGroup from './VvFormFieldsGroup.v3.vue'
 
-test.use({ viewport: { width: 1000, height: 1000 } })
-
-test('VvFormFieldsGroup events', async ({ mount }) => {
+it('vvFormFieldsGroup events', async () => {
     let submitted = false
     let mounted = false
     let invalid = false
     let data: unknown
 
-    const component = await mount(VvFormFieldsGroup, {
+    const screen = render(VvFormFieldsGroup, {
         props: {
             initialData: { firstname: 'John', lastname: 'Doe' },
         },
-        on: {
-            submit: (submittedData: unknown) => {
+        attrs: {
+            onSubmit: (submittedData: unknown) => {
                 submitted = true
                 data = submittedData
             },
-            mounted: (initialData: unknown) => {
+            onMounted: (initialData: unknown) => {
                 mounted = true
                 data = initialData
             },
-            invalid: () => (invalid = true),
-            valid: () => (invalid = false),
+            onInvalid: () => (invalid = true),
+            onValid: () => (invalid = false),
         },
     })
-    const buttonSubmit = await component.locator('button[type=submit]')
-    const inputName = await component.locator('[name=name]')
-    const inputSurname = await component.locator('[name=surname]')
+    const buttonSubmit = screen.getByRole('button', { name: /submit/i })
 
-    // inital values
-    expect(mounted).toBeTruthy()
+    // initial values
+    await expect.poll(() => mounted).toBe(true)
     expect(data).toEqual({ firstname: 'John', lastname: 'Doe' })
+
+    // Wait for inputs to be available
+    await expect.poll(() =>
+        document.querySelector('[name=name]'),
+    ).not.toBeNull()
+    const nameEl = document.querySelector('[name=name]')
+    if (!nameEl) throw new Error('[name=name] input not found')
+    const inputName = page.elementLocator(nameEl as HTMLElement)
+    const surnameEl = document.querySelector('[name=surname]')
+    if (!surnameEl) throw new Error('[name=surname] input not found')
+    const inputSurname = page.elementLocator(surnameEl as HTMLElement)
 
     await inputName.fill('Jane')
     await inputSurname.fill('Doe')
@@ -41,7 +50,7 @@ test('VvFormFieldsGroup events', async ({ mount }) => {
     await buttonSubmit.click()
 
     // Check valid and submitted events
-    expect(submitted).toBeTruthy()
+    await expect.poll(() => submitted).toBe(true)
     expect(invalid).toBeFalsy()
     expect(data).toEqual({ firstname: 'Jane', lastname: 'Doe' })
 
@@ -55,7 +64,7 @@ test('VvFormFieldsGroup events', async ({ mount }) => {
     await buttonSubmit.click()
 
     // Check invalid event
+    await expect.poll(() => invalid).toBe(true)
     expect(submitted).toBeFalsy()
-    expect(invalid).toBeTruthy()
     expect(data).toBeUndefined()
 })

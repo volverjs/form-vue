@@ -1,5 +1,6 @@
 import path from 'node:path'
-import { configDefaults, defineConfig } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
+import { playwright } from '@vitest/browser-playwright'
 import vue from '@vitejs/plugin-vue'
 import ESLint from '@nabla/vite-plugin-eslint'
 import dts from 'vite-plugin-dts'
@@ -9,8 +10,29 @@ export default () => {
     return defineConfig({
         test: {
             globals: true,
-            environment: 'happy-dom',
-            exclude: [...configDefaults.exclude, 'test-playwright/**'],
+            projects: [
+                {
+                    test: {
+                        name: 'unit',
+                        include: ['test-vitest/**/*.test.ts'],
+                        environment: 'happy-dom',
+                    },
+                },
+                {
+                    plugins: [vue()],
+                    test: {
+                        name: 'browser',
+                        include: ['test-playwright/**/*.spec.ts'],
+                        setupFiles: ['./test-playwright/setup.ts'],
+                        browser: {
+                            enabled: true,
+                            provider: playwright(),
+                            headless: true,
+                            instances: [{ browser: 'chromium' }],
+                        },
+                    },
+                },
+            ],
         },
         build: {
             lib: {

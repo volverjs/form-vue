@@ -4,43 +4,6 @@ on:
     workflow_call:
 
 jobs:
-    playwright:
-        timeout-minutes: 60
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-
-            - uses: pnpm/action-setup@v4
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v4
-              with:
-                  node-version: ${{ matrix.node-version }}
-                  cache: 'pnpm'
-
-            - name: Install dependencies
-              run: pnpm install --no-frozen-lockfile
-
-            - name: Build release
-              run: pnpm build
-
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
-
-            - name: Run Playwright tests
-              run: pnpm test-playwright
-
-            - uses: actions/upload-artifact@v4
-              if: always()
-              with:
-                  name: playwright-report
-                  path: playwright-report/
-                  retention-days: 30
-
     vitest:
         timeout-minutes: 60
         runs-on: ubuntu-latest
@@ -51,13 +14,10 @@ jobs:
               with:
                   node-version: 20
 
-            - uses: pnpm/action-setup@v4
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+              name: Install pnpm
               with:
-                  node-version: ${{ matrix.node-version }}
-                  cache: 'pnpm'
+                cache: true
 
             - name: Install dependencies
               run: pnpm install --no-frozen-lockfile
@@ -65,5 +25,15 @@ jobs:
             - name: Build release
               run: pnpm build
 
+            - name: Install Playwright Chromium
+              run: pnpm exec playwright install --with-deps
+
             - name: Run Vitest test
-              run: pnpm test-vitest
+              run: pnpm test
+
+            - uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 30

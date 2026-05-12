@@ -27,6 +27,13 @@ function _isValueCompatibleWithSchema(value: unknown, subSchema: z4.JSONSchema.J
     const valueType = _getValueType(value)
 
     if (subSchema.type) {
+        // Handle type as array (e.g. ["string", "null"])
+        if (Array.isArray(subSchema.type)) {
+            return subSchema.type.some(t =>
+                t === valueType
+                || (t === 'integer' && valueType === 'number' && Number.isInteger(value as number)),
+            )
+        }
         return subSchema.type === valueType
             || (subSchema.type === 'integer' && valueType === 'number' && Number.isInteger(value as number))
     }
@@ -182,26 +189,75 @@ export const isZod4SchemaOptional = <Type extends z4.$ZodType>(
     return false
 }
 
-export function defaultObjectByJSONSchema(schema: z4.JSONSchema.JSONSchema, original?: unknown): unknown {
-    // Handle anyOf - find the best matching schema without unnecessary recursion
-    if (schema.anyOf && Array.isArray(schema.anyOf)) {
-        if (original !== undefined) {
-            // First pass: find exact type match
-            for (const subSchema of schema.anyOf) {
-                if (_isValueCompatibleWithSchema(original, subSchema as z4.JSONSchema.JSONSchema)) {
-                    return defaultObjectByJSONSchema(subSchema as z4.JSONSchema.JSONSchema, original)
-                }
-            }
-            // Second pass: try first schema that doesn't explicitly conflict
-            for (const subSchema of schema.anyOf) {
-                const subSchemaTyped = subSchema as z4.JSONSchema.JSONSchema
-                if (!subSchemaTyped.type || subSchemaTyped.type === 'object') {
-                    return defaultObjectByJSONSchema(subSchemaTyped, original)
-                }
+// Helper to resolve anyOf/oneOf variants
+function _resolveVariantSchema(
+    variants: readonly z4.JSONSchema.BaseSchema[],
+    original: unknown | undefined,
+): unknown {
+    if (variants.length === 0) {
+        return original ?? undefined
+    }
+    if (original !== undefined) {
+        // First pass: find exact type match
+        for (const subSchema of variants) {
+            if (_isValueCompatibleWithSchema(original, subSchema as z4.JSONSchema.JSONSchema)) {
+                return defaultObjectByJSONSchema(subSchema as z4.JSONSchema.JSONSchema, original)
             }
         }
-        // Fallback to first schema
-        return defaultObjectByJSONSchema(schema.anyOf[0] as z4.JSONSchema.JSONSchema, original)
+        // Second pass: try first schema that doesn't explicitly conflict
+        for (const subSchema of variants) {
+            const subSchemaTyped = subSchema as z4.JSONSchema.JSONSchema
+            if (!subSchemaTyped.type || subSchemaTyped.type === 'object') {
+                return defaultObjectByJSONSchema(subSchemaTyped, original)
+            }
+        }
+    }
+    // Fallback to first schema
+    return defaultObjectByJSONSchema(variants[0] as z4.JSONSchema.JSONSchema, original)
+}
+
+export function defaultObjectByJSONSchema(schema: z4.JSONSchema.JSONSchema, original?: unknown): unknown {
+    // Handle const — fixed value
+    if ('const' in schema) {
+        return schema.const
+    }
+
+    // Handle anyOf
+    if (schema.anyOf && Array.isArray(schema.anyOf)) {
+        return _resolveVariantSchema(schema.anyOf, original)
+    }
+
+    // Handle oneOf (semantically similar to anyOf for defaults)
+    if (schema.oneOf && Array.isArray(schema.oneOf)) {
+        return _resolveVariantSchema(schema.oneOf, original)
+    }
+
+    // Handle allOf — merge all sub-schemas into one and process
+    if (schema.allOf && Array.isArray(schema.allOf)) {
+        const merged: z4.JSONSchema.JSONSchema = { ...schema, allOf: undefined }
+        for (const subSchema of schema.allOf) {
+            const sub = subSchema as z4.JSONSchema.JSONSchema
+            if (sub.properties) {
+                merged.properties = { ...merged.properties as Record<string, z4.JSONSchema.JSONSchema>, ...sub.properties as Record<string, z4.JSONSchema.JSONSchema> }
+            }
+            if (sub.type && !merged.type) {
+                merged.type = sub.type
+            }
+        }
+        return defaultObjectByJSONSchema(merged, original)
+    }
+
+    // Handle type as array (e.g. ["string", "null"]) — check null first
+    if (Array.isArray(schema.type)) {
+        if (original === null && schema.type.includes('null')) {
+            return null
+        }
+        // Find the first non-null type and delegate
+        const nonNullType = schema.type.find(t => t !== 'null')
+        if (nonNullType) {
+            return defaultObjectByJSONSchema({ ...schema, type: nonNullType } as z4.JSONSchema.JSONSchema, original)
+        }
+        return schema.default ?? null
     }
 
     // Early return for non-object types
@@ -217,8 +273,11 @@ export function defaultObjectByJSONSchema(schema: z4.JSONSchema.JSONSchema, orig
             case 'null':
                 return original === null ? original : schema.default
             case 'array':
-                if (Array.isArray(original) && schema.items) {
-                    return original.map(item => defaultObjectByJSONSchema(schema.items as z4.JSONSchema.JSONSchema, item))
+                if (Array.isArray(original)) {
+                    if (schema.items) {
+                        return original.map(item => defaultObjectByJSONSchema(schema.items as z4.JSONSchema.JSONSchema, item))
+                    }
+                    return original
                 }
                 return schema.default
             default:
@@ -226,12 +285,11 @@ export function defaultObjectByJSONSchema(schema: z4.JSONSchema.JSONSchema, orig
         }
     }
 
-    // Object handling with optimizations
+    // Object handling
     const properties = schema.properties as Record<string, z4.JSONSchema.JSONSchema>
     const isOriginalObject = original && typeof original === 'object' && !Array.isArray(original)
     const originalObj = isOriginalObject ? original as Record<string, unknown> : undefined
 
-    // Initialize result object more efficiently
     const toReturn: Record<string, unknown> = {}
 
     // Process schema properties first
@@ -246,7 +304,6 @@ export function defaultObjectByJSONSchema(schema: z4.JSONSchema.JSONSchema, orig
 
         for (const [key, value] of Object.entries(originalObj)) {
             if (!schemaKeys.has(key)) {
-                // Allow any additional properties as-is
                 toReturn[key] = value
             }
         }
@@ -293,7 +350,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                         if ((originalValue === undefined || originalValue === null) && isOptional) {
                             return [key, defaultValue]
                         }
-                        if (innerType) {
+                        if (innerType && originalValue !== undefined) {
                             const parse = z4SafeParse(subSchema, originalValue)
                             if (parse.success) {
                                 return [key, parse.data ?? defaultValue]
@@ -302,7 +359,6 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                         if (
                             isZod4Array(innerType)
                             && Array.isArray(originalValue)
-                            && originalValue.length
                         ) {
                             const arrayType = getZod4SchemaInnerType(innerType._zod.def.element)
                             if (isZod4Object(arrayType)) {
@@ -320,6 +376,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                                     ),
                                 ]
                             }
+                            return [key, originalValue]
                         }
                         if (isZod4Record(innerType) && originalValue) {
                             const valueType = getZod4SchemaInnerType(innerType._zod.def.valueType)
@@ -329,6 +386,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                                     return acc
                                 }, {})]
                             }
+                            return [key, originalValue]
                         }
                         if (isZod4Object(innerType)) {
                             return [
@@ -378,7 +436,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                     if ((originalValue === undefined || originalValue === null) && isOptional) {
                         return [key, defaultValue]
                     }
-                    if (innerType) {
+                    if (innerType && originalValue !== undefined) {
                         const parse = subSchema.safeParse(originalValue)
                         if (parse.success) {
                             return [key, parse.data ?? defaultValue]
@@ -387,7 +445,6 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                     if (
                         isZod3Array(innerType)
                         && Array.isArray(originalValue)
-                        && originalValue.length
                     ) {
                         const arrayType = getZod3SchemaInnerType(innerType._def.type)
                         if (isZod3Object(arrayType)) {
@@ -405,6 +462,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                                 ),
                             ]
                         }
+                        return [key, originalValue]
                     }
                     if (isZod3Record(innerType) && originalValue) {
                         const valueType = getZod3SchemaInnerType(innerType._def.valueType)
@@ -414,6 +472,7 @@ export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema,
                                 return acc
                             }, {})]
                         }
+                        return [key, originalValue]
                     }
                     if (isZod3Object(innerType)) {
                         return [

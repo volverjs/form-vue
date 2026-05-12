@@ -6,6 +6,8 @@ node_modules
 dist
 coverage
 .eslintcache
+.vitest-attachments
+__screenshots__
 
 # Editor directories and files
 /test-results/

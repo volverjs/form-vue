@@ -2,14 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.1] - 2024-09-23
+## [1.1.2] - 2025-12-22
+
+### Added
+
+- `defaultObjectByJSONSchema()` support for `oneOf`, `allOf`, `const`;
+- `defaultObjectByJSONSchema()` support for `type` as array (e.g. `["string", "null"]`);
+- `defaultObjectByJSONSchema()` guard for empty `anyOf`/`oneOf` arrays;
+
+### Fixed
+
+- `defaultObjectByJSONSchema()` array without `items` now preserves `original` value instead of falling back to `schema.default`;
+- `defaultObjectBySchema()` array with empty `[]` value now correctly preserved instead of being replaced with `defaultValue`;
+- `defaultObjectBySchema()` array element type non-object now preserved correctly;
+- `defaultObjectBySchema()` record with non-object `valueType` now preserves `originalValue` instead of being discarded;
+- `defaultObjectBySchema()` `safeParse` no longer called when `originalValue` is `undefined`, avoiding unintended coercion;
+- `VvFormFieldsGroup` `invalids` computed now correctly references `namesMap` instead of `namesKeysMap`;
+- Dependencies update.
+
+## [1.1.1] - 2025-09-23
 
 ### Fixed
 
 - `ts-dot-prop` is no longer maintained, replaced with `dot-props`.
 - `@volverjs/ui-vue` peer dependency updated to `^0.0.10`.
 
-## [1.1.0] - 2024-09-16
+## [1.1.0] - 2025-09-16
 
 ### Added
 
@@ -19,7 +37,7 @@ All notable changes to this project will be documented in this file.
 
 - `VvFormFieldGroup` initial value;
 
-## [1.0.0] - 2024-07-21
+## [1.0.0] - 2025-07-21
 
 ### Added
 

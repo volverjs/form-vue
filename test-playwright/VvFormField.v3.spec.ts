@@ -1,8 +1,8 @@
-import { test, expect } from 'vitest'
+import { it, expect } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import VvFormField from './VvFormField.v3.vue'
 
-test('Valid VvFormField', async () => {
+it('valid VvFormField', async () => {
     render(VvFormField)
 
     // check firstname is valid
@@ -12,7 +12,7 @@ test('Valid VvFormField', async () => {
     ).toBe(true)
 })
 
-test('Label and Value VvFormField', async () => {
+it('label and value VvFormField', async () => {
     const screen = render(VvFormField)
 
     // check input labels

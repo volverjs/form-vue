@@ -26,7 +26,7 @@ jobs:
               run: pnpm build
 
             - name: Run Vitest test
-              run: pnpm test:vitest
+              run: pnpm test
 
             - uses: actions/upload-artifact@v4
               if: always()

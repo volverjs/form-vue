@@ -1,9 +1,9 @@
-import { test, expect } from 'vitest'
+import { it, expect } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import { page } from 'vitest/browser'
 import VvFormFieldsGroup from './VvFormFieldsGroup.v4.vue'
 
-test('VvFormFieldsGroup events', async () => {
+it('vvFormFieldsGroup events', async () => {
     let submitted = false
     let mounted = false
     let invalid = false
@@ -36,8 +36,12 @@ test('VvFormFieldsGroup events', async () => {
     await expect.poll(() =>
         document.querySelector('[name=name]'),
     ).not.toBeNull()
-    const inputName = page.elementLocator(document.querySelector('[name=name]') as HTMLElement)
-    const inputSurname = page.elementLocator(document.querySelector('[name=surname]') as HTMLElement)
+    const nameEl = document.querySelector('[name=name]')
+    if (!nameEl) throw new Error('[name=name] input not found')
+    const inputName = page.elementLocator(nameEl as HTMLElement)
+    const surnameEl = document.querySelector('[name=surname]')
+    if (!surnameEl) throw new Error('[name=surname] input not found')
+    const inputSurname = page.elementLocator(surnameEl as HTMLElement)
 
     await inputName.fill('Jane')
     await inputSurname.fill('Doe')

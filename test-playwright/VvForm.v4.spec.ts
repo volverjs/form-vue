@@ -1,9 +1,9 @@
-import { test, expect } from 'vitest'
+import { it, expect } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import { page } from 'vitest/browser'
 import VvForm from './VvForm.v4.vue'
 
-test('VvForm label and value', async () => {
+it('vvForm label and value', async () => {
     const screen = render(VvForm)
 
     // check input labels
@@ -19,7 +19,7 @@ test('VvForm label and value', async () => {
     ).toBe('Rossi')
 })
 
-test('VvForm events', async () => {
+it('vvForm events', async () => {
     let submitted = false
     let invalid = false
     let reset = false
@@ -61,7 +61,9 @@ test('VvForm events', async () => {
     reset = false
 
     // Set valid input value and submit
-    const inputAge = page.elementLocator(document.querySelector('input[name=age]') as HTMLElement)
+    const inputAgeEl = document.querySelector('input[name=age]')
+    if (!inputAgeEl) throw new Error('input[name=age] not found')
+    const inputAge = page.elementLocator(inputAgeEl as HTMLElement)
     await inputAge.fill('10')
     await buttonSubmit.click()
 
@@ -93,7 +95,7 @@ test('VvForm events', async () => {
     ).toBe('')
 })
 
-test('VvForm continuousValidation', async () => {
+it('vvForm continuousValidation', async () => {
     let invalid = false
     let valid = false
 

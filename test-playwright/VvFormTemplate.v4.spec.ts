@@ -1,8 +1,8 @@
-import { test, expect } from 'vitest'
+import { it, expect } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import VvFormTemplate from './VvFormTemplate.v4.vue'
 
-test('Valid VvFormTemplate', async () => {
+it('valid VvFormTemplate', async () => {
     render(VvFormTemplate)
 
     // check firstname is valid
@@ -12,7 +12,7 @@ test('Valid VvFormTemplate', async () => {
     ).toBe(true)
 })
 
-test('Label and Value VvFormTemplate', async () => {
+it('label and value VvFormTemplate', async () => {
     const screen = render(VvFormTemplate)
 
     // check input labels

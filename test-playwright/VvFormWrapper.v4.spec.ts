@@ -1,9 +1,9 @@
-import { test, expect } from 'vitest'
+import { it, expect } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import { page } from 'vitest/browser'
 import VvFormWrapper from './VvFormWrapper.v4.vue'
 
-test('Invalid VvFormWrapper', async () => {
+it('invalid VvFormWrapper', async () => {
     render(VvFormWrapper)
 
     // check form wrapper fields and invalid state
@@ -23,7 +23,7 @@ test('Invalid VvFormWrapper', async () => {
     ).toBe(1)
 })
 
-test('Label and Value VvFormField into VvFormWrapper', async () => {
+it('label and value VvFormField into VvFormWrapper', async () => {
     const screen = render(VvFormWrapper)
 
     // check input labels
@@ -42,7 +42,7 @@ test('Label and Value VvFormField into VvFormWrapper', async () => {
     ).toBe('Verona')
 })
 
-test('VvFormWrapper partial validation', async () => {
+it('vvFormWrapper partial validation', async () => {
     render(VvFormWrapper)
 
     // Wait for lazy components to load

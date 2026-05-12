@@ -61,7 +61,9 @@ it('vvForm events', async () => {
     reset = false
 
     // Set valid input value and submit
-    const inputAge = page.elementLocator(document.querySelector('input[name=age]') as HTMLElement)
+    const inputAgeEl = document.querySelector('input[name=age]')
+    if (!inputAgeEl) throw new Error('input[name=age] not found')
+    const inputAge = page.elementLocator(inputAgeEl as HTMLElement)
     await inputAge.fill('10')
     await buttonSubmit.click()
 

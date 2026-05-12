@@ -25,6 +25,9 @@ jobs:
             - name: Build release
               run: pnpm build
 
+            - name: Install Playwright Chromium
+              run: pnpm exec playwright install chromium      
+
             - name: Run Vitest test
               run: pnpm test
 

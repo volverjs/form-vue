@@ -88,6 +88,7 @@
         "dot-prop": "^10.1.0",
         "eslint": "^10.3.0",
         "happy-dom": "^20.9.0",
+        "playwright": "^1.59.1",
         "typescript": "^6.0.3",
         "vite": "^8.0.12",
         "vite-plugin-dts": "^5.0.0",

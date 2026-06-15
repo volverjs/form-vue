@@ -374,6 +374,27 @@ const zod4Adapter: ZodAdapter = {
     getRecordValue: schema => schema._zod.def.valueType,
 }
 
+// Resolves the default value for an array shape entry, recursing into object elements.
+function _resolveArrayValue(adapter: ZodAdapter, innerType: any, originalValue: unknown[]): unknown {
+    const arrayType = adapter.getInnerType(adapter.getArrayElement(innerType))
+    if (adapter.isObject(arrayType)) {
+        return originalValue.map(element => _defaultObjectFromShape(adapter, arrayType, element))
+    }
+    return originalValue
+}
+
+// Resolves the default value for a record shape entry, recursing into object values.
+function _resolveRecordValue(adapter: ZodAdapter, innerType: any, originalValue: object): unknown {
+    const valueType = adapter.getInnerType(adapter.getRecordValue(innerType))
+    if (!adapter.isObject(valueType)) {
+        return originalValue
+    }
+    return Object.keys(originalValue).reduce<Record<string, unknown>>((acc, recordKey) => {
+        acc[recordKey] = _defaultObjectFromShape(adapter, valueType, (originalValue as Record<string, unknown>)[recordKey])
+        return acc
+    }, {})
+}
+
 // Resolves the default value for a single shape entry of a Zod object schema.
 function _resolveShapeEntry(adapter: ZodAdapter, key: string, subSchema: any, originalValue: unknown): [string, unknown] {
     const isOptional = adapter.isOptional(subSchema)
@@ -396,21 +417,10 @@ function _resolveShapeEntry(adapter: ZodAdapter, key: string, subSchema: any, or
         }
     }
     if (adapter.isArray(innerType) && Array.isArray(originalValue)) {
-        const arrayType = adapter.getInnerType(adapter.getArrayElement(innerType))
-        if (adapter.isObject(arrayType)) {
-            return [key, originalValue.map(element => _defaultObjectFromShape(adapter, arrayType, element))]
-        }
-        return [key, originalValue]
+        return [key, _resolveArrayValue(adapter, innerType, originalValue)]
     }
     if (adapter.isRecord(innerType) && originalValue) {
-        const valueType = adapter.getInnerType(adapter.getRecordValue(innerType))
-        if (adapter.isObject(valueType)) {
-            return [key, Object.keys(originalValue).reduce<Record<string, unknown>>((acc, recordKey) => {
-                acc[recordKey] = _defaultObjectFromShape(adapter, valueType, (originalValue as Record<string, unknown>)[recordKey])
-                return acc
-            }, {})]
-        }
-        return [key, originalValue]
+        return [key, _resolveRecordValue(adapter, innerType, originalValue as object)]
     }
     if (adapter.isObject(innerType)) {
         return [key, _defaultObjectFromShape(

@@ -207,9 +207,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                             return
                         }
 
-                        formData.value = typeof original?.clone === 'function'
-                            ? original.clone()
-                            : JSON.parse(JSON.stringify(original))
+                        formData.value = formDataAdapter(original as InferSchema<Schema> | undefined)
                     }
                 },
                 { deep: true },

@@ -220,7 +220,7 @@ const schema = z.object({
             const shoppingList = value as Record<string, number>
             if (
                 Object.keys(value).length
-                && !Object.keys(value).find(key => shoppingList[key] > 0)
+                && !Object.keys(value).some(key => shoppingList[key] > 0)
             ) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,

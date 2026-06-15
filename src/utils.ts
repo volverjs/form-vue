@@ -319,178 +319,127 @@ export const isZod4Schema = (schema: z3.ZodTypeAny | z4.$ZodType): schema is z4.
     return false
 }
 
-export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema, original: Partial<InferSchema<Schema>> & Record<string, unknown> = {}): Partial<InferSchema<Schema>> {
-    // zod v4
-    if (isZod4Schema(schema)) {
-        const innerType = getZod4SchemaInnerType(schema)
-        if (!isZod4Object(innerType)) {
-            return original
-        }
-        const unknownKeys = innerType._zod.def.catchall && innerType._zod.def.catchall._zod.def.type !== 'never'
+/**
+ * Adapter that abstracts the version-specific Zod internals (zod v3 vs v4) so
+ * that the `defaultObjectBySchema` algorithm can be written once.
+ */
+interface ZodAdapter {
+    getInnerType: (schema: any) => any
+    isObject: (schema: any) => boolean
+    hasUnknownKeys: (objectSchema: any) => boolean
+    getShapeEntries: (objectSchema: any) => [string, any][]
+    isOptional: (schema: any) => boolean
+    isDefault: (schema: any) => boolean
+    getDefaultValue: (schema: any) => unknown
+    getDefaultInnerType: (schema: any) => any
+    isNullable: (schema: any) => boolean
+    safeParse: (schema: any, value: unknown) => { success: boolean, data?: unknown }
+    isArray: (schema: any) => boolean
+    getArrayElement: (schema: any) => any
+    isRecord: (schema: any) => boolean
+    getRecordValue: (schema: any) => any
+}
 
-        return {
-            ...(unknownKeys ? original : {}),
-            ...Object.fromEntries(
-                ('shape' in innerType._zod.def ? Object.entries(innerType._zod.def.shape) as [string, z4.$ZodType][] : []).map(
-                    ([key, subSchema]) => {
-                        const originalValue = original[key]
-                        const isOptional = isZod4SchemaOptional(subSchema)
-                        let innerType = getZod4SchemaInnerType(subSchema)
-                        let defaultValue: Partial<InferSchema<Schema>> | undefined
-                        if (isZod4Default(innerType)) {
-                            defaultValue = innerType._zod.def.defaultValue
-                            innerType = innerType._zod.def.innerType
-                        }
-                        if (
-                            originalValue === null
-                            && isZod4Nullable(innerType)
-                        ) {
-                            return [key, originalValue]
-                        }
-                        if ((originalValue === undefined || originalValue === null) && isOptional) {
-                            return [key, defaultValue]
-                        }
-                        if (innerType && originalValue !== undefined) {
-                            const parse = z4SafeParse(subSchema, originalValue)
-                            if (parse.success) {
-                                return [key, parse.data ?? defaultValue]
-                            }
-                        }
-                        if (
-                            isZod4Array(innerType)
-                            && Array.isArray(originalValue)
-                        ) {
-                            const arrayType = getZod4SchemaInnerType(innerType._zod.def.element)
-                            if (isZod4Object(arrayType)) {
-                                return [
-                                    key,
-                                    originalValue.map((element: unknown) =>
-                                        defaultObjectBySchema(
-                                            arrayType,
-                                            (element && typeof element === 'object'
-                                                ? element
-                                                : undefined) as Partial<
-                                                    typeof arrayType
-                                            >,
-                                        ),
-                                    ),
-                                ]
-                            }
-                            return [key, originalValue]
-                        }
-                        if (isZod4Record(innerType) && originalValue) {
-                            const valueType = getZod4SchemaInnerType(innerType._zod.def.valueType)
-                            if (isZod4Object(valueType)) {
-                                return [key, Object.keys(originalValue).reduce((acc: Record<string, unknown>, recordKey: string) => {
-                                    acc[recordKey] = defaultObjectBySchema(valueType, originalValue[recordKey])
-                                    return acc
-                                }, {})]
-                            }
-                            return [key, originalValue]
-                        }
-                        if (isZod4Object(innerType)) {
-                            return [
-                                key,
-                                defaultObjectBySchema(
-                                    innerType,
-                                    originalValue
-                                    && typeof originalValue === 'object'
-                                        ? originalValue
-                                        : defaultValue,
-                                ),
-                            ]
-                        }
-                        return [key, defaultValue]
-                    },
-                ),
-            ),
-        } as Partial<InferSchema<Schema>>
+const zod3Adapter: ZodAdapter = {
+    getInnerType: getZod3SchemaInnerType,
+    isObject: isZod3Object,
+    hasUnknownKeys: schema => schema._def.unknownKeys === 'passthrough',
+    getShapeEntries: schema => ('shape' in schema ? Object.entries(schema.shape) : []),
+    isOptional: isZod3SchemaOptional,
+    isDefault: isZod3Default,
+    getDefaultValue: schema => schema._def.defaultValue(),
+    getDefaultInnerType: schema => schema._def.innerType,
+    isNullable: isZod3Nullable,
+    safeParse: (schema, value) => schema.safeParse(value),
+    isArray: isZod3Array,
+    getArrayElement: schema => schema._def.type,
+    isRecord: isZod3Record,
+    getRecordValue: schema => schema._def.valueType,
+}
+
+const zod4Adapter: ZodAdapter = {
+    getInnerType: getZod4SchemaInnerType,
+    isObject: isZod4Object,
+    hasUnknownKeys: schema => Boolean(schema._zod.def.catchall && schema._zod.def.catchall._zod.def.type !== 'never'),
+    getShapeEntries: schema => ('shape' in schema._zod.def ? Object.entries(schema._zod.def.shape) : []),
+    isOptional: isZod4SchemaOptional,
+    isDefault: isZod4Default,
+    getDefaultValue: schema => schema._zod.def.defaultValue,
+    getDefaultInnerType: schema => schema._zod.def.innerType,
+    isNullable: isZod4Nullable,
+    safeParse: (schema, value) => z4SafeParse(schema, value),
+    isArray: isZod4Array,
+    getArrayElement: schema => schema._zod.def.element,
+    isRecord: isZod4Record,
+    getRecordValue: schema => schema._zod.def.valueType,
+}
+
+// Builds the default object for an (already unwrapped) Zod object schema.
+function _defaultObjectFromShape(adapter: ZodAdapter, objectSchema: any, original: unknown): Record<string, unknown> {
+    const safeOriginal = (original && typeof original === 'object' && !Array.isArray(original))
+        ? original as Record<string, unknown>
+        : {}
+    return {
+        ...(adapter.hasUnknownKeys(objectSchema) ? safeOriginal : {}),
+        ...Object.fromEntries(
+            adapter.getShapeEntries(objectSchema).map(([key, subSchema]): [string, unknown] => {
+                const originalValue = safeOriginal[key]
+                const isOptional = adapter.isOptional(subSchema)
+                let innerType = adapter.getInnerType(subSchema)
+                let defaultValue: unknown
+                if (adapter.isDefault(innerType)) {
+                    defaultValue = adapter.getDefaultValue(innerType)
+                    innerType = adapter.getDefaultInnerType(innerType)
+                }
+                if (originalValue === null && adapter.isNullable(innerType)) {
+                    return [key, originalValue]
+                }
+                if ((originalValue === undefined || originalValue === null) && isOptional) {
+                    return [key, defaultValue]
+                }
+                if (innerType && originalValue !== undefined) {
+                    const parse = adapter.safeParse(subSchema, originalValue)
+                    if (parse.success) {
+                        return [key, parse.data ?? defaultValue]
+                    }
+                }
+                if (adapter.isArray(innerType) && Array.isArray(originalValue)) {
+                    const arrayType = adapter.getInnerType(adapter.getArrayElement(innerType))
+                    if (adapter.isObject(arrayType)) {
+                        return [key, originalValue.map(element => _defaultObjectFromShape(adapter, arrayType, element))]
+                    }
+                    return [key, originalValue]
+                }
+                if (adapter.isRecord(innerType) && originalValue) {
+                    const valueType = adapter.getInnerType(adapter.getRecordValue(innerType))
+                    if (adapter.isObject(valueType)) {
+                        return [key, Object.keys(originalValue as object).reduce<Record<string, unknown>>((acc, recordKey) => {
+                            acc[recordKey] = _defaultObjectFromShape(adapter, valueType, (originalValue as Record<string, unknown>)[recordKey])
+                            return acc
+                        }, {})]
+                    }
+                    return [key, originalValue]
+                }
+                if (adapter.isObject(innerType)) {
+                    return [key, _defaultObjectFromShape(
+                        adapter,
+                        innerType,
+                        originalValue && typeof originalValue === 'object' ? originalValue : defaultValue,
+                    )]
+                }
+                return [key, defaultValue]
+            }),
+        ),
     }
+}
 
-    // zod v3
-    const innerType = getZod3SchemaInnerType(schema)
-
-    if (!isZod3Object(innerType)) {
+export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema, original: Partial<InferSchema<Schema>> & Record<string, unknown> = {}): Partial<InferSchema<Schema>> {
+    const adapter = isZod4Schema(schema) ? zod4Adapter : zod3Adapter
+    const innerType = adapter.getInnerType(schema)
+    if (!adapter.isObject(innerType)) {
         return original
     }
-    const unknownKeys = innerType._def.unknownKeys === 'passthrough'
-    return {
-        ...(unknownKeys ? original : {}),
-        ...Object.fromEntries(
-            ('shape' in innerType ? Object.entries(innerType.shape) as [string, z3.ZodTypeAny][] : []).map(
-                ([key, subSchema]) => {
-                    const originalValue = original[key]
-                    const isOptional = isZod3SchemaOptional(subSchema)
-                    let innerType = getZod3SchemaInnerType(subSchema)
-                    let defaultValue: Partial<InferSchema<Schema>> | undefined
-                    if (isZod3Default(innerType)) {
-                        defaultValue = innerType._def.defaultValue()
-                        innerType = innerType._def.innerType
-                    }
-                    if (
-                        originalValue === null
-                        && isZod3Nullable(innerType)
-                    ) {
-                        return [key, originalValue]
-                    }
-                    if ((originalValue === undefined || originalValue === null) && isOptional) {
-                        return [key, defaultValue]
-                    }
-                    if (innerType && originalValue !== undefined) {
-                        const parse = subSchema.safeParse(originalValue)
-                        if (parse.success) {
-                            return [key, parse.data ?? defaultValue]
-                        }
-                    }
-                    if (
-                        isZod3Array(innerType)
-                        && Array.isArray(originalValue)
-                    ) {
-                        const arrayType = getZod3SchemaInnerType(innerType._def.type)
-                        if (isZod3Object(arrayType)) {
-                            return [
-                                key,
-                                originalValue.map((element: unknown) =>
-                                    defaultObjectBySchema(
-                                        arrayType,
-                                        (element && typeof element === 'object'
-                                            ? element
-                                            : undefined) as Partial<
-                                                typeof arrayType
-                                        >,
-                                    ),
-                                ),
-                            ]
-                        }
-                        return [key, originalValue]
-                    }
-                    if (isZod3Record(innerType) && originalValue) {
-                        const valueType = getZod3SchemaInnerType(innerType._def.valueType)
-                        if (isZod3Object(valueType)) {
-                            return [key, Object.keys(originalValue).reduce((acc: Record<string, unknown>, recordKey: string) => {
-                                acc[recordKey] = defaultObjectBySchema(valueType, originalValue[recordKey])
-                                return acc
-                            }, {})]
-                        }
-                        return [key, originalValue]
-                    }
-                    if (isZod3Object(innerType)) {
-                        return [
-                            key,
-                            defaultObjectBySchema(
-                                innerType,
-                                originalValue
-                                && typeof originalValue === 'object'
-                                    ? originalValue
-                                    : defaultValue,
-                            ),
-                        ]
-                    }
-                    return [key, defaultValue]
-                },
-            ),
-        ),
-    } as Partial<InferSchema<Schema>>
+    return _defaultObjectFromShape(adapter, innerType, original) as Partial<InferSchema<Schema>>
 }
 
 export const safeParseAsync = <T extends FormSchema>(schema: T, data: any) => {

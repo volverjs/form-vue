@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2026-06-15
+
+### Added
+
+- `defaultObjectByJSONSchema()` is now exported from the package entry point.
+
+### Changed
+
+- `defaultObjectBySchema()` refactored to share a single implementation between Zod v3 and v4 through an internal adapter (no behavior change), removing ~150 lines of duplicated logic.
+
+### Fixed
+
+- Exported `FormTemplateComponent` type now correctly references `VvFormTemplate` instead of `VvFormFieldsGroup`.
+- `VvForm` external `modelValue` updates now go through the form data adapter, consistently applying schema defaults and the `class` option as on initialization (previously plain-cloned, bypassing the adapter).
+- `pnpm run type-check` now passes: added ambient module declarations for `*.vue` and `@volverjs/style`.
+
 ## [1.1.2] - 2025-12-22
 
 ### Added

@@ -374,6 +374,54 @@ const zod4Adapter: ZodAdapter = {
     getRecordValue: schema => schema._zod.def.valueType,
 }
 
+// Resolves the default value for a single shape entry of a Zod object schema.
+function _resolveShapeEntry(adapter: ZodAdapter, key: string, subSchema: any, originalValue: unknown): [string, unknown] {
+    const isOptional = adapter.isOptional(subSchema)
+    let innerType = adapter.getInnerType(subSchema)
+    let defaultValue: unknown
+    if (adapter.isDefault(innerType)) {
+        defaultValue = adapter.getDefaultValue(innerType)
+        innerType = adapter.getDefaultInnerType(innerType)
+    }
+    if (originalValue === null && adapter.isNullable(innerType)) {
+        return [key, originalValue]
+    }
+    if ((originalValue === undefined || originalValue === null) && isOptional) {
+        return [key, defaultValue]
+    }
+    if (innerType && originalValue !== undefined) {
+        const parse = adapter.safeParse(subSchema, originalValue)
+        if (parse.success) {
+            return [key, parse.data ?? defaultValue]
+        }
+    }
+    if (adapter.isArray(innerType) && Array.isArray(originalValue)) {
+        const arrayType = adapter.getInnerType(adapter.getArrayElement(innerType))
+        if (adapter.isObject(arrayType)) {
+            return [key, originalValue.map(element => _defaultObjectFromShape(adapter, arrayType, element))]
+        }
+        return [key, originalValue]
+    }
+    if (adapter.isRecord(innerType) && originalValue) {
+        const valueType = adapter.getInnerType(adapter.getRecordValue(innerType))
+        if (adapter.isObject(valueType)) {
+            return [key, Object.keys(originalValue).reduce<Record<string, unknown>>((acc, recordKey) => {
+                acc[recordKey] = _defaultObjectFromShape(adapter, valueType, (originalValue as Record<string, unknown>)[recordKey])
+                return acc
+            }, {})]
+        }
+        return [key, originalValue]
+    }
+    if (adapter.isObject(innerType)) {
+        return [key, _defaultObjectFromShape(
+            adapter,
+            innerType,
+            originalValue && typeof originalValue === 'object' ? originalValue : defaultValue,
+        )]
+    }
+    return [key, defaultValue]
+}
+
 // Builds the default object for an (already unwrapped) Zod object schema.
 function _defaultObjectFromShape(adapter: ZodAdapter, objectSchema: any, original: unknown): Record<string, unknown> {
     const safeOriginal = (original && typeof original === 'object' && !Array.isArray(original))
@@ -382,53 +430,9 @@ function _defaultObjectFromShape(adapter: ZodAdapter, objectSchema: any, origina
     return {
         ...(adapter.hasUnknownKeys(objectSchema) ? safeOriginal : {}),
         ...Object.fromEntries(
-            adapter.getShapeEntries(objectSchema).map(([key, subSchema]): [string, unknown] => {
-                const originalValue = safeOriginal[key]
-                const isOptional = adapter.isOptional(subSchema)
-                let innerType = adapter.getInnerType(subSchema)
-                let defaultValue: unknown
-                if (adapter.isDefault(innerType)) {
-                    defaultValue = adapter.getDefaultValue(innerType)
-                    innerType = adapter.getDefaultInnerType(innerType)
-                }
-                if (originalValue === null && adapter.isNullable(innerType)) {
-                    return [key, originalValue]
-                }
-                if ((originalValue === undefined || originalValue === null) && isOptional) {
-                    return [key, defaultValue]
-                }
-                if (innerType && originalValue !== undefined) {
-                    const parse = adapter.safeParse(subSchema, originalValue)
-                    if (parse.success) {
-                        return [key, parse.data ?? defaultValue]
-                    }
-                }
-                if (adapter.isArray(innerType) && Array.isArray(originalValue)) {
-                    const arrayType = adapter.getInnerType(adapter.getArrayElement(innerType))
-                    if (adapter.isObject(arrayType)) {
-                        return [key, originalValue.map(element => _defaultObjectFromShape(adapter, arrayType, element))]
-                    }
-                    return [key, originalValue]
-                }
-                if (adapter.isRecord(innerType) && originalValue) {
-                    const valueType = adapter.getInnerType(adapter.getRecordValue(innerType))
-                    if (adapter.isObject(valueType)) {
-                        return [key, Object.keys(originalValue as object).reduce<Record<string, unknown>>((acc, recordKey) => {
-                            acc[recordKey] = _defaultObjectFromShape(adapter, valueType, (originalValue as Record<string, unknown>)[recordKey])
-                            return acc
-                        }, {})]
-                    }
-                    return [key, originalValue]
-                }
-                if (adapter.isObject(innerType)) {
-                    return [key, _defaultObjectFromShape(
-                        adapter,
-                        innerType,
-                        originalValue && typeof originalValue === 'object' ? originalValue : defaultValue,
-                    )]
-                }
-                return [key, defaultValue]
-            }),
+            adapter.getShapeEntries(objectSchema).map(([key, subSchema]) =>
+                _resolveShapeEntry(adapter, key, subSchema, safeOriginal[key]),
+            ),
         ),
     }
 }

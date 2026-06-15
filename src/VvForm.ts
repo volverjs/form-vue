@@ -207,7 +207,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                             return
                         }
 
-                        formData.value = formDataAdapter(original as InferSchema<Schema> | undefined)
+                        formData.value = formDataAdapter(original as InferSchema<Schema>)
                     }
                 },
                 { deep: true },

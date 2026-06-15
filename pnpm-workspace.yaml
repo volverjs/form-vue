@@ -2,3 +2,17 @@ allowBuilds:
   core-js-pure: true
   esbuild: true
   vue-demi: true
+minimumReleaseAgeExclude:
+  - '@vitest/browser-playwright@4.1.9'
+  - '@vitest/browser@4.1.9'
+  - '@vitest/expect@4.1.9'
+  - '@vitest/mocker@4.1.9'
+  - '@vitest/pretty-format@4.1.9'
+  - '@vitest/runner@4.1.9'
+  - '@vitest/snapshot@4.1.9'
+  - '@vitest/spy@4.1.9'
+  - '@vitest/utils@4.1.9'
+  - '@volverjs/style@0.1.24'
+  - playwright-core@1.61.0
+  - playwright@1.61.0
+  - vitest@4.1.9

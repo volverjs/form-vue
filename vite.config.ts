@@ -74,6 +74,7 @@ export default () => {
 
             // https://github.com/qmhc/vite-plugin-dts
             dts({
+                tsconfigPath: 'tsconfig.build.json',
                 insertTypesEntry: true,
                 exclude: ['**/test-*/**'],
             }),

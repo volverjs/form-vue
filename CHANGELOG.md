@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.4] - 2026-06-16
+
+### Fixed
+
+- TypeScript declarations are now emitted at the `dist` root (`dist/index.d.ts`) instead of `dist/src/index.d.ts`, so the `types` entry in `package.json` resolves correctly. Consumers no longer get "Could not find a declaration file for module '@volverjs/form-vue'" (regression in `1.1.3`).
+
 ## [1.1.3] - 2026-06-15
 
 ### Added

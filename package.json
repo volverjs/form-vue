@@ -76,7 +76,7 @@
         "@vitejs/plugin-vue": "^6.0.7",
         "@vitest/browser-playwright": "^4.1.9",
         "@volverjs/style": "^0.1.24",
-        "@volverjs/ui-vue": "^0.0.14",
+        "@volverjs/ui-vue": "^0.0.15",
         "@vue/compiler-dom": "^3.5.38",
         "@vue/compiler-sfc": "^3.5.38",
         "@vue/language-core": "^3.3.5",

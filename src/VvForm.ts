@@ -86,8 +86,26 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         validateFields = undefined
     }
 
+    const { ignoreUpdates, stop: stopUpdatesWatch } = watchIgnorable(
+        formData,
+        () => {
+            status.value = FormStatus.updated
+        },
+        {
+            deep: true,
+            eventFilter: throttleFilter(options?.updateThrottle ?? 500),
+        },
+    )
+
     const reset = () => {
-        formData.value = formDataAdapter()
+        // Reset the form data without re-triggering the throttled formData watcher.
+        // That watcher fires on a leading edge and would set `status = updated`,
+        // overwriting `status = reset` before the status watcher can emit the
+        // `reset` event — a timing-sensitive race when reset happens outside the
+        // throttle window.
+        ignoreUpdates(() => {
+            formData.value = formDataAdapter()
+        })
         clear()
         status.value = FormStatus.reset
     }
@@ -105,17 +123,6 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         status.value = FormStatus.submitting
         return true
     }
-
-    const { ignoreUpdates, stop: stopUpdatesWatch } = watchIgnorable(
-        formData,
-        () => {
-            status.value = FormStatus.updated
-        },
-        {
-            deep: true,
-            eventFilter: throttleFilter(options?.updateThrottle ?? 500),
-        },
-    )
 
     const readonlyErrors = makeReadonly(errors)
     const readonlyStatus = makeReadonly(status)

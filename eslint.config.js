@@ -22,5 +22,5 @@ export default antfu({
         'antfu/top-level-function': 'off',
     },
 }, {
-    ignores: ['.vscode', 'dist', 'node_modules', '*.config.ts', '**/*.test.ts'],
+    ignores: ['.vscode', 'dist', 'node_modules', 'skills', '*.config.ts', '**/*.test.ts'],
 })

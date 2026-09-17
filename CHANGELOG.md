@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.6] - 2026-09-17
+
+### Fixed
+
+- The ad-hoc `superRefine` is now actually applied. It was accepted as a `VvForm` prop and as an option of `validate()` and `submit()`, and documented as working, but `validate()` only ever read `options.fields` and parsed against the bare schema, so the refinement never ran. Only a `.superRefine()` declared on the schema itself had any effect. The refined schema is cached per refinement function, because rebuilding it discards the parser Zod compiled for it (measured at roughly 8x per parse, which continuous validation pays on every throttled update).
+- The `superRefine` and `validateFields` props now reach every entry point that validates the form. They were forwarded only by the native submit and by the continuous-validation watcher, so the exposed `validate()`, the `validate` and `submit` passed to the default slot, the injected ones (which `VvFormWrapper`, `VvFormFieldsGroup`, `VvFormField` and `VvFormTemplate` all hand to their own slots), and `VvFormWrapper.validateWrapper()` silently validated without them. A form could therefore report a successful submission for data its cross-field rule rejects. An explicit `superRefine` argument still wins over the prop.
+- `validate()` with `validateFields` no longer leaves the form invalid when none of the parse issues belongs to the requested fields. It cleared the errors and returned `true` while `status` stayed `invalid`, so the `invalid` computed stayed `true`. `status` is now `unknown`, so no event is emitted for a partial pass and the `invalid` computed is `false`. Consumers that listen for the `invalid` event will no longer receive it in that case.
+- The `submit` passed to the default slot now honours the `superRefine` and `validateFields` props, like the native submit already did. It used to bypass both.
+
+### Changed
+
+- Zod 3 is now supported without importing it. `zod/v3` was imported at the top of `src/utils.ts` for a single `ZodError` constructor, so every consumer pulled the Zod 3 runtime into its bundle, and the CJS and UMD builds hard-required the `zod/v3` subpath — `dist/index.umd.js` ran `require("zod/v3")` at load time and asked for a `zodV3` global that a Zod 4 consumer does not have. The class is now read off the error instance the parse already produced. Formatted error trees are unchanged, and a test asserts that neither built bundle references `zod/v3`.
+- The internal `formatIssues()` helper takes the parse error as its second argument. It is not part of the package entry point, but `package.json` exposes `./src/*`, so a deep import of `@volverjs/form-vue/src/utils` would need updating.
+- Updated dev dependency `zod` (`^4.4.3` → `^4.6.5`).
+
+### Documentation
+
+- A cross-field refinement does not run when a field failed its **type** check, on both Zod 3 and Zod 4: a type error aborts the parse of that field and Zod skips the object-level checks. It does run after a plain check failure such as `min()`. Documented in the README and in the agent skill.
+
 ## [1.1.5] - 2026-06-26
 
 ### Fixed

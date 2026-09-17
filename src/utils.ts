@@ -1,15 +1,13 @@
 import {
-    ZodError,
-} from 'zod/v3'
-import {
     $ZodError,
     safeParse as z4SafeParse,
     safeParseAsync as z4SafeParseAsync,
     formatError as z4FormatError,
+    _superRefine as z4SuperRefine,
 } from 'zod/v4/core'
 import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
-import type { FormSchema, InferSchema, VvZodError, ZodIssue } from './types'
+import type { FormSchema, InferSchema, SuperRefine, VvZodError, ZodIssue } from './types'
 
 // Helper function to determine the type of a value
 function _getValueType(value: unknown) {
@@ -463,6 +461,37 @@ export const safeParseAsync = <T extends FormSchema>(schema: T, data: any) => {
     return schema.safeParseAsync(data)
 }
 
+/**
+ * Returns a copy of `schema` with an ad-hoc refinement attached, or `schema` itself
+ * when there is nothing to attach. The original schema is never mutated.
+ *
+ * Callers are expected to cache the result: building the refined schema throws away
+ * the parser Zod 4 compiled for it, which costs about 8x on every parse.
+ */
+export function withSuperRefine<Schema extends FormSchema>(schema: Schema, superRefine?: SuperRefine<Schema>): FormSchema {
+    if (!superRefine) {
+        return schema
+    }
+    if (isZod4Schema(schema)) {
+        // `.superRefine()` exists only on the classic Zod 4 schema classes, while
+        // `@zod/mini` exposes `.check()`; both accept the check that `_superRefine`
+        // builds. A schema built straight from `zod/v4/core` has neither, even though
+        // it parses fine, so say so instead of failing on `undefined is not a function`.
+        const zod4Schema = schema as unknown as { check?: (check: unknown) => FormSchema }
+        if (typeof zod4Schema.check !== 'function') {
+            throw new TypeError(
+                '[@volverjs/form-vue]: superRefine needs a schema built with "zod" or "zod/mini". A schema built directly from "zod/v4/core" has no .check() to attach the refinement to.',
+            )
+        }
+        return zod4Schema.check(
+            z4SuperRefine(
+                superRefine as (arg: unknown, ctx: z4.$RefinementCtx<unknown>) => void | Promise<void>,
+            ),
+        )
+    }
+    return (schema as unknown as { superRefine: (fn: unknown) => FormSchema }).superRefine(superRefine)
+}
+
 export const formatError = <T extends FormSchema>(schema: T, error: VvZodError<T>) => {
     if (isZod4Schema(schema)) {
         return z4FormatError(error as z4.$ZodError<T>)
@@ -470,9 +499,15 @@ export const formatError = <T extends FormSchema>(schema: T, error: VvZodError<T
     return (error as z3.ZodError<T>).format()
 }
 
-export const formatIssues = (schema: FormSchema, issues: ZodIssue[]) => {
+export const formatIssues = <T extends FormSchema>(schema: T, error: VvZodError<T>, issues: ZodIssue[]) => {
     if (isZod4Schema(schema)) {
         return z4FormatError(new $ZodError(issues as z4.$ZodIssue[]))
     }
-    return new ZodError(issues as z3.ZodIssue[]).format()
+    // Zod 3 is supported without importing it: the `ZodError` class is read off the
+    // instance the parse already produced. Importing it from `zod/v3` instead would
+    // make every consumer pull in the Zod 3 runtime, including those on Zod 4 only,
+    // and would hard-require the `zod/v3` subpath in the CJS and UMD builds.
+    const ZodErrorClass = (error as z3.ZodError)
+        .constructor as new (issues: z3.ZodIssue[]) => z3.ZodError
+    return new ZodErrorClass(issues as z3.ZodIssue[]).format()
 }

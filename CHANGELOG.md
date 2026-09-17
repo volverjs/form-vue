@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.7] - 2026-09-17
+
+### Changed
+
+- The `@vueuse/core` peer dependency now accepts v15 (`^14.0.0` → `^14.0.0 || ^15.0.0`). The library only uses `throttleFilter`, `watchIgnorable` and the `IgnoredUpdater` type, none of which changed in v15.
+- The `@volverjs/ui-vue` peer dependency now accepts the whole 0.0 series from 0.0.10 (`^0.0.12` → `>=0.0.10 <0.1.0`). A caret range on a `0.0.x` version resolves to that exact patch, so `^0.0.12` pinned consumers to 0.0.12 alone. The library only imports the eight `vv-*` subpaths, which every release since 0.0.10 exports.
+- Updated dev dependencies, including Vitest (`^4.1.9` → `^5.0.1`), `@vueuse/core` (`^14.3.0` → `^15.0.0`), `@volverjs/ui-vue` (`^0.0.15` → `^0.0.22`), Vue (`3.5.39` → `3.5.43`), `vite` (`8.1.0` → `8.3.0`) and `pnpm` (`11.9.0` → `12.4.2`). TypeScript stays on v6: v7 drops the programmatic API until 7.1, which both `typescript-eslint` and `unplugin-dts` need.
+
 ## [1.1.6] - 2026-09-17
 
 ### Fixed
@@ -231,6 +239,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.1.7]: https://github.com/volverjs/form-vue/compare/v1.1.6...v1.1.7
 [1.1.6]: https://github.com/volverjs/form-vue/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/volverjs/form-vue/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/volverjs/form-vue/compare/v1.1.3...v1.1.4

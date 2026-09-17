@@ -44,7 +44,9 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 default: undefined,
             },
             name: {
-                type: [String, Number, Boolean, Symbol] as PropType<
+                // Vue 3.5.43 narrowed `PropMethod`, so the runtime constructor
+                // list no longer overlaps the string-literal `Path` type.
+                type: [String, Number, Boolean, Symbol] as unknown as PropType<
                     Path<InferSchema<Schema>>
                 >,
                 required: true,

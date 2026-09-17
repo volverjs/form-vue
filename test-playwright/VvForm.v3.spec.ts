@@ -4,7 +4,7 @@ import { page } from 'vitest/browser'
 import VvForm from './VvForm.v3.vue'
 
 it('vvForm label and value', async () => {
-    const screen = render(VvForm)
+    const screen = await render(VvForm)
 
     // check input labels
     await expect.element(screen.getByText('firstname')).toBeInTheDocument()
@@ -24,7 +24,7 @@ it('vvForm events', async () => {
     let invalid = false
     let reset = false
 
-    const screen = render(VvForm, {
+    const screen = await render(VvForm, {
         attrs: {
             onSubmit: () => (submitted = true),
             onInvalid: () => (invalid = true),
@@ -100,7 +100,7 @@ it('vvForm continuousValidation', async () => {
     let invalid = false
     let valid = false
 
-    render(VvForm, {
+    await render(VvForm, {
         props: {
             continuousValidation: true,
         },

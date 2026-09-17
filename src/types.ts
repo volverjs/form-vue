@@ -35,6 +35,15 @@ export type InferFormattedError<T extends FormSchema> = T extends EffectType<z3.
 
 export type RefinementCtx<T extends FormSchema> = z3.RefinementCtx | z4RefinementCtx<T>
 
+/**
+ * Ad-hoc cross-field validation, run on top of whatever the schema declares. Accepted
+ * as a `VvForm` prop and as an option of `validate()` and `submit()`.
+ */
+export type SuperRefine<Schema extends FormSchema> = (
+    arg: InferSchema<Schema>,
+    ctx: RefinementCtx<Schema>,
+) => void | Promise<void>
+
 export type VvZodError<T extends FormSchema> = T extends EffectType<z3.AnyZodObject>
     ? z3.ZodError<T>
     : z4.$ZodError<T>
@@ -90,7 +99,7 @@ export type InjectedFormData<Schema extends FormSchema, Type> = {
         ? Partial<InferSchema<Schema>>
         : Type, options?: {
             fields?: Set<Path<InferSchema<Schema>>>
-            superRefine?: (arg: InferSchema<Schema>, ctx: RefinementCtx<Schema>) => void | Promise<void>
+            superRefine?: SuperRefine<Schema>
         }) => Promise<boolean>
     clear: () => void
     reset: () => void

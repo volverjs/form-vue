@@ -8,7 +8,7 @@ import type {
     Path,
     InferSchema,
     InferFormattedError,
-    RefinementCtx,
+    SuperRefine,
 } from './types'
 import {
     computed,
@@ -28,7 +28,7 @@ import {
     watchIgnorable,
 } from '@vueuse/core'
 import { FormStatus } from './enums'
-import { safeParseAsync, defaultObjectBySchema, formatError, formatIssues } from './utils'
+import { safeParseAsync, defaultObjectBySchema, formatError, formatIssues, withSuperRefine } from './utils'
 
 export function defineForm<Schema extends FormSchema, Type, FormTemplateComponent extends Component>(schema: Schema, provideKey: InjectionKey<InjectedFormData<Schema, Type>>, options: FormComponentOptions<Schema, Type>, VvFormTemplate: FormTemplateComponent, wrappers: Map<string, InjectedFormWrapperData<Schema>>) {
     const errors = ref<InferFormattedError<Schema> | undefined>()
@@ -49,18 +49,42 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         return toReturn
     }
 
+    const refinedSchemas = new WeakMap<SuperRefine<Schema>, FormSchema>()
+
+    /**
+     * The schema to parse against: the plain one, or a copy carrying the ad-hoc
+     * refinement.
+     *
+     * Results are cached per refinement function because attaching one builds a new
+     * schema, which throws away the parser Zod compiled for it (about 8x per parse).
+     * Continuous validation would otherwise pay that on every throttled update, so a
+     * refinement passed as a prop should be a stable function rather than an inline
+     * arrow, which is a new identity on every render.
+     */
+    const schemaFor = (superRefine?: SuperRefine<Schema>) => {
+        if (!superRefine) {
+            return schema
+        }
+        let refined = refinedSchemas.get(superRefine)
+        if (!refined) {
+            refined = withSuperRefine(schema, superRefine)
+            refinedSchemas.set(superRefine, refined)
+        }
+        return refined
+    }
+
     const validate = async (value = formData.value, options?: {
         fields?: Set<Path<InferSchema<Schema>>>
-        superRefine?: (arg: InferSchema<Schema>, ctx: RefinementCtx<Schema>) => void | Promise<void>
+        superRefine?: SuperRefine<Schema>
     }) => {
         validateFields = options?.fields
         if (readonly.value) {
             return true
         }
-        const parseResult = await safeParseAsync(schema, value)
+        const parseResult = await safeParseAsync(schemaFor(options?.superRefine), value)
         if (!parseResult.success) {
-            status.value = FormStatus.invalid
             if (!validateFields?.size) {
+                status.value = FormStatus.invalid
                 errors.value = formatError(schema, parseResult.error) as InferFormattedError<Schema>
                 return false
             }
@@ -68,10 +92,15 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 validateFields?.has(item.path.join('.') as Path<InferSchema<Schema>>),
             )
             if (!fieldsIssues.length) {
+                // The schema as a whole is invalid, but none of the requested fields is:
+                // report success without claiming `valid`, which would emit `valid` and
+                // `update:modelValue` for data that was never re-parsed.
                 errors.value = undefined
+                status.value = FormStatus.unknown
                 return true
             }
-            errors.value = formatIssues(schema, fieldsIssues) as InferFormattedError<Schema>
+            status.value = FormStatus.invalid
+            errors.value = formatIssues(schema, parseResult.error, fieldsIssues) as InferFormattedError<Schema>
             return false
         }
         errors.value = undefined
@@ -112,7 +141,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
 
     const submit = async (options?: {
         fields?: Set<Path<InferSchema<Schema>>>
-        superRefine?: (arg: InferSchema<Schema>, ctx: RefinementCtx<Schema>) => void | Promise<void>
+        superRefine?: SuperRefine<Schema>
     }) => {
         if (readonly.value) {
             return false
@@ -151,7 +180,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 default: undefined,
             },
             superRefine: {
-                type: Function as PropType<(arg: InferSchema<Schema>, ctx: RefinementCtx<Schema>) => void | Promise<void>>,
+                type: Function as PropType<SuperRefine<Schema>>,
                 default: undefined,
             },
             validateFields: {
@@ -293,6 +322,34 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 }
             })
 
+            /**
+             * `validate()` with the form's own props applied.
+             *
+             * The `superRefine` and `validateFields` props describe this form, so they
+             * have to reach every entry point that validates it, not only the native
+             * submit and the continuous validation watcher. An explicit argument still
+             * wins over the prop.
+             */
+            const validateWithProps: typeof validate = (value, validateOptions) =>
+                validate(value, {
+                    fields: validateOptions?.fields,
+                    superRefine: validateOptions?.superRefine ?? props.superRefine,
+                })
+
+            /**
+             * `submit()` with the form's own props applied, handed to consumers through
+             * `provide()`, the component instance and the default slot alike.
+             *
+             * It takes no argument on purpose: `InjectedFormData['submit']` declares
+             * none, and this doubles as the native submit handler, which would otherwise
+             * pass the DOM event in as the options object.
+             */
+            const submitWithProps = () =>
+                submit({
+                    superRefine: props.superRefine,
+                    fields: new Set(props.validateFields),
+                })
+
             provide(provideKey, {
                 clear,
                 errors: readonlyErrors,
@@ -303,8 +360,8 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 reset,
                 status: readonlyStatus,
                 stopUpdatesWatch,
-                submit,
-                validate,
+                submit: submitWithProps,
+                validate: validateWithProps,
                 wrappers,
             })
 
@@ -318,11 +375,8 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 reset,
                 status: readonlyStatus,
                 stopUpdatesWatch,
-                submit: () => submit({
-                    superRefine: props.superRefine,
-                    fields: new Set(props.validateFields),
-                }),
-                validate,
+                submit: submitWithProps,
+                validate: validateWithProps,
                 wrappers,
             }
         },
@@ -339,8 +393,10 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                     ignoreUpdates,
                     reset,
                     stopUpdatesWatch,
-                    submit,
-                    validate,
+                    // `this.*` rather than the closure, so the slot gets the same
+                    // prop-aware functions as the rest of the component.
+                    submit: this.submit,
+                    validate: this.validate,
                 }) ?? this.$slots.default
             return h(
                 this.tag,

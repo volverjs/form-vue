@@ -4,7 +4,7 @@ import { page } from 'vitest/browser'
 import VvFormWrapper from './VvFormWrapper.v3.vue'
 
 it('invalid VvFormWrapper', async () => {
-    render(VvFormWrapper)
+    await render(VvFormWrapper)
 
     // check form wrapper fields and invalid state
     await expect.poll(() =>
@@ -24,7 +24,7 @@ it('invalid VvFormWrapper', async () => {
 })
 
 it('label and value VvFormField into VvFormWrapper', async () => {
-    const screen = render(VvFormWrapper)
+    const screen = await render(VvFormWrapper)
 
     // check input labels
     await expect.element(screen.getByText('firstname')).toBeInTheDocument()
@@ -43,7 +43,7 @@ it('label and value VvFormField into VvFormWrapper', async () => {
 })
 
 it('vvFormWrapper partial validation', async () => {
-    render(VvFormWrapper)
+    await render(VvFormWrapper)
 
     // Wait for lazy components to load
     await expect.poll(

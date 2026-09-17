@@ -9,7 +9,7 @@ it('vvFormFieldsGroup events', async () => {
     let invalid = false
     let data: unknown
 
-    const screen = render(VvFormFieldsGroup, {
+    const screen = await render(VvFormFieldsGroup, {
         props: {
             initialData: { firstname: 'John', lastname: 'Doe' },
         },

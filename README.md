@@ -146,6 +146,55 @@ const formData = ref({
 </template>
 ```
 
+#### Cross-field validation
+
+Rules that span more than one field are written with `superRefine`. The usual place for
+them is the schema itself, with `.superRefine()`.
+
+When a rule depends on something the schema cannot know, pass a `superRefine` to `VvForm`
+as a prop, or to `validate()` and `submit()` as an option. It runs on top of whatever the
+schema already declares, and it can be async.
+
+```vue
+<script lang="ts" setup>
+import { z } from 'zod'
+import { useForm } from '@volverjs/form-vue'
+
+const { VvForm, VvFormField } = useForm(
+    z.object({
+        username: z.string().min(3),
+        email: z.email()
+    })
+)
+
+async function checkAvailability(value, ctx) {
+    if (!(await isUsernameFree(value.username))) {
+        ctx.addIssue({
+            code: 'custom',
+            message: 'This username is already taken',
+            path: ['username']
+        })
+    }
+}
+</script>
+
+<template>
+    <VvForm :super-refine="checkAvailability">
+    <!-- ... -->
+    </VvForm>
+</template>
+```
+
+Two things are worth knowing, and they apply to schema-level `.superRefine()` just as much:
+
+- A refinement **does not run when a field failed its type check**, on both Zod 3 and
+  Zod 4. A type error aborts the parse of that field, and Zod skips the object-level
+  checks. Cross-field errors therefore stay invisible until every field holds a value of
+  the right type. A plain check failure such as `min()` does not stop it.
+- An issue added **without** a `path` lands on the form itself, and is filtered out when
+  you validate a subset of fields through `validateFields`. Give the issue a `path` if it
+  has to survive a partial validation.
+
 ## Composable
 
 `useForm()` can be used to create a form programmatically inside a Vue 3 Component.

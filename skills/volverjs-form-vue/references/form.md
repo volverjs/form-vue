@@ -90,7 +90,7 @@ status events.
 | `continuousValidation` | `boolean` | `false` | Per-form override of the option. |
 | `tag` | `string` | `'form'` | Root element tag. |
 | `template` | `FormTemplate \| Function` | — | Render the form from a template (see `references/template.md`). |
-| `superRefine` | `(data, ctx) => void \| Promise` | — | Extra cross-field validation run alongside the schema. |
+| `superRefine` | `(data, ctx) => void \| Promise` | — | Extra cross-field validation run alongside the schema; may be async. Define it once (module or `setup` scope): the refined schema is cached per function. Does not run when a field failed its **type** check — see `references/validation.md`. |
 | `validateFields` | `Path[]` | — | Restrict validation to these field paths. |
 
 ### Events

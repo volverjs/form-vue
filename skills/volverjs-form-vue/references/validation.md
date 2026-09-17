@@ -67,7 +67,21 @@ const schema = z.object({
 
 Set `path` on the issue so the message attaches to the right field. You can also pass an
 ad-hoc `superRefine` to `VvForm` (prop) or to `validate(data, { superRefine })` without
-baking it into the schema.
+baking it into the schema. It runs on top of whatever the schema declares, it may be
+async, and the schema it produces is cached per function, so define the function once
+(module or `setup` scope) rather than inline in the template.
+
+Two traps, which apply to the schema-level `.superRefine` just as much:
+
+- **A refinement does not run when a field failed its type check**, on both Zod 3 and
+  Zod 4. A type error aborts the parse of that field and Zod skips the object-level
+  checks, so cross-field errors stay invisible until every field holds a value of the
+  right type. A plain check failure such as `min()` does not stop it. If a cross-field
+  message seems to never appear, look for a type error first (a `number` field still
+  holding `''` is the usual culprit).
+- **An issue added without a `path`** lands on the form itself, and is filtered out by
+  `validateFields` / `validate(data, { fields })`, because the filter matches on the
+  joined issue path. Give the issue a `path` if it has to survive a partial validation.
 
 <a id="timing"></a>
 ## Validation timing
@@ -78,7 +92,9 @@ baking it into the schema.
   every change — errors then appear/clear live as the user types. This is usually what
   users mean by "show errors as I type".
 - **Subset:** `validate(data, { fields })` or the `validateFields` prop limits validation
-  to specific field paths.
+  to specific field paths. It returns `true` and reports no error when the schema fails
+  somewhere else entirely, and the form does not go `invalid` in that case, so a partial
+  pass is never a statement about the whole schema.
 
 <a id="status"></a>
 ## `FormStatus`

@@ -49,10 +49,18 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         return toReturn
     }
 
-    // Attaching an ad-hoc `superRefine` builds a new schema, which throws away the
-    // parser Zod compiled for it. Continuous validation re-validates on every throttled
-    // update, so the refined schema is cached per refinement function instead.
     const refinedSchemas = new WeakMap<SuperRefine<Schema>, FormSchema>()
+
+    /**
+     * The schema to parse against: the plain one, or a copy carrying the ad-hoc
+     * refinement.
+     *
+     * Results are cached per refinement function because attaching one builds a new
+     * schema, which throws away the parser Zod compiled for it (about 8x per parse).
+     * Continuous validation would otherwise pay that on every throttled update, so a
+     * refinement passed as a prop should be a stable function rather than an inline
+     * arrow, which is a new identity on every render.
+     */
     const schemaFor = (superRefine?: SuperRefine<Schema>) => {
         if (!superRefine) {
             return schema
@@ -314,17 +322,28 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 }
             })
 
-            // The `superRefine` and `validateFields` props describe this form, so they
-            // have to reach every entry point that validates it, not only the native
-            // submit and the continuous validation watcher. An explicit argument still
-            // wins over the prop.
+            /**
+             * `validate()` with the form's own props applied.
+             *
+             * The `superRefine` and `validateFields` props describe this form, so they
+             * have to reach every entry point that validates it, not only the native
+             * submit and the continuous validation watcher. An explicit argument still
+             * wins over the prop.
+             */
             const validateWithProps: typeof validate = (value, validateOptions) =>
                 validate(value, {
                     fields: validateOptions?.fields,
                     superRefine: validateOptions?.superRefine ?? props.superRefine,
                 })
-            // Takes no argument, matching `InjectedFormData['submit']`: it is also the
-            // native submit handler, which would otherwise receive the DOM event here.
+
+            /**
+             * `submit()` with the form's own props applied, handed to consumers through
+             * `provide()`, the component instance and the default slot alike.
+             *
+             * It takes no argument on purpose: `InjectedFormData['submit']` declares
+             * none, and this doubles as the native submit handler, which would otherwise
+             * pass the DOM event in as the options object.
+             */
             const submitWithProps = () =>
                 submit({
                     superRefine: props.superRefine,

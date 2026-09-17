@@ -492,6 +492,10 @@ export function withSuperRefine<Schema extends FormSchema>(schema: Schema, super
     return (schema as unknown as { superRefine: (fn: unknown) => FormSchema }).superRefine(superRefine)
 }
 
+/**
+ * Formats a whole parse error into the nested `{ _errors: string[] }` tree that the
+ * form components read, through whichever formatter the schema's Zod version provides.
+ */
 export const formatError = <T extends FormSchema>(schema: T, error: VvZodError<T>) => {
     if (isZod4Schema(schema)) {
         return z4FormatError(error as z4.$ZodError<T>)
@@ -499,6 +503,14 @@ export const formatError = <T extends FormSchema>(schema: T, error: VvZodError<T
     return (error as z3.ZodError<T>).format()
 }
 
+/**
+ * Formats a subset of a parse error's issues into the same tree shape as
+ * {@link formatError}, used when only some fields were validated.
+ *
+ * Takes the live `error` as well as the issues because Zod 3 is supported without
+ * importing it: the `ZodError` class is read off that instance rather than from
+ * `zod/v3`, which would otherwise end up in the bundle of every consumer.
+ */
 export const formatIssues = <T extends FormSchema>(schema: T, error: VvZodError<T>, issues: ZodIssue[]) => {
     if (isZod4Schema(schema)) {
         return z4FormatError(new $ZodError(issues as z4.$ZodIssue[]))

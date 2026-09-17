@@ -314,13 +314,21 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 }
             })
 
-            // The `superRefine` prop describes this form, so it has to reach every entry
-            // point that validates it, not only the native submit and the continuous
-            // validation watcher. An explicit argument still wins over the prop.
+            // The `superRefine` and `validateFields` props describe this form, so they
+            // have to reach every entry point that validates it, not only the native
+            // submit and the continuous validation watcher. An explicit argument still
+            // wins over the prop.
             const validateWithProps: typeof validate = (value, validateOptions) =>
                 validate(value, {
                     fields: validateOptions?.fields,
                     superRefine: validateOptions?.superRefine ?? props.superRefine,
+                })
+            // Takes no argument, matching `InjectedFormData['submit']`: it is also the
+            // native submit handler, which would otherwise receive the DOM event here.
+            const submitWithProps = () =>
+                submit({
+                    superRefine: props.superRefine,
+                    fields: new Set(props.validateFields),
                 })
 
             provide(provideKey, {
@@ -333,7 +341,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 reset,
                 status: readonlyStatus,
                 stopUpdatesWatch,
-                submit,
+                submit: submitWithProps,
                 validate: validateWithProps,
                 wrappers,
             })
@@ -348,10 +356,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 reset,
                 status: readonlyStatus,
                 stopUpdatesWatch,
-                submit: () => submit({
-                    superRefine: props.superRefine,
-                    fields: new Set(props.validateFields),
-                }),
+                submit: submitWithProps,
                 validate: validateWithProps,
                 wrappers,
             }

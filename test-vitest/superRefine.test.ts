@@ -3,6 +3,7 @@ import * as z4 from 'zod/v4'
 import * as zMini from 'zod/mini'
 import * as zCore from 'zod/v4/core'
 import { it, expect, describe, vi } from 'vitest'
+import { defineComponent, inject } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useForm } from '../src/index'
 import { withSuperRefine } from '../src/utils'
@@ -251,6 +252,35 @@ it('lets an explicit superRefine argument win over the prop', async () => {
     })).toBe(false)
     expect(vm.errors?.password?._errors).toEqual(['Too obvious'])
     expect(vm.errors?.confirm).toBeUndefined()
+
+    wrapper.unmount()
+})
+
+it('forwards the superRefine prop to the submit it provides to children', async () => {
+    // Every component in the library hands the injected `submit` to its slots, so a
+    // raw one here means a form could report a successful submission for data that
+    // the cross-field rule rejects.
+    const { VvForm, formInjectionKey } = useForm(
+        z4.object({ password: z4.string(), confirm: z4.string() }),
+        { lazyLoad: true },
+    )
+    let injectedSubmit: (() => Promise<boolean>) | undefined
+    const Child = defineComponent({
+        setup() {
+            injectedSubmit = inject(formInjectionKey)?.submit
+            return () => null
+        },
+    })
+    const wrapper = mount(VvForm, {
+        props: {
+            modelValue: mismatching,
+            superRefine: mismatch('zod 4') as never,
+        },
+        slots: { default: Child },
+    })
+
+    expect(injectedSubmit).toBeTypeOf('function')
+    expect(await injectedSubmit!()).toBe(false)
 
     wrapper.unmount()
 })

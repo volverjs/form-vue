@@ -163,7 +163,7 @@ import { useForm } from '@volverjs/form-vue'
 const { VvForm, VvFormField } = useForm(
     z.object({
         username: z.string().min(3),
-        email: z.email()
+        email: z.string().email()
     })
 )
 

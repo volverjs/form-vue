@@ -231,6 +231,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.1.6]: https://github.com/volverjs/form-vue/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/volverjs/form-vue/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/volverjs/form-vue/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/volverjs/form-vue/compare/v1.1.2...v1.1.3

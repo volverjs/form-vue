@@ -19,7 +19,6 @@ export default () => {
                     },
                 },
                 {
-                    plugins: [vue()],
                     test: {
                         name: 'browser',
                         include: ['test-playwright/**/*.spec.ts'],

@@ -3,7 +3,7 @@ import { render } from 'vitest-browser-vue'
 import VvFormField from './VvFormField.v3.vue'
 
 it('valid VvFormField', async () => {
-    render(VvFormField)
+    await render(VvFormField)
 
     // check firstname is valid
     await expect.poll(
@@ -13,7 +13,7 @@ it('valid VvFormField', async () => {
 })
 
 it('label and value VvFormField', async () => {
-    const screen = render(VvFormField)
+    const screen = await render(VvFormField)
 
     // check input labels
     await expect.element(screen.getByText('firstname')).toBeInTheDocument()

@@ -6,6 +6,7 @@ node_modules
 dist
 coverage
 .eslintcache
+.vitest
 .vitest-attachments
 __screenshots__
 

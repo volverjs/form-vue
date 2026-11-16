@@ -2,7 +2,6 @@ import type { Component, DeepReadonly, Ref, RendererElement, RendererNode, VNode
 import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
 import type { RefinementCtx as z4RefinementCtx } from 'zod/v4'
-import type { IgnoredUpdater } from '@vueuse/core'
 import type { FormFieldType, FormStatus } from './enums.js'
 
 type Depth = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -100,6 +99,14 @@ export type FormActions = {
     clear: () => void
     reset: () => void
 }
+
+/**
+ * The shape of `IgnoredUpdater` from `@vueuse/core`, which `watchIgnorable()` returns.
+ * Declared here rather than imported so the declarations do not reference that package:
+ * it ships ES modules only, and a CommonJS consumer type-checking with
+ * `module: "node16"` cannot import types from it (TS1542).
+ */
+export type IgnoredUpdater = (updater: () => void) => void
 
 export type InjectedFormData<Schema extends FormSchema, Type> = {
     formData: Ref<(undefined extends Type ? Partial<InferSchema<Schema>> : Type) | undefined>

@@ -51,6 +51,9 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 >,
                 required: true,
             },
+            // No `default` on purpose: a default puts this generic type into the
+            // component's declared defaults, which TypeScript can only emit through
+            // `IfAny` from `@vue/shared`, a path consumers cannot resolve.
             props: {
                 type: [Object, Function] as PropType<
                     Partial<
@@ -61,7 +64,6 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                         ) => Partial<InferSchema<Schema>> | undefined)
                     >
                 >,
-                default: () => ({}),
             },
             showValid: {
                 type: Boolean,
@@ -214,6 +216,9 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 let toReturn = fieldProps.value
                 if (typeof toReturn === 'function') {
                     toReturn = toReturn(injectedFormData?.formData)
+                }
+                if (!toReturn) {
+                    return {}
                 }
                 return Object.keys(toReturn).reduce<Record<string, unknown>>(
                     (acc, key) => {

@@ -8,7 +8,7 @@ import type {
     Path,
     InferSchema,
     InferFormattedError,
-} from './types'
+} from './types.js'
 import { getProperty, setProperty } from 'dot-prop'
 import {
     computed,
@@ -26,7 +26,7 @@ import {
     watch,
     useId,
 } from 'vue'
-import { FormFieldType } from './enums'
+import { FormFieldType } from './enums.js'
 
 export function defineFormField<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>, options?: FormFieldComponentOptions) {
     return defineComponent({

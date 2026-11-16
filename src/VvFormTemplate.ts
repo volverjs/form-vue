@@ -6,8 +6,8 @@ import type {
     RenderFunctionOutput,
     InferFormattedError,
     InferSchema,
-} from './types'
-import type { FormStatus } from './enums'
+} from './types.js'
+import type { FormStatus } from './enums.js'
 import { getProperty } from 'dot-prop'
 import {
     defineComponent,

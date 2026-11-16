@@ -7,7 +7,7 @@ import {
 } from 'zod/v4/core'
 import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
-import type { FormSchema, InferSchema, SuperRefine, VvZodError, ZodIssue } from './types'
+import type { FormSchema, InferSchema, SuperRefine, VvZodError, ZodIssue } from './types.js'
 
 // Helper function to determine the type of a value
 function _getValueType(value: unknown) {

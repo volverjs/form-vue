@@ -7,7 +7,7 @@ import type {
     Path,
     InferSchema,
     InferFormattedError,
-} from './types'
+} from './types.js'
 import { getProperty, setProperty } from 'dot-prop'
 import {
     computed,

@@ -3,7 +3,7 @@ import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
 import type { RefinementCtx as z4RefinementCtx } from 'zod/v4'
 import type { IgnoredUpdater } from '@vueuse/core'
-import type { FormFieldType, FormStatus } from './enums'
+import type { FormFieldType, FormStatus } from './enums.js'
 
 type Depth = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 type DecrementDepth<D extends Depth[number]> = Depth[D]

@@ -6,7 +6,7 @@ import type {
     Path,
     InferFormattedError,
     InferSchema,
-} from './types'
+} from './types.js'
 import {
     computed,
     defineComponent,

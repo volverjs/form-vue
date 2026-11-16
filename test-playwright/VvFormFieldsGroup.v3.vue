@@ -8,7 +8,13 @@ import NameSurname from './components/NameSurname.vue'
 const props = defineProps<{
     initialData?: z.infer<typeof zodSchema>
 }>()
-const emit = defineEmits(['submit', 'invalid', 'valid', 'reset', 'mounted'])
+const emit = defineEmits([
+    'submit',
+    'invalid',
+    'valid',
+    'reset',
+    'mounted',
+])
 const zodSchema = z.object({
     firstname: z.string().min(3),
     lastname: z.string().min(3),

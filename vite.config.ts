@@ -36,7 +36,7 @@ export default () => {
         build: {
             lib: {
                 name: '@volverjs/form-vue',
-                entry: path.resolve(__dirname, 'src/index.ts'),
+                entry: path.resolve(import.meta.dirname, 'src/index.ts'),
                 fileName: format => `index.${format}.js`,
             },
             rollupOptions: {

@@ -1,10 +1,10 @@
 import type { App, InjectionKey, Plugin } from 'vue'
 import { getCurrentInstance, inject } from 'vue'
-import { defineForm } from './VvForm'
-import { defineFormField } from './VvFormField'
-import { defineFormFieldsGroup } from './VvFormFieldsGroup'
-import { defineFormWrapper } from './VvFormWrapper'
-import { defineFormTemplate } from './VvFormTemplate'
+import { defineForm } from './VvForm.js'
+import { defineFormField } from './VvFormField.js'
+import { defineFormFieldsGroup } from './VvFormFieldsGroup.js'
+import { defineFormWrapper } from './VvFormWrapper.js'
+import { defineFormTemplate } from './VvFormTemplate.js'
 import type {
     InjectedFormData,
     InjectedFormWrapperData,
@@ -17,7 +17,7 @@ import type {
     PathValue,
     FormSchema,
     FormTemplate,
-} from './types'
+} from './types.js'
 
 function _formType<Schema extends FormSchema, Type>(schema: Schema, options: FormComposableOptions<Schema, Type> = {}) {
     // create injection keys
@@ -150,8 +150,8 @@ export function useForm<Schema extends FormSchema, Type>(schema: Schema, options
     return toReturn
 }
 
-export { FormFieldType } from './enums'
-export { defaultObjectByJSONSchema, defaultObjectBySchema } from './utils'
+export { FormFieldType } from './enums.js'
+export { defaultObjectByJSONSchema, defaultObjectBySchema } from './utils.js'
 
 type FormComponent = ReturnType<typeof defineForm>
 type FormWrapperComponent = ReturnType<typeof defineFormWrapper>

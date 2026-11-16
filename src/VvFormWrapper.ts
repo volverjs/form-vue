@@ -1,12 +1,13 @@
 import type { DeepReadonly, InjectionKey, Ref, SlotsType } from 'vue'
 import type {
+    FormActions,
     FormSchema,
     InjectedFormData,
     InjectedFormWrapperData,
     Path,
     InferFormattedError,
     InferSchema,
-} from './types'
+} from './types.js'
 import {
     computed,
     defineComponent,
@@ -46,6 +47,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             'fieldsErrors',
             'formData',
             'invalid',
+            'isReadonly',
             'readonly',
             'reset',
             'submit',
@@ -61,9 +63,9 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                 formErrors?: DeepReadonly<InferFormattedError<Schema>>
                 invalid: boolean
                 readonly: boolean
-                clear?: InjectedFormData<Schema, Type>['clear']
-                reset?: InjectedFormData<Schema, Type>['reset']
-                submit?: InjectedFormData<Schema, Type>['submit']
+                clear?: FormActions['clear']
+                reset?: FormActions['reset']
+                submit?: FormActions['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
                 validateWrapper?: () => Promise<boolean>
             }
@@ -167,7 +169,9 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             })
 
             const validateWrapper = () => {
-                return injectedFormData?.validate(undefined, { fields: new Set(fields.value.values()) }) ?? Promise.resolve(true)
+                return injectedFormData?.validate(undefined, {
+                    fields: new Set(fields.value.values()),
+                }) ?? Promise.resolve(true)
             }
 
             return {
@@ -176,7 +180,10 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                 fieldsErrors,
                 formData: injectedFormData?.formData,
                 invalid: isInvalid,
-                readonly: isReadonly,
+                // Not `readonly`: that would shadow the prop of the same name on the
+                // instance. Named as in VvForm, and exposed so that a template ref can
+                // still read the effective value.
+                isReadonly,
                 clear: injectedFormData?.clear,
                 reset: injectedFormData?.reset,
                 submit: injectedFormData?.submit,
@@ -191,7 +198,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                     fieldsErrors: this.fieldsErrors,
                     formData: this.formData,
                     invalid: this.invalid,
-                    readonly: this.readonly,
+                    readonly: this.isReadonly,
                     clear: this.clear,
                     reset: this.reset,
                     submit: this.submit,

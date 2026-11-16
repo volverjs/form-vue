@@ -9,7 +9,7 @@ import type {
     InferSchema,
     InferFormattedError,
     SuperRefine,
-} from './types'
+} from './types.js'
 import {
     computed,
     defineComponent,
@@ -27,8 +27,8 @@ import {
     throttleFilter,
     watchIgnorable,
 } from '@vueuse/core'
-import { FormStatus } from './enums'
-import { safeParseAsync, defaultObjectBySchema, formatError, formatIssues, withSuperRefine } from './utils'
+import { FormStatus } from './enums.js'
+import { safeParseAsync, defaultObjectBySchema, formatError, formatIssues, withSuperRefine } from './utils.js'
 
 export function defineForm<Schema extends FormSchema, Type, FormTemplateComponent extends Component>(schema: Schema, provideKey: InjectionKey<InjectedFormData<Schema, Type>>, options: FormComponentOptions<Schema, Type>, VvFormTemplate: FormTemplateComponent, wrappers: Map<string, InjectedFormWrapperData<Schema>>) {
     const errors = ref<InferFormattedError<Schema> | undefined>()

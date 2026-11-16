@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.9] - 2026-11-16
+
+### Fixed
+
+- `require('@volverjs/form-vue')` now returns the library in Node. It resolved the UMD build, which Node loads as an ES module inside a `"type": "module"` package, so it exported nothing and assigned the library to `globalThis['@volverjs/form-vue']` instead ([#136](https://github.com/volverjs/form-vue/issues/136)). A CommonJS build, `dist/index.cjs`, now backs the `require` condition of `exports` and `main`.
+- CommonJS consumers type-checking with `moduleResolution: "node16"` or `"nodenext"` get CommonJS declarations (`.d.cts`). They only resolved the ES module declarations, which TypeScript reports as a module that cannot be `require()`d.
+
+### Changed
+
+- `main` points at `dist/index.cjs` instead of `dist/index.umd.js`, and the `default` condition of `exports` at `dist/index.es.js`. `dist/index.umd.js` is unchanged for `<script>` tags, and new `unpkg` and `jsdelivr` fields keep those CDNs serving it for the bare package URL.
+- The declarations no longer reference `@vueuse/core`: `ignoreUpdates` in `InjectedFormData` is typed with a local `IgnoredUpdater` of the same shape. `@vueuse/core` ships ES modules only, so a CommonJS consumer on `module: "node16"` could not read that type.
+
 ## [1.1.8] - 2026-11-16
 
 ### Fixed
@@ -255,6 +267,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.1.9]: https://github.com/volverjs/form-vue/compare/v1.1.8...v1.1.9
 [1.1.8]: https://github.com/volverjs/form-vue/compare/v1.1.7...v1.1.8
 [1.1.7]: https://github.com/volverjs/form-vue/compare/v1.1.6...v1.1.7
 [1.1.6]: https://github.com/volverjs/form-vue/compare/v1.1.5...v1.1.6

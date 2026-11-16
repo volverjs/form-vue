@@ -20,7 +20,7 @@ import { it, expect, describe } from 'vitest'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
-const built = existsSync(resolve(root, 'dist/index.d.ts'))
+const built = existsSync(resolve(root, 'dist'))
 
 describe.skipIf(!built)('published package', () => {
     it('points every entry at a file the build emits', () => {

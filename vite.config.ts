@@ -37,7 +37,11 @@ export default () => {
             lib: {
                 name: '@volverjs/form-vue',
                 entry: path.resolve(import.meta.dirname, 'src/index.ts'),
-                fileName: format => `index.${format}.js`,
+                // `index.cjs` is what `require()` loads: in a `"type": "module"` package
+                // Node runs every `.js` file as an ES module, including the UMD build,
+                // which then exports nothing. The UMD build stays for `<script>` tags.
+                formats: ['es', 'umd', 'cjs'],
+                fileName: format => format === 'cjs' ? 'index.cjs' : `index.${format}.js`,
             },
             rollupOptions: {
                 external: [
@@ -74,6 +78,17 @@ export default () => {
             // https://github.com/qmhc/vite-plugin-dts
             dts({
                 tsconfigPath: 'tsconfig.build.json',
+                // `.d.ts` for `import`, `.d.cts` for `require()`: a CommonJS consumer
+                // resolving the ES module declarations would be told it cannot
+                // `require()` the package.
+                outDirs: ['dist', { dir: 'dist', moduleFormat: 'cjs' }],
+                // The plugin rewrites `from './types.js'` to `.cjs` in the `.d.cts`
+                // files but leaves most `import('./types.js')` types that TypeScript
+                // synthesizes, which would mix the two trees: `FormFieldType` from
+                // `enums.d.cts` and from `enums.d.ts` are distinct enum types.
+                beforeWriteFile: (filePath, content) => filePath.endsWith('.d.cts')
+                    ? { content: content.replace(/(['"])(\.\.?\/[^'"]+)\.js\1/g, '$1$2.cjs$1') }
+                    : undefined,
                 insertTypesEntry: true,
                 exclude: ['**/test-*/**'],
             }),

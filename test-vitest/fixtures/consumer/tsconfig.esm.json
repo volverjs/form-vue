@@ -8,5 +8,5 @@
         "noEmit": true,
         "skipLibCheck": false
     },
-    "files": ["index.ts"]
+    "files": ["esm.ts"]
 }

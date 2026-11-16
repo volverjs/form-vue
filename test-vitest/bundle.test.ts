@@ -11,7 +11,7 @@ import { it, expect, describe } from 'vitest'
  * nothing to check rather than something to fail.
  */
 
-const bundles = import.meta.glob('../dist/index.{es,umd}.js', {
+const bundles = import.meta.glob('../dist/index.{es.js,umd.js,cjs}', {
     query: '?raw',
     import: 'default',
     eager: true,
@@ -20,8 +20,8 @@ const bundles = import.meta.glob('../dist/index.{es,umd}.js', {
 const built = Object.keys(bundles)
 
 describe.skipIf(built.length === 0)('built bundles', () => {
-    it('builds both the es and the umd output', () => {
-        expect(built).toHaveLength(2)
+    it('builds the es, umd and cjs outputs', () => {
+        expect(built).toHaveLength(3)
     })
 
     it.each(built)('%s imports zod through zod/v4/core only', (bundle) => {

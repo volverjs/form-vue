@@ -47,6 +47,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             'fieldsErrors',
             'formData',
             'invalid',
+            'isReadonly',
             'readonly',
             'reset',
             'submit',
@@ -179,7 +180,10 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                 fieldsErrors,
                 formData: injectedFormData?.formData,
                 invalid: isInvalid,
-                readonly: isReadonly,
+                // Not `readonly`: that would shadow the prop of the same name on the
+                // instance. Named as in VvForm, and exposed so that a template ref can
+                // still read the effective value.
+                isReadonly,
                 clear: injectedFormData?.clear,
                 reset: injectedFormData?.reset,
                 submit: injectedFormData?.submit,
@@ -194,7 +198,7 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                     fieldsErrors: this.fieldsErrors,
                     formData: this.formData,
                     invalid: this.invalid,
-                    readonly: this.readonly,
+                    readonly: this.isReadonly,
                     clear: this.clear,
                     reset: this.reset,
                     submit: this.submit,

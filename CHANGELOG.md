@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - `VvFormField` and `VvFormFieldsGroup` no longer declare a default for the `props` prop, nor `VvFormFieldsGroup` for `defaultValues`. Rendering is unchanged (a missing `props` forwards nothing, as the `{}` default did), but on a component instance `props` is now typed as possibly `undefined`.
+- On a `VvFormWrapper` template ref, `readonly` is now the wrapper's own prop, and the effective value (the prop, or the form being readonly) is the new `isReadonly`. `setup()` returned the effective value as `readonly`, shadowing the prop, so inside a readonly form a ref reported `readonly: true` even when the wrapper's prop was `false`. The default slot's `readonly` and the form's `wrappers` map still report the effective value.
 - Updated dev dependencies, including `@antfu/eslint-config` (`^9.5.1` → `^10.0.0`), `happy-dom` (`^20.14.5` → `^21.0.4`), Vue (`3.5.43` → `3.5.45`), `@volverjs/ui-vue` (`^0.0.22` → `^0.0.26`), Vitest (`^5.0.1` → `^5.1.0`), `vite` (`8.3.0` → `8.3.8`) and `pnpm` (`12.4.2` → `12.21.0`). TypeScript stays on v6, for the same reason as in 1.1.7.
 
 ## [1.1.7] - 2026-09-17

@@ -89,20 +89,32 @@ type FormPluginOptionsSchema<T = Partial<InferSchema<FormSchema>>> = {
 export type FormPluginOptions = FormPluginOptionsSchema
     & FormComposableOptions<FormPluginOptionsSchema['schema'], FormPluginOptionsSchema['factory']>
 
+/**
+ * The form actions whose signature does not depend on the schema. Slot types read them
+ * from here, not as `InjectedFormData<Schema, Type>['submit']`: TypeScript inlines such
+ * an indexed access into the declared return type of `useForm()` with renamed type
+ * parameters it never declares (`Schema_1`, `Type_1`), which consumers get as errors.
+ */
+export type FormActions = {
+    submit: () => Promise<boolean>
+    clear: () => void
+    reset: () => void
+}
+
 export type InjectedFormData<Schema extends FormSchema, Type> = {
     formData: Ref<(undefined extends Type ? Partial<InferSchema<Schema>> : Type) | undefined>
     errors: Readonly<
         Ref<DeepReadonly<InferFormattedError<Schema>> | undefined>
     >
-    submit: () => Promise<boolean>
+    submit: FormActions['submit']
     validate: (formData?: undefined extends Type
         ? Partial<InferSchema<Schema>>
         : Type, options?: {
             fields?: Set<Path<InferSchema<Schema>>>
             superRefine?: SuperRefine<Schema>
         }) => Promise<boolean>
-    clear: () => void
-    reset: () => void
+    clear: FormActions['clear']
+    reset: FormActions['reset']
     ignoreUpdates: IgnoredUpdater
     stopUpdatesWatch: WatchStopHandle
     status: Readonly<Ref<FormStatus | undefined>>

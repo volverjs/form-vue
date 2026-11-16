@@ -1,5 +1,6 @@
 import type { DeepReadonly, InjectionKey, Ref, SlotsType } from 'vue'
 import type {
+    FormActions,
     FormSchema,
     InjectedFormData,
     InjectedFormWrapperData,
@@ -61,9 +62,9 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
                 formErrors?: DeepReadonly<InferFormattedError<Schema>>
                 invalid: boolean
                 readonly: boolean
-                clear?: InjectedFormData<Schema, Type>['clear']
-                reset?: InjectedFormData<Schema, Type>['reset']
-                submit?: InjectedFormData<Schema, Type>['submit']
+                clear?: FormActions['clear']
+                reset?: FormActions['reset']
+                submit?: FormActions['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
                 validateWrapper?: () => Promise<boolean>
             }

@@ -1,5 +1,6 @@
 import type { Component, ConcreteComponent, DeepReadonly, InjectionKey, PropType, Ref, SlotsType } from 'vue'
 import type {
+    FormActions,
     FormFieldComponentOptions,
     FormSchema,
     InjectedFormData,
@@ -108,7 +109,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 modelValue: any
                 readonly: boolean
                 onUpdate: (value: unknown) => void
-                submit?: InjectedFormData<Schema, Type>['submit']
+                submit?: FormActions['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
             }
         }>,

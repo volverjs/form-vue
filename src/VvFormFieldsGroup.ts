@@ -1,5 +1,6 @@
 import type { Component, DeepReadonly, InjectionKey, PropType, Ref, SlotsType } from 'vue'
 import type {
+    FormActions,
     FormSchema,
     InjectedFormData,
     InjectedFormFieldsGroupData,
@@ -94,7 +95,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                 onUpdate: (value: Record<string, any>) => void
                 onUpdateField: (name: string, value: any) => void
                 readonly: boolean
-                submit?: InjectedFormData<Schema, Type>['submit']
+                submit?: FormActions['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
             }
         }>,

@@ -1,5 +1,6 @@
 import type { Component, DeepReadonly, InjectionKey, PropType, Ref, SlotsType } from 'vue'
 import type {
+    FormActions,
     FormSchema,
     InjectedFormData,
     InjectedFormFieldsGroupData,
@@ -7,7 +8,7 @@ import type {
     Path,
     InferSchema,
     InferFormattedError,
-} from './types'
+} from './types.js'
 import { getProperty, setProperty } from 'dot-prop'
 import {
     computed,
@@ -19,10 +20,10 @@ import {
     provide,
     readonly,
     toRefs,
-    unref,
     useId,
     watch,
 } from 'vue'
+import { resolveFieldProps } from './utils.js'
 
 export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldsGroupInjectionKey: InjectionKey<InjectedFormFieldsGroupData<Schema>>) {
     return defineComponent({
@@ -38,6 +39,10 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                 >,
                 required: true,
             },
+            // No `default` on `props` and `defaultValues` on purpose: a default puts
+            // their generic type into the component's declared defaults, which
+            // TypeScript can only emit through `IfAny` from `@vue/shared`, a path
+            // consumers cannot resolve.
             props: {
                 type: [Object, Function] as PropType<
                     Partial<
@@ -48,7 +53,6 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                         ) => Partial<InferSchema<Schema>> | undefined)
                     >
                 >,
-                default: () => ({}),
             },
             showValid: {
                 type: Boolean,
@@ -58,7 +62,6 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                 type: [Object] as PropType<
                     Record<Path<InferSchema<Schema>>, any>
                 >,
-                default: undefined,
             },
             readonly: {
                 type: Boolean,
@@ -92,7 +95,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                 onUpdate: (value: Record<string, any>) => void
                 onUpdateField: (name: string, value: any) => void
                 readonly: boolean
-                submit?: InjectedFormData<Schema, Type>['submit']
+                submit?: FormActions['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
             }
         }>,
@@ -299,19 +302,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                     [name]: value,
                 }
             }
-            const hasFieldProps = computed(() => {
-                let toReturn = fieldProps.value
-                if (typeof toReturn === 'function') {
-                    toReturn = toReturn(injectedFormData?.formData)
-                }
-                return Object.keys(toReturn).reduce<Record<string, unknown>>(
-                    (acc, key) => {
-                        acc[key] = unref(toReturn[key])
-                        return acc
-                    },
-                    {},
-                )
-            })
+            const hasFieldProps = computed(() => resolveFieldProps(fieldProps.value, injectedFormData?.formData))
             const isReadonly = computed(() => {
                 if (injectedFormData?.readonly.value) {
                     return true

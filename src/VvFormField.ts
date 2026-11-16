@@ -1,5 +1,6 @@
 import type { Component, ConcreteComponent, DeepReadonly, InjectionKey, PropType, Ref, SlotsType } from 'vue'
 import type {
+    FormActions,
     FormFieldComponentOptions,
     FormSchema,
     InjectedFormData,
@@ -8,7 +9,7 @@ import type {
     Path,
     InferSchema,
     InferFormattedError,
-} from './types'
+} from './types.js'
 import { getProperty, setProperty } from 'dot-prop'
 import {
     computed,
@@ -22,11 +23,11 @@ import {
     readonly,
     resolveComponent,
     toRefs,
-    unref,
     watch,
     useId,
 } from 'vue'
-import { FormFieldType } from './enums'
+import { FormFieldType } from './enums.js'
+import { resolveFieldProps } from './utils.js'
 
 export function defineFormField<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>, options?: FormFieldComponentOptions) {
     return defineComponent({
@@ -51,6 +52,9 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 >,
                 required: true,
             },
+            // No `default` on purpose: a default puts this generic type into the
+            // component's declared defaults, which TypeScript can only emit through
+            // `IfAny` from `@vue/shared`, a path consumers cannot resolve.
             props: {
                 type: [Object, Function] as PropType<
                     Partial<
@@ -61,7 +65,6 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                         ) => Partial<InferSchema<Schema>> | undefined)
                     >
                 >,
-                default: () => ({}),
             },
             showValid: {
                 type: Boolean,
@@ -106,7 +109,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 modelValue: any
                 readonly: boolean
                 onUpdate: (value: unknown) => void
-                submit?: InjectedFormData<Schema, Type>['submit']
+                submit?: FormActions['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
             }
         }>,
@@ -210,19 +213,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 }
                 modelValue.value = value
             }
-            const hasFieldProps = computed(() => {
-                let toReturn = fieldProps.value
-                if (typeof toReturn === 'function') {
-                    toReturn = toReturn(injectedFormData?.formData)
-                }
-                return Object.keys(toReturn).reduce<Record<string, unknown>>(
-                    (acc, key) => {
-                        acc[key] = unref(toReturn[key])
-                        return acc
-                    },
-                    {},
-                )
-            })
+            const hasFieldProps = computed(() => resolveFieldProps(fieldProps.value, injectedFormData?.formData))
             const isReadonly = computed(() => {
                 if (injectedFormData?.readonly.value) {
                     return true

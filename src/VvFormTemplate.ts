@@ -1,13 +1,14 @@
 import type { Component, DeepReadonly, InjectionKey, PropType, SlotsType, VNode } from 'vue'
 import type {
+    FormActions,
     FormSchema,
     InjectedFormData,
     FormTemplate,
     RenderFunctionOutput,
     InferFormattedError,
     InferSchema,
-} from './types'
-import type { FormStatus } from './enums'
+} from './types.js'
+import type { FormStatus } from './enums.js'
 import { getProperty } from 'dot-prop'
 import {
     defineComponent,
@@ -35,10 +36,10 @@ export function defineFormTemplate<Schema extends FormSchema, Type = undefined>(
                 formData?: undefined extends Type ? Partial<InferSchema<Schema>> : Type
                 invalid: boolean
                 status?: FormStatus
-                submit?: InjectedFormData<Schema, Type>['submit']
+                submit?: FormActions['submit']
                 validate?: InjectedFormData<Schema, Type>['validate']
-                clear?: InjectedFormData<Schema, Type>['clear']
-                reset?: InjectedFormData<Schema, Type>['reset']
+                clear?: FormActions['clear']
+                reset?: FormActions['reset']
             }
         }>,
         setup(templateProps, { slots: templateSlots }) {

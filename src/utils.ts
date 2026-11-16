@@ -5,9 +5,10 @@ import {
     formatError as z4FormatError,
     _superRefine as z4SuperRefine,
 } from 'zod/v4/core'
+import { unref } from 'vue'
 import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
-import type { FormSchema, InferSchema, SuperRefine, VvZodError, ZodIssue } from './types'
+import type { FormSchema, InferSchema, SuperRefine, VvZodError, ZodIssue } from './types.js'
 
 // Helper function to determine the type of a value
 function _getValueType(value: unknown) {
@@ -236,7 +237,10 @@ export function defaultObjectByJSONSchema(schema: z4.JSONSchema.JSONSchema, orig
         for (const subSchema of schema.allOf) {
             const sub = subSchema as z4.JSONSchema.JSONSchema
             if (sub.properties) {
-                merged.properties = { ...merged.properties as Record<string, z4.JSONSchema.JSONSchema>, ...sub.properties as Record<string, z4.JSONSchema.JSONSchema> }
+                merged.properties = {
+                    ...merged.properties as Record<string, z4.JSONSchema.JSONSchema>,
+                    ...sub.properties as Record<string, z4.JSONSchema.JSONSchema>,
+                }
             }
             if (sub.type && !merged.type) {
                 merged.type = sub.type
@@ -262,14 +266,22 @@ export function defaultObjectByJSONSchema(schema: z4.JSONSchema.JSONSchema, orig
     if (schema.type !== 'object' || !schema.properties) {
         switch (schema.type) {
             case 'string':
-                return typeof original === 'string' ? original : schema.default
+                return typeof original === 'string'
+                    ? original
+                    : schema.default
             case 'number':
             case 'integer':
-                return typeof original === 'number' ? original : schema.default
+                return typeof original === 'number'
+                    ? original
+                    : schema.default
             case 'boolean':
-                return typeof original === 'boolean' ? original : schema.default
+                return typeof original === 'boolean'
+                    ? original
+                    : schema.default
             case 'null':
-                return original === null ? original : schema.default
+                return original === null
+                    ? original
+                    : schema.default
             case 'array':
                 if (Array.isArray(original)) {
                     if (schema.items) {
@@ -342,7 +354,9 @@ const zod3Adapter: ZodAdapter = {
     getInnerType: getZod3SchemaInnerType,
     isObject: isZod3Object,
     hasUnknownKeys: schema => schema._def.unknownKeys === 'passthrough',
-    getShapeEntries: schema => ('shape' in schema ? Object.entries(schema.shape) : []),
+    getShapeEntries: schema => ('shape' in schema
+        ? Object.entries(schema.shape)
+        : []),
     isOptional: isZod3SchemaOptional,
     isDefault: isZod3Default,
     getDefaultValue: schema => schema._def.defaultValue(),
@@ -359,7 +373,9 @@ const zod4Adapter: ZodAdapter = {
     getInnerType: getZod4SchemaInnerType,
     isObject: isZod4Object,
     hasUnknownKeys: schema => Boolean(schema._zod.def.catchall && schema._zod.def.catchall._zod.def.type !== 'never'),
-    getShapeEntries: schema => ('shape' in schema._zod.def ? Object.entries(schema._zod.def.shape) : []),
+    getShapeEntries: schema => ('shape' in schema._zod.def
+        ? Object.entries(schema._zod.def.shape)
+        : []),
     isOptional: isZod4SchemaOptional,
     isDefault: isZod4Default,
     getDefaultValue: schema => schema._zod.def.defaultValue,
@@ -415,17 +431,28 @@ function _resolveShapeEntry(adapter: ZodAdapter, key: string, subSchema: any, or
         }
     }
     if (adapter.isArray(innerType) && Array.isArray(originalValue)) {
-        return [key, _resolveArrayValue(adapter, innerType, originalValue)]
+        return [
+            key,
+            _resolveArrayValue(adapter, innerType, originalValue),
+        ]
     }
     if (adapter.isRecord(innerType) && originalValue) {
-        return [key, _resolveRecordValue(adapter, innerType, originalValue as object)]
+        return [
+            key,
+            _resolveRecordValue(adapter, innerType, originalValue as object),
+        ]
     }
     if (adapter.isObject(innerType)) {
-        return [key, _defaultObjectFromShape(
-            adapter,
-            innerType,
-            originalValue && typeof originalValue === 'object' ? originalValue : defaultValue,
-        )]
+        return [
+            key,
+            _defaultObjectFromShape(
+                adapter,
+                innerType,
+                originalValue && typeof originalValue === 'object'
+                    ? originalValue
+                    : defaultValue,
+            ),
+        ]
     }
     return [key, defaultValue]
 }
@@ -436,7 +463,9 @@ function _defaultObjectFromShape(adapter: ZodAdapter, objectSchema: any, origina
         ? original as Record<string, unknown>
         : {}
     return {
-        ...(adapter.hasUnknownKeys(objectSchema) ? safeOriginal : {}),
+        ...(adapter.hasUnknownKeys(objectSchema)
+            ? safeOriginal
+            : {}),
         ...Object.fromEntries(
             adapter.getShapeEntries(objectSchema).map(([key, subSchema]) =>
                 _resolveShapeEntry(adapter, key, subSchema, safeOriginal[key]),
@@ -446,7 +475,9 @@ function _defaultObjectFromShape(adapter: ZodAdapter, objectSchema: any, origina
 }
 
 export function defaultObjectBySchema<Schema extends FormSchema>(schema: Schema, original: Partial<InferSchema<Schema>> & Record<string, unknown> = {}): Partial<InferSchema<Schema>> {
-    const adapter = isZod4Schema(schema) ? zod4Adapter : zod3Adapter
+    const adapter = isZod4Schema(schema)
+        ? zod4Adapter
+        : zod3Adapter
     const innerType = adapter.getInnerType(schema)
     if (!adapter.isObject(innerType)) {
         return original
@@ -522,4 +553,26 @@ export const formatIssues = <T extends FormSchema>(schema: T, error: VvZodError<
     const ZodErrorClass = (error as z3.ZodError)
         .constructor as new (issues: z3.ZodIssue[]) => z3.ZodError
     return new ZodErrorClass(issues as z3.ZodIssue[]).format()
+}
+
+/**
+ * Resolves the `props` prop of `VvFormField` and `VvFormFieldsGroup` into the props they
+ * forward, with refs unwrapped. The prop is an object, a function of the form data that
+ * returns one, or absent, and the function may return `undefined`: those last two
+ * forward nothing.
+ */
+export function resolveFieldProps(fieldProps: unknown, formData?: unknown): Record<string, unknown> {
+    const resolved = typeof fieldProps === 'function'
+        ? fieldProps(formData)
+        : fieldProps
+    if (!resolved) {
+        return {}
+    }
+    return Object.keys(resolved).reduce<Record<string, unknown>>(
+        (acc, key) => {
+            acc[key] = unref((resolved as Record<string, unknown>)[key])
+            return acc
+        },
+        {},
+    )
 }

@@ -6,11 +6,6 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "paths": {
-            "@vue/shared": [
-                "./node_modules/@vue/shared"
-            ]
-        },
         "resolveJsonModule": true,
         "types": ["vitest/globals", "vite/client"],
         "strict": true,
@@ -24,5 +19,6 @@
         "skipLibCheck": true,
         "noErrorTruncation": true
     },
-    "include": ["./src/**/*", "./test-vitest/**/*", "./test-playwright/**/*"]
+    "include": ["./src/**/*", "./test-vitest/**/*", "./test-playwright/**/*"],
+    "exclude": ["./test-vitest/fixtures/**/*"]
 }

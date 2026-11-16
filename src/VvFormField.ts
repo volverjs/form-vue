@@ -23,11 +23,11 @@ import {
     readonly,
     resolveComponent,
     toRefs,
-    unref,
     watch,
     useId,
 } from 'vue'
 import { FormFieldType } from './enums.js'
+import { resolveFieldProps } from './utils.js'
 
 export function defineFormField<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldInjectionKey: InjectionKey<InjectedFormFieldData<Schema>>, options?: FormFieldComponentOptions) {
     return defineComponent({
@@ -213,22 +213,7 @@ export function defineFormField<Schema extends FormSchema, Type = undefined>(for
                 }
                 modelValue.value = value
             }
-            const hasFieldProps = computed(() => {
-                let toReturn = fieldProps.value
-                if (typeof toReturn === 'function') {
-                    toReturn = toReturn(injectedFormData?.formData)
-                }
-                if (!toReturn) {
-                    return {}
-                }
-                return Object.keys(toReturn).reduce<Record<string, unknown>>(
-                    (acc, key) => {
-                        acc[key] = unref(toReturn[key])
-                        return acc
-                    },
-                    {},
-                )
-            })
+            const hasFieldProps = computed(() => resolveFieldProps(fieldProps.value, injectedFormData?.formData))
             const isReadonly = computed(() => {
                 if (injectedFormData?.readonly.value) {
                     return true

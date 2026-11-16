@@ -20,10 +20,10 @@ import {
     provide,
     readonly,
     toRefs,
-    unref,
     useId,
     watch,
 } from 'vue'
+import { resolveFieldProps } from './utils.js'
 
 export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefined>(formProvideKey: InjectionKey<InjectedFormData<Schema, Type>>, wrapperProvideKey: InjectionKey<InjectedFormWrapperData<Schema>>, formFieldsGroupInjectionKey: InjectionKey<InjectedFormFieldsGroupData<Schema>>) {
     return defineComponent({
@@ -302,22 +302,7 @@ export function defineFormFieldsGroup<Schema extends FormSchema, Type = undefine
                     [name]: value,
                 }
             }
-            const hasFieldProps = computed(() => {
-                let toReturn = fieldProps.value
-                if (typeof toReturn === 'function') {
-                    toReturn = toReturn(injectedFormData?.formData)
-                }
-                if (!toReturn) {
-                    return {}
-                }
-                return Object.keys(toReturn).reduce<Record<string, unknown>>(
-                    (acc, key) => {
-                        acc[key] = unref(toReturn[key])
-                        return acc
-                    },
-                    {},
-                )
-            })
+            const hasFieldProps = computed(() => resolveFieldProps(fieldProps.value, injectedFormData?.formData))
             const isReadonly = computed(() => {
                 if (injectedFormData?.readonly.value) {
                     return true

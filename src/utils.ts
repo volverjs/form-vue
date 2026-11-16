@@ -5,6 +5,7 @@ import {
     formatError as z4FormatError,
     _superRefine as z4SuperRefine,
 } from 'zod/v4/core'
+import { unref } from 'vue'
 import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
 import type { FormSchema, InferSchema, SuperRefine, VvZodError, ZodIssue } from './types.js'
@@ -552,4 +553,26 @@ export const formatIssues = <T extends FormSchema>(schema: T, error: VvZodError<
     const ZodErrorClass = (error as z3.ZodError)
         .constructor as new (issues: z3.ZodIssue[]) => z3.ZodError
     return new ZodErrorClass(issues as z3.ZodIssue[]).format()
+}
+
+/**
+ * Resolves the `props` prop of `VvFormField` and `VvFormFieldsGroup` into the props they
+ * forward, with refs unwrapped. The prop is an object, a function of the form data that
+ * returns one, or absent, and the function may return `undefined`: those last two
+ * forward nothing.
+ */
+export function resolveFieldProps(fieldProps: unknown, formData?: unknown): Record<string, unknown> {
+    const resolved = typeof fieldProps === 'function'
+        ? fieldProps(formData)
+        : fieldProps
+    if (!resolved) {
+        return {}
+    }
+    return Object.keys(resolved).reduce<Record<string, unknown>>(
+        (acc, key) => {
+            acc[key] = unref((resolved as Record<string, unknown>)[key])
+            return acc
+        },
+        {},
+    )
 }

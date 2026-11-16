@@ -1,6 +1,6 @@
 import * as z4 from 'zod/v4'
 import { it, expect, describe } from 'vitest'
-import { h } from 'vue'
+import { h, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useForm } from '../src/index'
 
@@ -49,6 +49,12 @@ describe.each(['VvFormField', 'VvFormFieldsGroup'] as const)('%s', (component) =
 
     it('forwards what the props function returns', () => {
         const wrapper = mountField(() => ({ placeholder: 'Email' }))
+        expect(wrapper.find('input').attributes('placeholder')).toBe('Email')
+        wrapper.unmount()
+    })
+
+    it('unwraps refs in the forwarded props', () => {
+        const wrapper = mountField({ placeholder: ref('Email') })
         expect(wrapper.find('input').attributes('placeholder')).toBe('Email')
         wrapper.unmount()
     })

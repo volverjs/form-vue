@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.8] - 2026-11-16
+
+### Fixed
+
+- The type declarations now resolve under `moduleResolution: "node16"` and `"nodenext"`. They imported each other without a file extension (`'./types'`), which those modes do not resolve in an ES module package, so most types silently became `any`: `formData` and `validate()` from `useForm()` lost their schema types, and `submit({ superRefine })` failed with implicit-any parameters ([#132](https://github.com/volverjs/form-vue/issues/132)).
+- The declarations no longer reference `../node_modules/@vue/shared`, a path that only existed inside this repository. With `skipLibCheck: false` it was a compile error under every module resolution; otherwise the declared defaults of `VvFormField` and `VvFormFieldsGroup` were partly typed `any`.
+- The declarations of `useForm()` no longer reference type parameters they never declare (`Schema_1`, `Type_1` and so on). With `skipLibCheck: false` that was 16 compile errors; otherwise `submit`, `clear` and `reset` in the default slot of `VvFormField`, `VvFormFieldsGroup`, `VvFormTemplate` and `VvFormWrapper` were typed `any`.
+- `main` and `module` in `package.json` now point at files the build emits (`dist/index.umd.js` and `dist/index.es.js`). Both pointed at `dist/index.js`, which never existed. Resolvers that read `exports` were not affected.
+- A `props` function on `VvFormField` or `VvFormFieldsGroup` that returns `undefined` no longer throws: the field renders with no extra props, as its signature always allowed.
+
+### Changed
+
+- `VvFormField` and `VvFormFieldsGroup` no longer declare a default for the `props` prop, nor `VvFormFieldsGroup` for `defaultValues`. Rendering is unchanged (a missing `props` forwards nothing, as the `{}` default did), but on a component instance `props` is now typed as possibly `undefined`.
+- Updated dev dependencies, including `@antfu/eslint-config` (`^9.5.1` → `^10.0.0`), `happy-dom` (`^20.14.5` → `^21.0.4`), Vue (`3.5.43` → `3.5.45`), `@volverjs/ui-vue` (`^0.0.22` → `^0.0.26`), Vitest (`^5.0.1` → `^5.1.0`), `vite` (`8.3.0` → `8.3.8`) and `pnpm` (`12.4.2` → `12.21.0`). TypeScript stays on v6, for the same reason as in 1.1.7.
+
 ## [1.1.7] - 2026-09-17
 
 ### Changed
@@ -239,6 +254,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.1.8]: https://github.com/volverjs/form-vue/compare/v1.1.7...v1.1.8
 [1.1.7]: https://github.com/volverjs/form-vue/compare/v1.1.6...v1.1.7
 [1.1.6]: https://github.com/volverjs/form-vue/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/volverjs/form-vue/compare/v1.1.4...v1.1.5

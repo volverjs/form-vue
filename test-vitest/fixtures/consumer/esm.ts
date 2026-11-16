@@ -1,6 +1,7 @@
-// A consumer of the built package, type-checked by `package.test.ts` with the strictest
-// resolution a consumer can pick (`nodenext`) and with `skipLibCheck` off, so an error
-// inside our declarations fails the check instead of degrading the types to `any`.
+// An ES module consumer of the built package, type-checked by `package.test.ts` with the
+// strictest resolution a consumer can pick (`nodenext`) and with `skipLibCheck` off, so
+// an error inside our declarations fails the check instead of degrading the types to
+// `any`. `cjs.cts` is the same consumer written as CommonJS.
 // Every `@ts-expect-error` below guards the same thing from the other side: if the
 // types degrade to `any`, the expected error disappears and the directive fails.
 import * as z from 'zod/v4'

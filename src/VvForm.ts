@@ -1,8 +1,9 @@
-import type { Component, InjectionKey, PropType, SlotsType, UnwrapRef } from 'vue'
+import type { Component, InjectionKey, PropType, SlotsType, UnwrapRef, WatchStopHandle } from 'vue'
 import type {
     FormComponentOptions,
     FormSchema,
     FormTemplate,
+    IgnoredUpdater,
     InjectedFormData,
     InjectedFormWrapperData,
     Path,
@@ -115,7 +116,12 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         validateFields = undefined
     }
 
-    const { ignoreUpdates, stop: stopUpdatesWatch } = watchIgnorable(
+    // Annotated so the declarations name the local `IgnoredUpdater`, not the one in
+    // `@vueuse/core` (see `IgnoredUpdater` in types.ts).
+    const { ignoreUpdates, stop: stopUpdatesWatch }: {
+        ignoreUpdates: IgnoredUpdater
+        stop: WatchStopHandle
+    } = watchIgnorable(
         formData,
         () => {
             status.value = FormStatus.updated

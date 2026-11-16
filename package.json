@@ -24,15 +24,23 @@
     ],
     "exports": {
         ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.es.js",
-            "default": "./dist/index.umd.js"
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.es.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/index.cjs"
+            },
+            "default": "./dist/index.es.js"
         },
         "./src/*": "./src/*",
         "./dist/*": "./dist/*"
     },
-    "main": "./dist/index.umd.js",
+    "main": "./dist/index.cjs",
     "module": "./dist/index.es.js",
+    "unpkg": "./dist/index.umd.js",
+    "jsdelivr": "./dist/index.umd.js",
     "types": "./dist/index.d.ts",
     "typesVersions": {
         "*": {

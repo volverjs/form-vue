@@ -168,7 +168,9 @@ export function defineFormWrapper<Schema extends FormSchema, Type = undefined>(f
             })
 
             const validateWrapper = () => {
-                return injectedFormData?.validate(undefined, { fields: new Set(fields.value.values()) }) ?? Promise.resolve(true)
+                return injectedFormData?.validate(undefined, {
+                    fields: new Set(fields.value.values()),
+                }) ?? Promise.resolve(true)
             }
 
             return {

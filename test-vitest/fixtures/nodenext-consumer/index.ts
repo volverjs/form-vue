@@ -6,13 +6,19 @@
 import * as z from 'zod/v4'
 import { defaultObjectBySchema, FormFieldType, useForm } from '@volverjs/form-vue'
 
-const schema = z.object({ email: z.string() })
+const schema = z.object({
+    email: z.string(),
+})
 const { formData, submit, validate } = useForm(schema)
 
 void submit({
     superRefine(value, ctx) {
         if (!value.email.includes('@')) {
-            ctx.addIssue({ code: 'custom', message: 'Invalid email', path: ['email'] })
+            ctx.addIssue({
+                code: 'custom',
+                message: 'Invalid email',
+                path: ['email'],
+            })
         }
     },
 })

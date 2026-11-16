@@ -82,7 +82,6 @@
         "@vue/compiler-sfc": "^3.5.43",
         "@vue/language-core": "^3.3.11",
         "@vue/runtime-core": "^3.5.43",
-        "@vue/shared": "^3.5.43",
         "@vue/test-utils": "^2.5.1",
         "@vueuse/core": "^15.0.0",
         "copy": "^0.3.2",

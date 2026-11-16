@@ -19,5 +19,6 @@
         "skipLibCheck": true,
         "noErrorTruncation": true
     },
-    "include": ["./src/**/*", "./test-vitest/**/*", "./test-playwright/**/*"]
+    "include": ["./src/**/*", "./test-vitest/**/*", "./test-playwright/**/*"],
+    "exclude": ["./test-vitest/fixtures/**/*"]
 }

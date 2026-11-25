@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- A Zod 3 schema wrapped in `z.preprocess()` is now inferred as its object. A preprocess takes `unknown` as input, so `InferSchema` did not recognise it as Zod 3 and read it as `unknown`: `formData` lost its type, and the `name` of every `VvFormField` was typed `never`, failing `vue-tsc` on a valid field. Zod 4 schemas, and Zod 3 ones refined with `refine`, `superRefine` or `transform`, were not affected.
+
 ## [1.1.9] - 2026-11-16
 
 ### Fixed
@@ -267,6 +273,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[Unreleased]: https://github.com/volverjs/form-vue/compare/v1.1.9...HEAD
 [1.1.9]: https://github.com/volverjs/form-vue/compare/v1.1.8...v1.1.9
 [1.1.8]: https://github.com/volverjs/form-vue/compare/v1.1.7...v1.1.8
 [1.1.7]: https://github.com/volverjs/form-vue/compare/v1.1.6...v1.1.7

@@ -10,7 +10,8 @@ type DecrementDepth<D extends Depth[number]> = Depth[D]
 export type EffectType<T extends z3.ZodTypeAny, D extends Depth[number] = 10>
     = D extends 0
         ? T
-        : T | z3.ZodOptional<T> | z3.ZodNullable<T> | z3.ZodDefault<T> | z3.ZodEffects<EffectType<T, DecrementDepth<D>>>
+        // a preprocess takes `unknown` as input: with the defaults of `ZodEffects` it would not match
+        : T | z3.ZodOptional<T> | z3.ZodNullable<T> | z3.ZodDefault<T> | z3.ZodEffects<EffectType<T, DecrementDepth<D>>, unknown, unknown>
 
 export type $EffectType<T extends z4.$ZodType, D extends Depth[number] = 10>
     = D extends 0

@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - A form whose schema is typed as the bare `ZodTypeAny` of Zod 3 now gets the `any` that Zod 3 infers for it as its data, instead of `unknown`. In the options of `createForm()`, whose schema can be any `FormSchema`, the `onSubmit`, `onValid`, `onReset` and `onUpdate` options therefore also accept a callback that takes `Partial<any>`, while `factory` keeps its `Partial<unknown>` type.
-- `EffectType` and `$EffectType` in `src/types.ts` are deprecated, since the library no longer uses them. Neither is exported from the package entry.
+- The library no longer uses `EffectType` and `$EffectType` in `src/types.ts`. They stay for deep imports of that file; neither is exported from the package entry.
 
 ## [1.1.9] - 2026-11-16
 

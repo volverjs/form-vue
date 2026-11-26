@@ -87,6 +87,10 @@ describe('a Zod 4 schema', () => {
         const transformed = object.transform(value => value)
         expectTypeOf<InferSchema<typeof transformed>>().toEqualTypeOf<Data>()
     })
+
+    it('types the formatted errors by its fields', () => {
+        expectTypeOf<InferFormattedError<typeof object>>().toEqualTypeOf<z4.core.$ZodFormattedError<Data>>()
+    })
 })
 
 it('keeps the data of the createForm() factory unknown', () => {

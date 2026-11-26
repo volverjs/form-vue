@@ -45,9 +45,14 @@ export type InferSchema<T extends FormSchema> = T extends z3.ZodTypeAny
     ? z3.z.infer<T>
     : z4.infer<T>
 
+/**
+ * Zod 4 formats the errors of the parsed data, so its type takes the schema's output, as
+ * `inferFormattedError` does in Zod 3: given the schema itself, the tree had the keys of
+ * the schema object (`shape`, `def`) instead of the fields.
+ */
 export type InferFormattedError<T extends FormSchema> = T extends z3.ZodTypeAny
     ? z3.z.inferFormattedError<T>
-    : z4.$ZodFormattedError<T>
+    : z4.$ZodFormattedError<z4.output<T>>
 
 export type RefinementCtx<T extends FormSchema> = z3.RefinementCtx | z4RefinementCtx<T>
 

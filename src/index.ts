@@ -125,10 +125,12 @@ export function createForm(options: FormPluginOptions): Plugin & Partial<ReturnT
     }
 }
 
-const formInstances: Map<string, ReturnType<typeof _formType>> = new Map()
+// Holds the forms of every scope, whatever their schema: a scope is expected to name the
+// same schema each time, so the caller's types are the ones a lookup returns.
+const formInstances: Map<string, unknown> = new Map()
 export function useForm<Schema extends FormSchema, Type>(schema: Schema, options: FormComposableOptions<Schema, Type> = {}): ReturnType <typeof _formType<Schema, Type>> {
     if (options.scope && formInstances.has(options.scope)) {
-        return formInstances.get(options.scope)!
+        return formInstances.get(options.scope) as ReturnType<typeof _formType<Schema, Type>>
     }
     if (!getCurrentInstance()) {
         const toReturn = _formType(schema, options)

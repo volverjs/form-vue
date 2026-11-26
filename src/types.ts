@@ -7,12 +7,19 @@ import type { FormFieldType, FormStatus } from './enums.js'
 type Depth = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 type DecrementDepth<D extends Depth[number]> = Depth[D]
 
+/**
+ * @deprecated No longer used by the library, which now matches any Zod 3 schema (see
+ * {@link InferSchema}). Kept for deep imports of this file.
+ */
 export type EffectType<T extends z3.ZodTypeAny, D extends Depth[number] = 10>
     = D extends 0
         ? T
         // a preprocess takes `unknown` as input: with the defaults of `ZodEffects` it would not match
         : T | z3.ZodOptional<T> | z3.ZodNullable<T> | z3.ZodDefault<T> | z3.ZodEffects<EffectType<T, DecrementDepth<D>>, unknown, unknown>
 
+/**
+ * @deprecated Not used by the library. Kept for deep imports of this file.
+ */
 export type $EffectType<T extends z4.$ZodType, D extends Depth[number] = 10>
     = D extends 0
         ? T
@@ -25,11 +32,20 @@ export type $EffectType<T extends z4.$ZodType, D extends Depth[number] = 10>
 // FormSchema garantisce sempre la presenza di safeParse
 export type FormSchema = z3.ZodTypeAny | z4.$ZodType
 
-export type InferSchema<T extends FormSchema> = T extends EffectType<z3.AnyZodObject>
+/*
+ * The types below take any Zod 3 schema (a subclass of its `ZodType`) down the Zod 3
+ * branch, which a Zod 4 schema, classic or mini, never is: the same split `isZod4Schema()`
+ * makes at runtime by the `_zod` property. Matching Zod 3 against a list of wrappers
+ * around an object instead (`EffectType`) sent every other Zod 3 schema (a preprocess,
+ * `.pipe()`, `.catch()`, `.brand()`, a union, an optional refined object) to the Zod 4
+ * branch, which read it as `unknown` and typed the `name` of every `VvFormField` `never`.
+ */
+
+export type InferSchema<T extends FormSchema> = T extends z3.ZodTypeAny
     ? z3.z.infer<T>
     : z4.infer<T>
 
-export type InferFormattedError<T extends FormSchema> = T extends EffectType<z3.AnyZodObject>
+export type InferFormattedError<T extends FormSchema> = T extends z3.ZodTypeAny
     ? z3.z.inferFormattedError<T>
     : z4.$ZodFormattedError<T>
 
@@ -44,7 +60,7 @@ export type SuperRefine<Schema extends FormSchema> = (
     ctx: RefinementCtx<Schema>,
 ) => void | Promise<void>
 
-export type VvZodError<T extends FormSchema> = T extends EffectType<z3.AnyZodObject>
+export type VvZodError<T extends FormSchema> = T extends z3.ZodTypeAny
     ? z3.ZodError<T>
     : z4.$ZodError<T>
 
@@ -81,9 +97,12 @@ export type FormComposableOptions<Schema, Type> = FormFieldComponentOptions
         scope?: string
     }
 
-type FormPluginOptionsSchema<T = Partial<InferSchema<FormSchema>>> = {
+// The plugin knows no schema when it is typed, so the data its factory handles is
+// `unknown`. `InferSchema<FormSchema>` would now give `any`, which Zod 3 infers from its
+// bare `ZodTypeAny`, and `Partial<any>` rejects a factory that returns a primitive.
+type FormPluginOptionsSchema<T = Partial<unknown>> = {
     schema?: FormSchema
-    factory?: (data?: Partial<InferSchema<FormSchema>>) => T
+    factory?: (data?: Partial<unknown>) => T
 }
 
 export type FormPluginOptions = FormPluginOptionsSchema

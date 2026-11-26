@@ -2,11 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.1.10] - 2026-11-26
 
 ### Fixed
 
-- A Zod 3 schema wrapped in `z.preprocess()` is now inferred as its object. A preprocess takes `unknown` as input, so `InferSchema` did not recognise it as Zod 3 and read it as `unknown`: `formData` lost its type, and the `name` of every `VvFormField` was typed `never`, failing `vue-tsc` on a valid field. Zod 4 schemas, and Zod 3 ones refined with `refine`, `superRefine` or `transform`, were not affected.
+- A Zod 3 schema wrapped in `z.preprocess()` is now inferred as its object, and any other Zod 3 schema as the data Zod 3 infers for it. `InferSchema` recognised Zod 3 by a list of wrappers around an object (`.optional()`, `.nullable()`, `.default()`, and `refine`, `superRefine` or `transform` on top of them) and read any other Zod 3 schema as `unknown`: `formData` lost its type, and the `name` of every `VvFormField` was typed `never`, failing `vue-tsc` on a valid field. A preprocess missed the list because it takes `unknown` as input; `.pipe()`, `.catch()`, `.brand()`, `.readonly()`, `z.lazy()`, unions, intersections, a schema annotated as `z.ZodType<T>` and an optional refined or preprocessed object were not in it at all. Zod 4 schemas were not affected.
+- The formatted errors of a Zod 4 schema are now typed from the data it parses, as they already were with Zod 3. `InferFormattedError` handed Zod 4 the schema itself, so the tree had the keys of the schema object (`shape`, `def`, `~standard`) and `errors.value?.email` failed to type-check. This applies to `errors` from `useForm()`, the `onInvalid` option and the `errors` and `formErrors` of the slots. Like `formData`, the tree follows the schema's output, so after a `.transform()` that reshapes the data it lists the reshaped fields. The values at runtime were already right.
+
+### Changed
+
+- A form whose schema is typed as the bare `ZodTypeAny` of Zod 3 now gets the `any` that Zod 3 infers for it as its data, instead of `unknown`. In the options of `createForm()`, whose schema can be any `FormSchema`, the `onSubmit`, `onValid`, `onReset` and `onUpdate` options therefore also accept a callback that takes `Partial<any>`, while `factory` keeps its `Partial<unknown>` type.
+- `EffectType` and `$EffectType` in `src/types.ts` are deprecated, since the library no longer uses them. Neither is exported from the package entry.
 
 ## [1.1.9] - 2026-11-16
 
@@ -273,7 +279,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
-[Unreleased]: https://github.com/volverjs/form-vue/compare/v1.1.9...HEAD
+[1.1.10]: https://github.com/volverjs/form-vue/compare/v1.1.9...v1.1.10
 [1.1.9]: https://github.com/volverjs/form-vue/compare/v1.1.8...v1.1.9
 [1.1.8]: https://github.com/volverjs/form-vue/compare/v1.1.7...v1.1.8
 [1.1.7]: https://github.com/volverjs/form-vue/compare/v1.1.6...v1.1.7

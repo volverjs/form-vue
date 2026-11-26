@@ -9,14 +9,14 @@ type DecrementDepth<D extends Depth[number]> = Depth[D]
 
 /**
  * No longer used by the library, which now matches any Zod 3 schema (see
- * {@link InferSchema}). Kept for deep imports of this file, without a `@deprecated` tag:
- * the type refers to itself, which static analysis reports as a deprecated usage.
+ * {@link InferSchema}). Kept as it was in 1.1.9 for deep imports of this file, without a
+ * `@deprecated` tag: the type refers to itself, which static analysis reports as a
+ * deprecated usage.
  */
 export type EffectType<T extends z3.ZodTypeAny, D extends Depth[number] = 10>
     = D extends 0
         ? T
-        // a preprocess takes `unknown` as input: with the defaults of `ZodEffects` it would not match
-        : T | z3.ZodOptional<T> | z3.ZodNullable<T> | z3.ZodDefault<T> | z3.ZodEffects<EffectType<T, DecrementDepth<D>>, unknown, unknown>
+        : T | z3.ZodOptional<T> | z3.ZodNullable<T> | z3.ZodDefault<T> | z3.ZodEffects<EffectType<T, DecrementDepth<D>>>
 
 /**
  * Not used by the library. Kept for deep imports of this file, like {@link EffectType}.

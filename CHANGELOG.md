@@ -7,12 +7,12 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - A Zod 3 schema wrapped in `z.preprocess()` is now inferred as its object, and any other Zod 3 schema as the data Zod 3 infers for it. `InferSchema` recognised Zod 3 by a list of wrappers around an object (`.optional()`, `.nullable()`, `.default()`, and `refine`, `superRefine` or `transform` on top of them) and read any other Zod 3 schema as `unknown`: `formData` lost its type, and the `name` of every `VvFormField` was typed `never`, failing `vue-tsc` on a valid field. A preprocess missed the list because it takes `unknown` as input; `.pipe()`, `.catch()`, `.brand()`, `.readonly()`, `z.lazy()`, unions, intersections, a schema annotated as `z.ZodType<T>` and an optional refined or preprocessed object were not in it at all. Zod 4 schemas were not affected.
-- The formatted errors of a Zod 4 schema are now typed from the data it parses, as they already were with Zod 3. `InferFormattedError` handed Zod 4 the schema itself, so the tree had the keys of the schema object (`shape`, `def`, `~standard`) and `errors.value?.email` failed to type-check. This applies to `errors` from `useForm()`, the `onInvalid` option and the `errors` and `formErrors` of the slots. Like `formData`, the tree follows the schema's output, so after a `.transform()` that reshapes the data it lists the reshaped fields. The values at runtime were already right.
+- The formatted errors of a Zod 4 schema are now typed from the data it parses, as they already were with Zod 3. `InferFormattedError` handed Zod 4 the schema itself, so the tree had the keys of the schema object (`shape`, `def`, `~standard`) and `errors.value?.email` failed to type-check. This applies to `errors` from `useForm()`, the `onInvalid` option and the `errors` and `formErrors` of the slots. Like `formData`, the type follows the schema's output, so after a `.transform()` that reshapes the data it lists the reshaped fields; the errors at runtime keep the paths of the fields that failed, which a transform does not remap. The values at runtime were already right.
 
 ### Changed
 
 - A form whose schema is typed as the bare `ZodTypeAny` of Zod 3 now gets the `any` that Zod 3 infers for it as its data, instead of `unknown`. In the options of `createForm()`, whose schema can be any `FormSchema`, the `onSubmit`, `onValid`, `onReset` and `onUpdate` options therefore also accept a callback that takes `Partial<any>`, while `factory` keeps its `Partial<unknown>` type.
-- The library no longer uses `EffectType` and `$EffectType` in `src/types.ts`. They stay for deep imports of that file; neither is exported from the package entry.
+- The library no longer uses `EffectType` and `$EffectType` in `src/types.ts`. They stay unchanged for deep imports of that file; neither is exported from the package entry.
 
 ## [1.1.9] - 2026-11-16
 

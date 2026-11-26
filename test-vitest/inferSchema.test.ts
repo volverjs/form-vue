@@ -4,8 +4,9 @@ import { describe, it, expectTypeOf } from 'vitest'
 import type { FormPluginOptions, InferFormattedError, InferSchema, Path } from '../src/types'
 
 /**
- * Type-level checks, run by `pnpm type-check`: `VvFormField` types its `name` from
- * `InferSchema`, so a schema it does not recognise leaves the fields with no valid name.
+ * Type-level checks, run by `pnpm type-check` (locally and in CI), since `vitest run`
+ * treats `expectTypeOf` as a no-op. `VvFormField` types its `name` from `InferSchema`, so
+ * a schema it does not recognise leaves the fields with no valid name.
  */
 
 type Data = { email: string }

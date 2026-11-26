@@ -25,6 +25,11 @@ jobs:
             - name: Build release
               run: pnpm build
 
+            # `pnpm build` reports type errors without failing, and `vitest run` treats
+            # `expectTypeOf` as a no-op: only `tsc` fails on either.
+            - name: Type-check
+              run: pnpm type-check
+
             - name: Install Playwright Chromium
               run: pnpm exec playwright install --with-deps
 

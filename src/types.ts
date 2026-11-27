@@ -77,23 +77,29 @@ export type FormFieldComponentOptions = {
     sideEffects?: (type: `${FormFieldType}`) => Promise<void> | void
 }
 
+/*
+ * `[Schema] extends [FormSchema]` does not distribute over a union of schemas: the plugin's
+ * `FormSchema` is one (Zod 3 or Zod 4), and so is `useForm(flag ? a : b)`. Distributing
+ * gave each callback a union of function types, from which TypeScript cannot type an
+ * unannotated parameter, so `onInvalid: error => ...` got an implicit `any`.
+ */
 export type FormComponentOptions<Schema, Type> = {
     updateThrottle?: number
     continuousValidation?: boolean
     readonly?: boolean
-    template?: Schema extends FormSchema ? FormTemplate<Schema, Type> : never
-    class?: Schema extends FormSchema ? new (data?: Partial<InferSchema<Schema>>) => Type : never
-    onUpdate?: Schema extends FormSchema
+    template?: [Schema] extends [FormSchema] ? FormTemplate<Schema, Type> : never
+    class?: [Schema] extends [FormSchema] ? new (data?: Partial<InferSchema<Schema>>) => Type : never
+    onUpdate?: [Schema] extends [FormSchema]
         ? (data?: undefined extends Type ? Partial<InferSchema<Schema>> : Type) => void
         : never
-    onSubmit?: Schema extends FormSchema
+    onSubmit?: [Schema] extends [FormSchema]
         ? (data?: undefined extends Type ? Partial<InferSchema<Schema>> : Type) => void
         : never
-    onReset?: Schema extends FormSchema ? (data?: undefined extends Type ? Partial<InferSchema<Schema>> : Type) => void : never
-    onInvalid?: Schema extends FormSchema
+    onReset?: [Schema] extends [FormSchema] ? (data?: undefined extends Type ? Partial<InferSchema<Schema>> : Type) => void : never
+    onInvalid?: [Schema] extends [FormSchema]
         ? (error?: InferFormattedError<Schema>) => void
         : never
-    onValid?: Schema extends FormSchema
+    onValid?: [Schema] extends [FormSchema]
         ? (data?: undefined extends Type ? Partial<InferSchema<Schema>> : Type) => void
         : never
 }
@@ -103,16 +109,20 @@ export type FormComposableOptions<Schema, Type> = FormFieldComponentOptions
         scope?: string
     }
 
-// The plugin knows no schema when it is typed, so the data its factory handles is
-// `unknown`. `InferSchema<FormSchema>` would now give `any`, which Zod 3 infers from its
-// bare `ZodTypeAny`, and `Partial<any>` rejects a factory that returns a primitive.
-type FormPluginOptionsSchema<T = Partial<unknown>> = {
+/**
+ * The options of `createForm()`. Its schema is not known when they are typed, so the data
+ * of the callbacks is that of any schema, and `class` may build any type: `Type` is
+ * `unknown`. It used to be the type of `factory`, so `class` only accepted a constructor
+ * whose instances were factory functions, and `createForm({ class: User })` failed.
+ */
+export type FormPluginOptions = FormComposableOptions<FormSchema, unknown> & {
     schema?: FormSchema
-    factory?: (data?: Partial<unknown>) => T
+    /**
+     * @deprecated Never read: the library builds the form data with `class`, in the plugin
+     * as in `useForm()`. Kept so options that set it still type-check.
+     */
+    factory?: (data?: Partial<unknown>) => Partial<unknown>
 }
-
-export type FormPluginOptions = FormPluginOptionsSchema
-    & FormComposableOptions<FormPluginOptionsSchema['schema'], FormPluginOptionsSchema['factory']>
 
 /**
  * The form actions whose signature does not depend on the schema. Slot types read them

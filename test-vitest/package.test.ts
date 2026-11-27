@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
@@ -96,6 +96,21 @@ describe.skipIf(!built)('published package', () => {
 
     it('type-checks for a CommonJS consumer (node16)', () => {
         expect(typeCheck('tsconfig.cjs.json')).toEqual([])
+    }, 60_000)
+
+    it('passes arethetypeswrong under every module resolution', () => {
+        // Packs the package and checks how TypeScript resolves it under node10, node16
+        // (from CommonJS and from ES modules) and bundler, including the modes the
+        // consumer fixture does not cover. Run against published versions, it reports
+        // an internal resolution error for 1.1.7 (#132) and a `require()` resolving to
+        // an ES module for 1.1.7 and 1.1.8 (#136).
+        const manifest = createRequire(import.meta.url).resolve('@arethetypeswrong/cli/package.json')
+        const attw = resolve(dirname(manifest), JSON.parse(readFileSync(manifest, 'utf8')).bin.attw)
+        const result = spawnSync(process.execPath, [attw, '--pack', '.', '--format', 'ascii', '--no-color'], {
+            cwd: root,
+            encoding: 'utf8',
+        })
+        expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
     }, 60_000)
 
     it('returns the exports from require()', async () => {

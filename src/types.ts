@@ -55,7 +55,14 @@ export type InferFormattedError<T extends FormSchema> = T extends z3.ZodTypeAny
     ? z3.z.inferFormattedError<T>
     : z4.$ZodFormattedError<z4.output<T>>
 
-export type RefinementCtx<T extends FormSchema> = z3.RefinementCtx | z4RefinementCtx<T>
+/**
+ * The context Zod hands to a refinement of `T`: Zod 3's own, or the Zod 4 one built on the
+ * parsed data, so `ctx.value` is that data. It used to be the union of both, built on the
+ * schema, so annotating `ctx` with either version's `RefinementCtx` failed to type-check.
+ */
+export type RefinementCtx<T extends FormSchema> = T extends z3.ZodTypeAny
+    ? z3.RefinementCtx
+    : z4RefinementCtx<z4.output<T>>
 
 /**
  * Ad-hoc cross-field validation, run on top of whatever the schema declares. Accepted
@@ -66,9 +73,13 @@ export type SuperRefine<Schema extends FormSchema> = (
     ctx: RefinementCtx<Schema>,
 ) => void | Promise<void>
 
+/**
+ * The parse error of `T`. Both versions type their error by the parsed data, not by the
+ * schema.
+ */
 export type VvZodError<T extends FormSchema> = T extends z3.ZodTypeAny
-    ? z3.ZodError<T>
-    : z4.$ZodError<T>
+    ? z3.ZodError<z3.z.infer<T>>
+    : z4.$ZodError<z4.output<T>>
 
 export type ZodIssue = z3.ZodIssue | z4.$ZodIssue
 

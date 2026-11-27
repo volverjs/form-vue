@@ -10,6 +10,7 @@ import type {
     InferSchema,
     InferFormattedError,
     SuperRefine,
+    VvZodError,
 } from './types.js'
 import {
     computed,
@@ -84,9 +85,12 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
         }
         const parseResult = await safeParseAsync(schemaFor(options?.superRefine), value)
         if (!parseResult.success) {
+            // The refined copy is typed as any `FormSchema`, but it is built from `schema`
+            // with the same Zod version, so its error is the one `schema` would raise.
+            const parseError = parseResult.error as VvZodError<Schema>
             if (!validateFields?.size) {
                 status.value = FormStatus.invalid
-                errors.value = formatError(schema, parseResult.error) as InferFormattedError<Schema>
+                errors.value = formatError(schema, parseError)
                 return false
             }
             const fieldsIssues = parseResult.error.issues.filter(item =>
@@ -101,7 +105,7 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
                 return true
             }
             status.value = FormStatus.invalid
-            errors.value = formatIssues(schema, parseResult.error, fieldsIssues) as InferFormattedError<Schema>
+            errors.value = formatIssues(schema, parseError, fieldsIssues)
             return false
         }
         errors.value = undefined

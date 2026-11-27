@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.11] - 2026-11-27
+
+### Fixed
+
+- `createForm({ class: User })`, as the README shows it, now type-checks. The options of `createForm()` used the type of their `factory` option as the type `class` builds, so `class` only accepted a constructor whose instances were factory functions. The class was already applied at runtime.
+- An unannotated callback in the options of `createForm()`, such as `onInvalid: error => ...`, no longer gets an implicit `any` parameter, and neither does one in the options of `useForm()` with a union of schemas (`useForm(flag ? a : b)`). The options were computed for each schema of the union, Zod 3 and Zod 4 in the plugin, which gave every callback a union of function types that TypeScript cannot type a parameter from. Such a callback now receives the data or the errors of either schema.
+- The `ctx` of an ad-hoc `superRefine` (the `VvForm` prop, or the option of `validate()` and `submit()`) is the refinement context of the schema's Zod version, and with Zod 4 it is built on the parsed data, so `ctx.value` is typed. It was the union of both versions, built on the schema: annotating `ctx` as `z.RefinementCtx` failed to type-check, and `ctx.value` did not exist.
+- `VvZodError` in `src/types.ts` is typed as each Zod version types the error of a failed parse, by the schema's input in Zod 3 and by its output in Zod 4, instead of by the schema itself.
+
+### Changed
+
+- Options typed explicitly as `FormComposableOptions<A | B, Type>` for a union of schemas take callbacks that accept the data of both, where a callback written for one of them type-checked before. Options passed straight to `useForm()` still accept it.
+- A `superRefine` for a Zod 4 schema whose `ctx` is annotated with the old type, the union of both versions' contexts built on the schema, no longer type-checks: annotate it as `z.RefinementCtx` or leave it to inference.
+
+### Deprecated
+
+- The `factory` option of `createForm()`. The library never read it: the form data is built with `class`, in the plugin as in `useForm()`. The skill shipped in `skills/` described `factory` as the plugin's way to build the data, and now describes `class`.
+
 ## [1.1.10] - 2026-11-27
 
 ### Fixed
@@ -279,6 +297,7 @@ Update docs with:
 - `formFactory` function to create a form from a Zod schema outside of a component.
 - README, CHANGELOG and LICENSE files.
 
+[1.1.11]: https://github.com/volverjs/form-vue/compare/v1.1.10...v1.1.11
 [1.1.10]: https://github.com/volverjs/form-vue/compare/v1.1.9...v1.1.10
 [1.1.9]: https://github.com/volverjs/form-vue/compare/v1.1.8...v1.1.9
 [1.1.8]: https://github.com/volverjs/form-vue/compare/v1.1.7...v1.1.8

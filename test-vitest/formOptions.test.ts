@@ -91,9 +91,19 @@ describe('the parse error', () => {
     const object3 = z3.object({ email: z3.string() })
     const object4 = z4.object({ email: z4.string() })
 
-    it('is typed by the parsed data', () => {
+    it('is typed by the data, as each version types a failed parse', () => {
         expectTypeOf<VvZodError<typeof object3>>().toEqualTypeOf<z3.ZodError<Data>>()
         expectTypeOf<VvZodError<typeof object4>>().toEqualTypeOf<z4.core.$ZodError<Data>>()
+        // A transform tells input from output: Zod 3 types the error by the input,
+        // Zod 4 by the output.
+        const reshaped3 = object3.transform(({ email }) => ({ contact: email }))
+        const reshaped4 = object4.transform(({ email }) => ({ contact: email }))
+        type Failed3 = Extract<ReturnType<typeof reshaped3.safeParse>, { success: false }>['error']
+        type Failed4 = Extract<ReturnType<typeof reshaped4.safeParse>, { success: false }>['error']
+        expectTypeOf<VvZodError<typeof reshaped3>>().toEqualTypeOf<Failed3>()
+        expectTypeOf<VvZodError<typeof reshaped3>>().toEqualTypeOf<z3.ZodError<Data>>()
+        expectTypeOf<VvZodError<typeof reshaped4>>().toExtend<z4.core.$ZodError<{ contact: string }>>()
+        expectTypeOf<Failed4>().toExtend<VvZodError<typeof reshaped4>>()
     })
 
     it('is the one of the schema\'s Zod version when formatted', () => {

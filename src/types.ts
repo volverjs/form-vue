@@ -74,11 +74,11 @@ export type SuperRefine<Schema extends FormSchema> = (
 ) => void | Promise<void>
 
 /**
- * The parse error of `T`. Both versions type their error by the parsed data, not by the
- * schema.
+ * The error of a failed parse of `T`, typed as each version types it: by the schema's
+ * input in Zod 3 (`SafeParseError<Input>`), by its output in Zod 4. Not by the schema.
  */
 export type VvZodError<T extends FormSchema> = T extends z3.ZodTypeAny
-    ? z3.ZodError<z3.z.infer<T>>
+    ? z3.ZodError<z3.z.input<T>>
     : z4.$ZodError<z4.output<T>>
 
 export type ZodIssue = z3.ZodIssue | z4.$ZodIssue

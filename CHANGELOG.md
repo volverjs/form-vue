@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 - `createForm({ class: User })`, as the README shows it, now type-checks. The options of `createForm()` used the type of their `factory` option as the type `class` builds, so `class` only accepted a constructor whose instances were factory functions. The class was already applied at runtime.
 - An unannotated callback in the options of `createForm()`, such as `onInvalid: error => ...`, no longer gets an implicit `any` parameter, and neither does one in the options of `useForm()` with a union of schemas (`useForm(flag ? a : b)`). The options were computed for each schema of the union, Zod 3 and Zod 4 in the plugin, which gave every callback a union of function types that TypeScript cannot type a parameter from. Such a callback now receives the data or the errors of either schema.
 - The `ctx` of an ad-hoc `superRefine` (the `VvForm` prop, or the option of `validate()` and `submit()`) is the refinement context of the schema's Zod version, and with Zod 4 it is built on the parsed data, so `ctx.value` is typed. It was the union of both versions, built on the schema: annotating `ctx` as `z.RefinementCtx` failed to type-check, and `ctx.value` did not exist.
-- `VvZodError` in `src/types.ts` is typed by the parsed data instead of the schema, as both Zod versions type their errors.
+- `VvZodError` in `src/types.ts` is typed as each Zod version types the error of a failed parse, by the schema's input in Zod 3 and by its output in Zod 4, instead of by the schema itself.
 
 ### Changed
 

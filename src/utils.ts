@@ -8,7 +8,7 @@ import {
 import { unref } from 'vue'
 import type * as z3 from 'zod/v3'
 import type * as z4 from 'zod/v4/core'
-import type { FormSchema, InferSchema, SuperRefine, VvZodError, ZodIssue } from './types.js'
+import type { FormSchema, InferFormattedError, InferSchema, SuperRefine, VvZodError, ZodIssue } from './types.js'
 
 // Helper function to determine the type of a value
 function _getValueType(value: unknown) {
@@ -527,11 +527,11 @@ export function withSuperRefine<Schema extends FormSchema>(schema: Schema, super
  * Formats a whole parse error into the nested `{ _errors: string[] }` tree that the
  * form components read, through whichever formatter the schema's Zod version provides.
  */
-export const formatError = <T extends FormSchema>(schema: T, error: VvZodError<T>) => {
+export const formatError = <T extends FormSchema>(schema: T, error: VvZodError<T>): InferFormattedError<T> => {
     if (isZod4Schema(schema)) {
-        return z4FormatError(error as z4.$ZodError<T>)
+        return z4FormatError(error as z4.$ZodError) as InferFormattedError<T>
     }
-    return (error as z3.ZodError<T>).format()
+    return (error as z3.ZodError).format() as InferFormattedError<T>
 }
 
 /**
@@ -542,9 +542,9 @@ export const formatError = <T extends FormSchema>(schema: T, error: VvZodError<T
  * importing it: the `ZodError` class is read off that instance rather than from
  * `zod/v3`, which would otherwise end up in the bundle of every consumer.
  */
-export const formatIssues = <T extends FormSchema>(schema: T, error: VvZodError<T>, issues: ZodIssue[]) => {
+export const formatIssues = <T extends FormSchema>(schema: T, error: VvZodError<T>, issues: ZodIssue[]): InferFormattedError<T> => {
     if (isZod4Schema(schema)) {
-        return z4FormatError(new $ZodError(issues as z4.$ZodIssue[]))
+        return z4FormatError(new $ZodError(issues as z4.$ZodIssue[])) as InferFormattedError<T>
     }
     // Zod 3 is supported without importing it: the `ZodError` class is read off the
     // instance the parse already produced. Importing it from `zod/v3` instead would
@@ -552,7 +552,7 @@ export const formatIssues = <T extends FormSchema>(schema: T, error: VvZodError<
     // and would hard-require the `zod/v3` subpath in the CJS and UMD builds.
     const ZodErrorClass = (error as z3.ZodError)
         .constructor as new (issues: z3.ZodIssue[]) => z3.ZodError
-    return new ZodErrorClass(issues as z3.ZodIssue[]).format()
+    return new ZodErrorClass(issues as z3.ZodIssue[]).format() as InferFormattedError<T>
 }
 
 /**

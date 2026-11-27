@@ -94,7 +94,6 @@ export const pluginInjectionKey = Symbol('pluginInjectionKey') as InjectionKey<F
 export function createForm(options: FormPluginOptions): Plugin & Partial<ReturnType<typeof useForm>> {
     let toReturn: Partial<ReturnType<typeof useForm>> = {}
     if (options.schema) {
-        // @ts-expect-error - options.schema is always defined
         toReturn = _formType(options.schema, options)
     }
     return {

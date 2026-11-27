@@ -8,14 +8,14 @@
 - [Programmatic submit / reset / validate](#programmatic)
 - [`readonly`](#readonly)
 - [`scope` singletons](#scope)
-- [Custom data class (`class` / `factory`)](#class)
+- [Custom data class (`class`)](#class)
 - [`VvFormWrapper`](#wrapper)
 
 <a id="options"></a>
 ## Options
 
 `createForm(options)` and `useForm(schema, options)` accept the same option set
-(the plugin also takes `schema` and `factory`). When `useForm` is called inside a
+(the plugin also takes `schema`). When `useForm` is called inside a
 component and a plugin is installed, options are **merged over the plugin defaults**.
 
 | Option | Type | Default | Meaning |
@@ -26,7 +26,7 @@ component and a plugin is installed, options are **merged over the plugin defaul
 | `readonly` | `boolean` | `false` | Start the form read-only. |
 | `sideEffects` | `(type) => void \| Promise<void>` | — | Called when a field type is (lazy) loaded; hook for side effects. |
 | `scope` | `string` | — | Return a singleton form instance keyed by this string (see [scope](#scope)). |
-| `class` | `new (data?) => Type` | — | Constructor used to wrap `formData` (composable). |
+| `class` | `new (data?) => Type` | — | Constructor used to wrap `formData`, in the composable and in the plugin. |
 | `template` | `FormTemplate` | — | Default template array/function used by `VvForm`/`VvFormTemplate`. |
 
 Plugin-only:
@@ -34,7 +34,7 @@ Plugin-only:
 | Option | Type | Meaning |
 | --- | --- | --- |
 | `schema` | `ZodType` | Schema shared app-wide. If omitted, the plugin only shares default options. |
-| `factory` | `(data?) => T` | Plugin equivalent of `class` — builds the form-data model object. |
+| `factory` | `(data?) => T` | Deprecated and never read: use `class`, as in the composable. |
 
 Install the plugin globally with the `global` install option so the components are
 registered as `VvForm` etc.:
@@ -162,7 +162,7 @@ sibling components (e.g. a multi-step wizard split across files). Omit `scope` f
 independent form per call.
 
 <a id="class"></a>
-## Custom data class (`class` / `factory`)
+## Custom data class (`class`)
 
 By default `formData` is a plain object. Pass a constructor to wrap it in a model:
 
@@ -178,7 +178,8 @@ const { VvForm, formData } = useForm(schema, { class: User })
 // formData.value instanceof User
 ```
 
-In the plugin use `factory: (data) => new User(data)` instead of `class`.
+The plugin takes the same option, `createForm({ class: User })`, which `useForm()` inherits
+when called inside a component. Its `factory` option is never read.
 
 <a id="wrapper"></a>
 ## `VvFormWrapper`

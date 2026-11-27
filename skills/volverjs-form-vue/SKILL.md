@@ -183,14 +183,14 @@ Each has a dedicated reference — open the one you need before writing real cod
 - **Programmatic submit:** `ref` the `VvForm` and call `formEl.value.submit()`, or call
   the `submit()` returned by `useForm()`. Both validate first and only emit `submit`
   (resolve `true`) when valid.
-- **Custom data class:** pass `class` (composable) / `factory` (plugin) to wrap
+- **Custom data class:** pass `class` (to `useForm()` or `createForm()`) to wrap
   `formData` in your own model type instead of a plain object. → `references/form.md`.
 
 ## Reference files
 
 - `references/form.md` — `createForm`/`useForm` options, `VvForm` props/events/slots/
   exposed methods, `VvFormWrapper`, the form context returned by `useForm`, `readonly`,
-  `scope`, `class`/`factory`.
+  `scope`, `class`.
 - `references/fields.md` — `VvFormField` (slot scope, `type`→ui-vue mapping, `:is`
   custom components, nesting, events) and `VvFormFieldsGroup` (`names` array/object map,
   slot scope, custom group components).

@@ -40,15 +40,16 @@ export function defineForm<Schema extends FormSchema, Type, FormTemplateComponen
     const readonly = ref<boolean>(false)
     let validateFields: Set<Path<InferSchema<Schema>>> | undefined
 
-    const formDataAdapter = (data?: InferSchema<Schema>): undefined extends Type ? Partial<InferSchema<Schema>> : Type => {
+    type AdaptedData = undefined extends Type ? Partial<InferSchema<Schema>> : Type
+    const formDataAdapter = (data?: InferSchema<Schema>): AdaptedData => {
         const toReturn = defaultObjectBySchema(schema, data)
         if (options?.class) {
-            const ClassObject = options.class
-            // @ts-expect-error - this is a class
-            return new ClassObject(toReturn)
+            // `class` is typed by a conditional on `Schema` that TypeScript cannot resolve
+            // inside this generic function, where it is always this constructor.
+            const ClassObject = options.class as new (data?: Partial<InferSchema<Schema>>) => Type
+            return new ClassObject(toReturn) as AdaptedData
         }
-        // @ts-expect-error - this is a plain object
-        return toReturn
+        return toReturn as AdaptedData
     }
 
     const refinedSchemas = new WeakMap<SuperRefine<Schema>, FormSchema>()

@@ -38,9 +38,9 @@ jobs:
               with:
                   node-version: 24
                   registry-url: https://registry.npmjs.org/
+            # npm Trusted Publishing authenticates through OIDC (`id-token: write` above),
+            # and signs the provenance statement: no npm token is needed.
             - run: npm publish $(ls *.tgz) --access=public --tag ${{ github.event.release.prerelease && 'next' || 'latest'}}
-              env:
-                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
     # Publish package to GPR
     publish-gpr:
